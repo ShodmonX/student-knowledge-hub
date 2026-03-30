@@ -1,0 +1,135 @@
+from __future__ import annotations
+
+from sqlalchemy import Select, func, or_, select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+
+from app.enums.material_status import MaterialStatus
+from app.models.faculty import Faculty
+from app.models.material import Material
+from app.models.material_file import MaterialFile
+from app.models.subject import Subject
+from app.models.university import University
+from app.models.user import User
+
+
+class MaterialRepository:
+    def __init__(self, session: AsyncSession) -> None:
+        self.session = session
+
+    async def get(self, material_id: str) -> Material | None:
+        result = await self.session.execute(
+            select(Material)
+            .where(Material.id == material_id)
+            .options(
+                selectinload(Material.files),
+                selectinload(Material.subject).selectinload(Subject.faculty).selectinload(Faculty.university),
+                selectinload(Material.uploader).selectinload(User.university),
+            )
+        )
+        return result.scalar_one_or_none()
+
+    async def get_many(self, material_ids: list[str]) -> list[Material]:
+        if not material_ids:
+            return []
+        result = await self.session.execute(
+            select(Material)
+            .where(Material.id.in_(material_ids), Material.deleted_at.is_(None))
+            .options(
+                selectinload(Material.files),
+                selectinload(Material.subject).selectinload(Subject.faculty).selectinload(Faculty.university),
+                selectinload(Material.uploader).selectinload(User.university),
+            )
+        )
+        items = {item.id: item for item in result.scalars().all()}
+        return [items[item_id] for item_id in material_ids if item_id in items]
+
+    async def create(self, material: Material) -> Material:
+        self.session.add(material)
+        await self.session.flush()
+        await self.session.refresh(material)
+        return material
+
+    async def list_for_owner(self, owner_id: str) -> list[Material]:
+        result = await self.session.execute(
+            select(Material)
+            .where(Material.uploaded_by == owner_id, Material.deleted_at.is_(None))
+            .options(
+                selectinload(Material.files),
+                selectinload(Material.subject).selectinload(Subject.faculty).selectinload(Faculty.university),
+                selectinload(Material.uploader).selectinload(User.university),
+            )
+            .order_by(Material.created_at.desc())
+        )
+        return list(result.scalars().all())
+
+    def build_filtered_query(self) -> Select[tuple[Material]]:
+        return (
+            select(Material)
+            .join(Subject, Subject.id == Material.subject_id)
+            .join(Faculty, Faculty.id == Subject.faculty_id)
+            .join(University, University.id == Faculty.university_id)
+            .options(
+                selectinload(Material.files),
+                selectinload(Material.subject).selectinload(Subject.faculty).selectinload(Faculty.university),
+                selectinload(Material.uploader).selectinload(User.university),
+            )
+            .where(Material.deleted_at.is_(None))
+        )
+
+    async def list_filtered(self, statement: Select[tuple[Material]], page: int, page_size: int):
+        count_stmt = select(func.count()).select_from(statement.subquery())
+        total = (await self.session.execute(count_stmt)).scalar_one()
+        result = await self.session.execute(
+            statement.offset((page - 1) * page_size).limit(page_size)
+        )
+        return list(result.scalars().all()), total
+
+    async def get_file_for_download(self, material_id: str, file_id: str) -> MaterialFile | None:
+        result = await self.session.execute(
+            select(MaterialFile).where(MaterialFile.material_id == material_id, MaterialFile.id == file_id)
+        )
+        return result.scalar_one_or_none()
+
+    @staticmethod
+    def apply_filters(statement: Select[tuple[Material]], query, include_text: bool = True):
+        if include_text and query.q:
+            statement = statement.where(
+                or_(
+                    Material.title.ilike(f"%{query.q}%"),
+                    Material.description.ilike(f"%{query.q}%"),
+                )
+            )
+        if query.subject_id:
+            statement = statement.where(Material.subject_id == query.subject_id)
+        if query.faculty_id:
+            statement = statement.where(Subject.faculty_id == query.faculty_id)
+        if query.university_id:
+            statement = statement.where(Faculty.university_id == query.university_id)
+        if query.material_type:
+            statement = statement.where(Material.material_type == query.material_type)
+        if query.semester:
+            statement = statement.where(Subject.semester == query.semester)
+        if getattr(query, "course", None):
+            statement = statement.where(Subject.semester == query.course)
+        if query.status:
+            statement = statement.where(Material.status == query.status)
+        if getattr(query, "only_approved", None):
+            statement = statement.where(Material.status == MaterialStatus.APPROVED)
+        if getattr(query, "is_public", None):
+            statement = statement.where(Material.status == MaterialStatus.APPROVED)
+        if getattr(query, "uploaded_by", None):
+            statement = statement.where(Material.uploaded_by == query.uploaded_by)
+        if getattr(query, "download_count_gte", None) is not None:
+            statement = statement.where(Material.download_count >= query.download_count_gte)
+        if getattr(query, "file_format", None):
+            statement = statement.where(Material.files.any(MaterialFile.file_ext == query.file_format.lower()))
+
+        order_map = {
+            "created_at_desc": Material.created_at.desc(),
+            "created_at_asc": Material.created_at.asc(),
+            "title_asc": Material.title.asc(),
+            "download_count_desc": Material.download_count.desc(),
+            "rating_desc": Material.download_count.desc(),
+        }
+        return statement.order_by(order_map.get(query.sort, Material.created_at.desc()))

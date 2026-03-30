@@ -2,9 +2,10 @@
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
 
 
-revision = "0003_catalog_proposals_and_home_university"
+revision = "0003_cat_prop_and_home_univer"
 down_revision = "0002_frontend_gap_features"
 branch_labels = None
 depends_on = None
@@ -12,12 +13,14 @@ depends_on = None
 
 def upgrade() -> None:
     bind = op.get_bind()
-    proposal_status = sa.Enum("PENDING", "APPROVED", "REJECTED", name="proposalstatus")
-    proposal_entity_type = sa.Enum(
+    proposal_status = postgresql.ENUM("PENDING", "APPROVED", "REJECTED", name="proposalstatus")
+    proposal_entity_type = postgresql.ENUM(
         "UNIVERSITY", "FACULTY", "SUBJECT", name="proposalentitytype"
     )
     proposal_status.create(bind, checkfirst=True)
+    proposal_status.create_type = False
     proposal_entity_type.create(bind, checkfirst=True)
+    proposal_entity_type.create_type = False
 
     op.add_column("users", sa.Column("university_changed_at", sa.DateTime(timezone=True), nullable=True))
 

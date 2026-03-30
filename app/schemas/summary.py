@@ -31,6 +31,12 @@ class PublicUserSummary(BaseModel):
     university: UniversitySummary | None = None
 
 
+class TagSummary(BaseModel):
+    id: str
+    name: str
+    slug: str
+
+
 class MaterialSummary(BaseModel):
     id: str
     title: str

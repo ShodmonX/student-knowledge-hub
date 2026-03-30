@@ -104,6 +104,7 @@ class UserService:
             .where(SavedMaterial.user_id == user.id, Material.deleted_at.is_(None))
             .options(
                 selectinload(Material.files),
+                selectinload(Material.tags),
                 selectinload(Material.subject).selectinload(Subject.faculty).selectinload(Faculty.university),
                 selectinload(Material.uploader).selectinload(User.university),
             )

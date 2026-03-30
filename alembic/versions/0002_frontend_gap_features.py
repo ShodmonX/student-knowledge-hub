@@ -2,6 +2,7 @@
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
 
 
 revision = "0002_frontend_gap_features"
@@ -12,7 +13,7 @@ depends_on = None
 
 def upgrade() -> None:
     bind = op.get_bind()
-    review_action = sa.Enum(
+    review_action = postgresql.ENUM(
         "SUBMITTED",
         "APPROVED",
         "REJECTED",
@@ -24,8 +25,9 @@ def upgrade() -> None:
         "TAKEDOWN",
         name="reviewaction",
     )
-    report_status = sa.Enum("OPEN", "RESOLVED", "DISMISSED", name="reportstatus")
+    report_status = postgresql.ENUM("OPEN", "RESOLVED", "DISMISSED", name="reportstatus")
     report_status.create(bind, checkfirst=True)
+    report_status.create_type = False
     op.execute("ALTER TYPE reviewaction ADD VALUE IF NOT EXISTS 'REQUESTED_REVISION'")
 
     op.add_column("users", sa.Column("avatar_url", sa.String(length=512), nullable=True))

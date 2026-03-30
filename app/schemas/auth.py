@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, EmailStr, Field
 
 from app.enums.user_role import UserRole
@@ -35,6 +37,17 @@ class ResetPasswordRequest(BaseModel):
 class ChangePasswordRequest(BaseModel):
     current_password: str
     new_password: str = Field(min_length=8, max_length=128)
+
+
+class AuthSessionRead(BaseModel):
+    id: str
+    jti: str
+    created_at: datetime
+    expires_at: datetime
+    used_at: datetime | None = None
+    revoked_at: datetime | None = None
+    replaced_by_jti: str | None = None
+    is_active: bool
 
 
 class TokenResponse(BaseModel):

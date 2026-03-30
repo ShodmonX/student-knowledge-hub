@@ -17,6 +17,7 @@ from app.models.user import User
 from app.schemas.material import MaterialRead
 from app.schemas.moderation import MoveSubjectRequest, RejectRequest
 from app.services.catalog_proposal_service import CatalogProposalService
+from app.services.material_service import MaterialService
 from app.services.moderation_service import ModerationService
 from app.utils.serializers import build_catalog_proposal_read, build_material_read
 
@@ -30,7 +31,7 @@ async def pending_materials(
 ) -> list[MaterialRead]:
     service = ModerationService(session)
     items = await service.list_pending(actor)
-    material_service = __import__("app.services.material_service", fromlist=["MaterialService"]).MaterialService(session)
+    material_service = MaterialService(session)
     ratings = await material_service.get_rating_snapshot([item.id for item in items])
     return [
         build_material_read(

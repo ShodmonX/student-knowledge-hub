@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
@@ -10,7 +10,11 @@ from app.dependencies.auth import get_current_user, get_optional_user
 from app.enums.material_type import MaterialType
 from app.models.user import User
 from app.schemas.comment import CommentCreate, CommentRead
-from app.schemas.material_file import AcceptedFileFormatsResponse
+from app.schemas.material_file import (
+    AcceptedFileFormatsResponse,
+    MaterialFileReorderRequest,
+    MaterialFileSelectionUpdate,
+)
 from app.schemas.material import (
     MaterialCreate,
     MaterialListQuery,
@@ -22,6 +26,8 @@ from app.schemas.material import (
 from app.schemas.rating import RatingCreate, RatingSummary
 from app.services.community_service import CommunityService
 from app.services.material_service import MaterialService
+from app.services.search_service import SearchService
+from app.services.storage_service import StorageDownload
 from app.utils.files import ALLOWED_EXTENSIONS, DOCUMENT_EXTENSIONS, IMAGE_EXTENSIONS
 from app.utils.serializers import build_comment_read, build_material_read
 
@@ -66,16 +72,29 @@ def _material_list_query(
     )
 
 
-async def _serialize_materials(service: MaterialService, materials: list) -> list[MaterialRead]:
+async def _serialize_materials(
+    service: MaterialService,
+    materials: list,
+    user: User | None = None,
+) -> list[MaterialRead]:
     ratings = await service.get_rating_snapshot([material.id for material in materials])
-    return [
-        build_material_read(
-            material,
-            average_rating=ratings.get(material.id, (0.0, 0))[0],
-            rating_count=ratings.get(material.id, (0.0, 0))[1],
+    serialized: list[MaterialRead] = []
+    for material in materials:
+        access = await service.get_material_access_context(material, user)
+        serialized.append(
+            build_material_read(
+                material,
+                average_rating=ratings.get(material.id, (0.0, 0))[0],
+                rating_count=ratings.get(material.id, (0.0, 0))[1],
+                access_level=access["access_level"],
+                can_download=access["can_download"],
+                can_preview=access["can_preview"],
+                requires_auth_for_download=access["requires_auth_for_download"],
+                preview_page_limit=access["preview_page_limit"],
+                include_sensitive_file_fields=False,
+            )
         )
-        for material in materials
-    ]
+    return serialized
 
 
 @router.post("", response_model=MaterialRead)
@@ -120,6 +139,49 @@ async def attach_files(
         }
         for item in attached
     ]
+
+
+@router.delete("/{material_id}/files/{file_id}", response_model=MaterialRead)
+async def delete_material_file(
+    material_id: str,
+    file_id: str,
+    user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> MaterialRead:
+    service = MaterialService(session)
+    material = await service.delete_file(material_id, file_id, user)
+    return (await _serialize_materials(service, [material], user))[0]
+
+
+@router.patch("/{material_id}/files/reorder", response_model=list[dict])
+async def reorder_material_files(
+    material_id: str,
+    payload: MaterialFileReorderRequest,
+    user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> list[dict]:
+    files = await MaterialService(session).reorder_files(material_id, payload.file_ids, user)
+    return [
+        {
+            "id": item.id,
+            "file_order": item.file_order,
+            "original_filename": item.original_filename,
+        }
+        for item in files
+    ]
+
+
+@router.patch("/{material_id}/files/{file_id}", response_model=MaterialRead)
+async def update_material_file_selection(
+    material_id: str,
+    file_id: str,
+    payload: MaterialFileSelectionUpdate,
+    user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> MaterialRead:
+    service = MaterialService(session)
+    material = await service.update_file_selection(material_id, file_id, payload.cover, payload.primary, user)
+    return (await _serialize_materials(service, [material], user))[0]
 
 
 @router.post("/{material_id}/submit", response_model=MaterialRead)
@@ -224,7 +286,6 @@ async def search_materials(
     page_size: int = 20,
     sort: str = "created_at_desc",
 ) -> dict:
-    service = MaterialService(session)
     query = _material_list_query(
         q,
         subject_id,
@@ -243,7 +304,8 @@ async def search_materials(
         page_size,
         sort,
     )
-    items, total = await service.list_public(query)
+    items, total = await SearchService(session).list_public(query)
+    service = MaterialService(session)
     return {
         "items": [item.model_dump() for item in await _serialize_materials(service, items)],
         "page": page,
@@ -275,15 +337,59 @@ async def material_stats_summary(
     return MaterialStatsSummary(**(await MaterialService(session).stats_summary()))
 
 
+@router.get("/sitemap.xml")
+async def materials_sitemap(
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> Response:
+    items = await MaterialService(session).list_sitemap_entries()
+    body = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ]
+    for item in items:
+        body.append("<url>")
+        body.append(f"<loc>{item['loc']}</loc>")
+        body.append(f"<lastmod>{item['lastmod']}</lastmod>")
+        body.append("</url>")
+    body.append("</urlset>")
+    return Response("\n".join(body), media_type="application/xml")
+
+
+async def _get_material_response(
+    identifier: str,
+    session: AsyncSession,
+    user: User | None,
+    lookup_field: str,
+) -> MaterialRead:
+    service = MaterialService(session)
+    material = await service.get_material_for_view(identifier, user, lookup_field)
+    return (await _serialize_materials(service, [material], user))[0]
+
+
+def _storage_download_response(download: StorageDownload):
+    if download.redirect_url:
+        return RedirectResponse(download.redirect_url, status_code=307)
+    if download.local_path:
+        return FileResponse(download.local_path)
+    raise RuntimeError("Storage download target is not available")
+
+
 @router.get("/{material_id}", response_model=MaterialRead)
 async def get_material(
     material_id: str,
     session: Annotated[AsyncSession, Depends(get_db_session)],
     user: User | None = Depends(get_optional_user),
 ) -> MaterialRead:
-    service = MaterialService(session)
-    material = await service.get_material_for_view(material_id, user)
-    return (await _serialize_materials(service, [material]))[0]
+    return await _get_material_response(material_id, session, user, "id")
+
+
+@router.get("/slug/{slug}", response_model=MaterialRead)
+async def get_material_by_slug(
+    slug: str,
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+    user: User | None = Depends(get_optional_user),
+) -> MaterialRead:
+    return await _get_material_response(slug, session, user, "slug")
 
 
 @router.get("/{material_id}/download")
@@ -292,8 +398,18 @@ async def download_material(
     session: Annotated[AsyncSession, Depends(get_db_session)],
     user: User | None = Depends(get_optional_user),
 ):
-    path = await MaterialService(session).prepare_download(material_id, None, user)
-    return FileResponse(path)
+    download = await MaterialService(session).prepare_download(material_id, None, user, "id")
+    return _storage_download_response(download)
+
+
+@router.get("/slug/{slug}/download")
+async def download_material_by_slug(
+    slug: str,
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+    user: User | None = Depends(get_optional_user),
+):
+    download = await MaterialService(session).prepare_download(slug, None, user, "slug")
+    return _storage_download_response(download)
 
 
 @router.get("/{material_id}/files/{file_id}/download")
@@ -303,8 +419,19 @@ async def download_material_file(
     session: Annotated[AsyncSession, Depends(get_db_session)],
     user: User | None = Depends(get_optional_user),
 ):
-    path = await MaterialService(session).prepare_download(material_id, file_id, user)
-    return FileResponse(path)
+    download = await MaterialService(session).prepare_download(material_id, file_id, user, "id")
+    return _storage_download_response(download)
+
+
+@router.get("/slug/{slug}/files/{file_id}/download")
+async def download_material_file_by_slug(
+    slug: str,
+    file_id: str,
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+    user: User | None = Depends(get_optional_user),
+):
+    download = await MaterialService(session).prepare_download(slug, file_id, user, "slug")
+    return _storage_download_response(download)
 
 
 @router.get("/{material_id}/files/{file_id}/preview")
@@ -314,8 +441,19 @@ async def preview_material_file(
     session: Annotated[AsyncSession, Depends(get_db_session)],
     user: User | None = Depends(get_optional_user),
 ):
-    path = await MaterialService(session).prepare_preview(material_id, file_id, user)
-    return FileResponse(path)
+    download = await MaterialService(session).prepare_preview(material_id, file_id, user, "id")
+    return _storage_download_response(download)
+
+
+@router.get("/slug/{slug}/files/{file_id}/preview")
+async def preview_material_file_by_slug(
+    slug: str,
+    file_id: str,
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+    user: User | None = Depends(get_optional_user),
+):
+    download = await MaterialService(session).prepare_preview(slug, file_id, user, "slug")
+    return _storage_download_response(download)
 
 
 @router.get("/{material_id}/related", response_model=list[MaterialRead])
@@ -413,3 +551,27 @@ async def report_material(
 ) -> dict[str, str]:
     await MaterialService(session).report_material(material_id, payload, user)
     return {"message": "Material reported"}
+
+
+@router.post("/{material_id}/tags/{tag_id}", response_model=MaterialRead)
+async def attach_material_tag(
+    material_id: str,
+    tag_id: str,
+    user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> MaterialRead:
+    service = MaterialService(session)
+    material = await service.attach_tag(material_id, tag_id, user)
+    return (await _serialize_materials(service, [material], user))[0]
+
+
+@router.delete("/{material_id}/tags/{tag_id}", response_model=MaterialRead)
+async def detach_material_tag(
+    material_id: str,
+    tag_id: str,
+    user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> MaterialRead:
+    service = MaterialService(session)
+    material = await service.detach_tag(material_id, tag_id, user)
+    return (await _serialize_materials(service, [material], user))[0]

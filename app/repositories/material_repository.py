@@ -23,6 +23,20 @@ class MaterialRepository:
             .where(Material.id == material_id)
             .options(
                 selectinload(Material.files),
+                selectinload(Material.tags),
+                selectinload(Material.subject).selectinload(Subject.faculty).selectinload(Faculty.university),
+                selectinload(Material.uploader).selectinload(User.university),
+            )
+        )
+        return result.scalar_one_or_none()
+
+    async def get_by_slug(self, slug: str) -> Material | None:
+        result = await self.session.execute(
+            select(Material)
+            .where(Material.slug == slug)
+            .options(
+                selectinload(Material.files),
+                selectinload(Material.tags),
                 selectinload(Material.subject).selectinload(Subject.faculty).selectinload(Faculty.university),
                 selectinload(Material.uploader).selectinload(User.university),
             )
@@ -37,6 +51,7 @@ class MaterialRepository:
             .where(Material.id.in_(material_ids), Material.deleted_at.is_(None))
             .options(
                 selectinload(Material.files),
+                selectinload(Material.tags),
                 selectinload(Material.subject).selectinload(Subject.faculty).selectinload(Faculty.university),
                 selectinload(Material.uploader).selectinload(User.university),
             )
@@ -56,6 +71,7 @@ class MaterialRepository:
             .where(Material.uploaded_by == owner_id, Material.deleted_at.is_(None))
             .options(
                 selectinload(Material.files),
+                selectinload(Material.tags),
                 selectinload(Material.subject).selectinload(Subject.faculty).selectinload(Faculty.university),
                 selectinload(Material.uploader).selectinload(User.university),
             )
@@ -71,6 +87,7 @@ class MaterialRepository:
             .join(University, University.id == Faculty.university_id)
             .options(
                 selectinload(Material.files),
+                selectinload(Material.tags),
                 selectinload(Material.subject).selectinload(Subject.faculty).selectinload(Faculty.university),
                 selectinload(Material.uploader).selectinload(User.university),
             )
@@ -90,6 +107,17 @@ class MaterialRepository:
             select(MaterialFile).where(MaterialFile.material_id == material_id, MaterialFile.id == file_id)
         )
         return result.scalar_one_or_none()
+
+    async def list_approved_for_sitemap(self) -> list[Material]:
+        result = await self.session.execute(
+            select(Material)
+            .where(
+                Material.deleted_at.is_(None),
+                Material.status == MaterialStatus.APPROVED,
+            )
+            .order_by(Material.updated_at.desc())
+        )
+        return list(result.scalars().all())
 
     @staticmethod
     def apply_filters(statement: Select[tuple[Material]], query, include_text: bool = True):

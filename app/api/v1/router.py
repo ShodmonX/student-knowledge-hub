@@ -10,6 +10,7 @@ from app.api.v1 import (
     moderation,
     notifications,
     subjects,
+    tags,
     universities,
     users,
 )
@@ -21,6 +22,7 @@ api_router.include_router(catalog_proposals.router, prefix="/catalog-proposals",
 api_router.include_router(universities.router, prefix="/universities", tags=["universities"])
 api_router.include_router(faculties.router, prefix="/faculties", tags=["faculties"])
 api_router.include_router(subjects.router, prefix="/subjects", tags=["subjects"])
+api_router.include_router(tags.router, prefix="/tags", tags=["tags"])
 api_router.include_router(materials.router, prefix="/materials", tags=["materials"])
 api_router.include_router(comments.router, prefix="/comments", tags=["comments"])
 api_router.include_router(notifications.router, prefix="/notifications", tags=["notifications"])

@@ -13,6 +13,7 @@ class MaterialFile(UUIDPrimaryKeyMixin, TimestampMixin, Base):
 
     material_id: Mapped[str] = mapped_column(ForeignKey("materials.id"), nullable=False, index=True)
     storage_key: Mapped[str] = mapped_column(String(512), nullable=False, unique=True)
+    preview_storage_key: Mapped[str | None] = mapped_column(String(512), nullable=True, unique=True)
     original_filename: Mapped[str] = mapped_column(String(255), nullable=False)
     mime_type: Mapped[str] = mapped_column(String(128), nullable=False)
     file_size: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -21,5 +22,6 @@ class MaterialFile(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     file_order: Mapped[int] = mapped_column(Integer, nullable=False)
     checksum_hash: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     is_previewable: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    preview_page_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     material = relationship("Material", back_populates="files", foreign_keys=[material_id])

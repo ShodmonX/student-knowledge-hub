@@ -2,7 +2,7 @@
 
 from alembic import op
 import sqlalchemy as sa
-
+from sqlalchemy.dialects import postgresql
 
 revision = "0001_initial_schema"
 down_revision = None
@@ -11,12 +11,12 @@ depends_on = None
 
 
 def upgrade() -> None:
-    user_role = sa.Enum("STUDENT", "MODERATOR", "ADMIN", name="userrole")
-    material_status = sa.Enum("DRAFT", "PENDING_REVIEW", "APPROVED", "REJECTED", name="materialstatus")
-    material_type = sa.Enum(
+    user_role = postgresql.ENUM("STUDENT", "MODERATOR", "ADMIN", name="userrole")
+    material_status = postgresql.ENUM("DRAFT", "PENDING_REVIEW", "APPROVED", "REJECTED", name="materialstatus")
+    material_type = postgresql.ENUM(
         "BOOK", "NOTES", "SLIDES", "EXAM", "ASSIGNMENT", "LAB", "CHEATSHEET", "OTHER", name="materialtype"
     )
-    reject_reason = sa.Enum(
+    reject_reason = postgresql.ENUM(
         "WRONG_SUBJECT",
         "DUPLICATE",
         "UNREADABLE",
@@ -26,8 +26,8 @@ def upgrade() -> None:
         "OTHER",
         name="rejectreason",
     )
-    file_kind = sa.Enum("IMAGE", "DOCUMENT", "ARCHIVE", "OTHER", name="filekind")
-    review_action = sa.Enum(
+    file_kind = postgresql.ENUM("IMAGE", "DOCUMENT", "ARCHIVE", "OTHER", name="filekind")
+    review_action = postgresql.ENUM(
         "SUBMITTED",
         "APPROVED",
         "REJECTED",
@@ -41,11 +41,17 @@ def upgrade() -> None:
 
     bind = op.get_bind()
     user_role.create(bind, checkfirst=True)
+    user_role.create_type = False
     material_status.create(bind, checkfirst=True)
+    material_status.create_type = False
     material_type.create(bind, checkfirst=True)
+    material_type.create_type = False
     reject_reason.create(bind, checkfirst=True)
+    reject_reason.create_type = False
     file_kind.create(bind, checkfirst=True)
+    file_kind.create_type = False
     review_action.create(bind, checkfirst=True)
+    review_action.create_type = False
 
     op.create_table(
         "universities",

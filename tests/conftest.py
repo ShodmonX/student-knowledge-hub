@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 os.environ["DB_URL"] = "postgresql+asyncpg://postgres:postgres@127.0.0.1:5432/student_knowledge_hub"
 os.environ["JWT_SECRET_KEY"] = "test-secret"
+os.environ["STORAGE_BACKEND"] = "local"
 os.environ["STORAGE_ROOT"] = "./test_storage"
 
 from app.db.base import Base

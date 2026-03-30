@@ -16,6 +16,7 @@ class Material(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     __tablename__ = "materials"
 
     title: Mapped[str] = mapped_column(String(255), nullable=False)
+    slug: Mapped[str] = mapped_column(String(255), nullable=False, unique=True, index=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     material_type: Mapped[MaterialType] = mapped_column(Enum(MaterialType), nullable=False)
     status: Mapped[MaterialStatus] = mapped_column(Enum(MaterialStatus), default=MaterialStatus.DRAFT, index=True)

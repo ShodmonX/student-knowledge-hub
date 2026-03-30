@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import io
 from datetime import UTC, datetime, timedelta
-from pathlib import Path
+from uuid import uuid4
 
 from fastapi import UploadFile
 from sqlalchemy import func, select, update
@@ -9,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.cache import get_cache
 from app.core.config import get_settings
-from app.core.exceptions import ConflictError, PermissionDenied, ResourceNotFound, ValidationAppError
+from app.core.exceptions import AuthenticationError, ConflictError, PermissionDenied, ResourceNotFound, ValidationAppError
 from app.enums.file_kind import FileKind
 from app.enums.material_status import MaterialStatus
 from app.enums.report_status import ReportStatus
@@ -19,6 +20,7 @@ from app.models.material_file import MaterialFile
 from app.models.material_rating import MaterialRating
 from app.models.material_report import MaterialReport
 from app.models.material_review_log import MaterialReviewLog
+from app.models.tag import Tag
 from app.models.user import User
 from app.repositories.material_file_repository import MaterialFileRepository
 from app.repositories.material_repository import MaterialRepository
@@ -26,8 +28,11 @@ from app.repositories.material_review_log_repository import MaterialReviewLogRep
 from app.repositories.subject_repository import SubjectRepository
 from app.schemas.material import MaterialCreate, MaterialListQuery, MaterialReportCreate, MaterialUpdate
 from app.services.audit_service import AuditService
-from app.services.storage_service import StorageService
+from app.services.storage_service import StorageDownload, StorageService
 from app.utils.files import PREVIEWABLE_EXTENSIONS
+from app.utils.slug import slugify
+
+PDF_PREVIEW_PAGE_LIMIT = 2
 
 
 class MaterialService:
@@ -46,6 +51,7 @@ class MaterialService:
         await self._ensure_subject(payload.subject_id)
         material = Material(
             title=payload.title,
+            slug=await self._generate_unique_slug(payload.title),
             description=payload.description,
             material_type=payload.material_type,
             subject_id=payload.subject_id,
@@ -89,12 +95,19 @@ class MaterialService:
                 )
                 total_size += stored.file_size
                 if total_size > self.settings.upload_max_total_size:
-                    self.storage.delete(stored.storage_key)
+                    await self.storage.delete(stored.storage_key)
                     raise ValidationAppError("Total upload size exceeded")
                 stored_files.append(stored)
                 storage_keys.append(stored.storage_key)
             entities: list[MaterialFile] = []
             for index, (upload, stored) in enumerate(zip(uploads, stored_files)):
+                preview_storage_key = None
+                preview_page_count = None
+                if stored.file_ext == "pdf":
+                    preview_storage_key, preview_page_count = await self._build_pdf_preview(
+                        material.id,
+                        stored.storage_key,
+                    )
                 entities.append(
                     MaterialFile(
                         material_id=material.id,
@@ -108,6 +121,8 @@ class MaterialService:
                         checksum_hash=stored.checksum_hash,
                         is_previewable=stored.file_kind in {FileKind.IMAGE, FileKind.DOCUMENT}
                         and stored.file_ext in PREVIEWABLE_EXTENSIONS,
+                        preview_storage_key=preview_storage_key,
+                        preview_page_count=preview_page_count,
                     )
                 )
 
@@ -125,7 +140,7 @@ class MaterialService:
             return entities
         except Exception:
             await self.session.rollback()
-            self.storage.delete_many(storage_keys)
+            await self.storage.delete_many(storage_keys)
             raise
 
     async def submit(self, material_id: str, user: User) -> Material:
@@ -158,14 +173,8 @@ class MaterialService:
         material = await self._get_owned_material(material_id, user.id)
         if payload.subject_id:
             await self._ensure_subject(payload.subject_id)
-        if material.status == MaterialStatus.PENDING_REVIEW:
-            raise ConflictError("Pending review material must be withdrawn before editing")
-        if material.status == MaterialStatus.APPROVED:
-            material.status = MaterialStatus.PENDING_REVIEW
-            material.submitted_at = datetime.now(UTC)
-            await self.logs.create(
-                MaterialReviewLog(material_id=material.id, action=ReviewAction.RESUBMITTED, actor_id=user.id)
-            )
+        self._ensure_material_is_editable(material)
+        await self._mark_material_for_rereview_if_needed(material, user.id)
         for field, value in payload.model_dump(exclude_unset=True).items():
             setattr(material, field, value)
         await self.session.commit()
@@ -178,8 +187,13 @@ class MaterialService:
         await self.session.commit()
         await self._invalidate_material_caches()
 
-    async def get_material_for_view(self, material_id: str, user: User | None = None) -> Material:
-        material = await self.materials.get(material_id)
+    async def get_material_for_view(
+        self,
+        identifier: str,
+        user: User | None = None,
+        lookup_field: str = "id",
+    ) -> Material:
+        material = await self._get_material(identifier, lookup_field)
         if not material or material.deleted_at is not None:
             raise ResourceNotFound("Material not found")
         if material.status == MaterialStatus.APPROVED:
@@ -190,15 +204,119 @@ class MaterialService:
             raise PermissionDenied("You do not have access to this material")
         return material
 
+    async def get_material_by_slug_for_view(self, slug: str, user: User | None = None) -> Material:
+        return await self.get_material_for_view(slug, user, lookup_field="slug")
+
     async def list_for_user(self, user: User) -> list[Material]:
         return await self.materials.list_for_owner(user.id)
 
     async def list_public(self, query: MaterialListQuery):
-        if not query.status:
-            query.status = MaterialStatus.APPROVED
+        query.status = MaterialStatus.APPROVED
         statement = self.materials.build_filtered_query()
         statement = self.materials.apply_filters(statement, query)
         return await self.materials.list_filtered(statement, query.page, query.page_size)
+
+    async def attach_tag(self, material_id: str, tag_id: str, user: User) -> Material:
+        material = await self._get_owned_material(material_id, user.id)
+        tag = await self.session.get(Tag, tag_id)
+        if not tag:
+            raise ResourceNotFound("Tag not found")
+        if any(existing.id == tag.id for existing in material.tags):
+            return material
+        self._ensure_material_is_editable(material)
+        await self._mark_material_for_rereview_if_needed(material, user.id)
+        material.tags.append(tag)
+        await self.session.commit()
+        await self._invalidate_material_caches()
+        return await self.materials.get(material.id)
+
+    async def detach_tag(self, material_id: str, tag_id: str, user: User) -> Material:
+        material = await self._get_owned_material(material_id, user.id)
+        tag = next((item for item in material.tags if item.id == tag_id), None)
+        if not tag:
+            raise ResourceNotFound("Tag not attached to material")
+        self._ensure_material_is_editable(material)
+        await self._mark_material_for_rereview_if_needed(material, user.id)
+        material.tags.remove(tag)
+        await self.session.commit()
+        await self._invalidate_material_caches()
+        return await self.materials.get(material.id)
+
+    async def delete_file(self, material_id: str, file_id: str, user: User) -> Material:
+        material = await self._get_owned_material(material_id, user.id)
+        files = await self.files.list_by_material(material.id)
+        target = next((item for item in files if item.id == file_id), None)
+        if not target:
+            raise ResourceNotFound("Material file not found")
+        self._ensure_material_is_editable(material)
+        await self._mark_material_for_rereview_if_needed(material, user.id)
+
+        remaining = [item for item in files if item.id != target.id]
+        for index, item in enumerate(remaining):
+            item.file_order = index
+        fallback_id = remaining[0].id if remaining else None
+        if material.cover_file_id == target.id:
+            material.cover_file_id = fallback_id
+        if material.primary_file_id == target.id:
+            material.primary_file_id = fallback_id
+
+        material.file_count = max(0, material.file_count - 1)
+        material.total_size = max(0, material.total_size - target.file_size)
+        refreshed_material_id = material.id
+        await self.session.delete(target)
+        await self.session.commit()
+        self.session.expire_all()
+        await self._best_effort_delete_storage_keys(
+            [key for key in [target.storage_key, target.preview_storage_key] if key]
+        )
+        await self._invalidate_material_caches()
+        return await self.materials.get(refreshed_material_id)
+
+    async def reorder_files(self, material_id: str, file_ids: list[str], user: User) -> list[MaterialFile]:
+        material = await self._get_owned_material(material_id, user.id)
+        files = await self.files.list_by_material(material.id)
+        existing_ids = [item.id for item in files]
+        if len(file_ids) != len(existing_ids) or set(file_ids) != set(existing_ids):
+            raise ValidationAppError("file_ids must include every existing material file exactly once")
+        self._ensure_material_is_editable(material)
+        await self._mark_material_for_rereview_if_needed(material, user.id)
+        file_map = {item.id: item for item in files}
+        for index, file_id in enumerate(file_ids):
+            file_map[file_id].file_order = index
+        await self.session.commit()
+        await self._invalidate_material_caches()
+        return await self.files.list_by_material(material.id)
+
+    async def update_file_selection(
+        self,
+        material_id: str,
+        file_id: str,
+        cover: bool | None,
+        primary: bool | None,
+        user: User,
+    ) -> Material:
+        material = await self._get_owned_material(material_id, user.id)
+        files = await self.files.list_by_material(material.id)
+        if not any(item.id == file_id for item in files):
+            raise ResourceNotFound("Material file not found")
+        if cover is None and primary is None:
+            raise ValidationAppError("At least one of cover or primary must be provided")
+        self._ensure_material_is_editable(material)
+        await self._mark_material_for_rereview_if_needed(material, user.id)
+
+        if cover is True:
+            material.cover_file_id = file_id
+        elif cover is False and material.cover_file_id == file_id:
+            material.cover_file_id = None
+
+        if primary is True:
+            material.primary_file_id = file_id
+        elif primary is False and material.primary_file_id == file_id:
+            material.primary_file_id = None
+
+        await self.session.commit()
+        await self._invalidate_material_caches()
+        return await self.materials.get(material.id)
 
     async def report_material(self, material_id: str, payload: MaterialReportCreate, user: User) -> None:
         material = await self.materials.get(material_id)
@@ -224,8 +342,16 @@ class MaterialService:
         await self.audit.log("material_reported", "material_report", user, material.id, payload.reason)
         await self.session.commit()
 
-    async def prepare_download(self, material_id: str, file_id: str | None, user: User | None = None) -> Path:
-        material = await self.get_material_for_view(material_id, user)
+    async def prepare_download(
+        self,
+        identifier: str,
+        file_id: str | None,
+        user: User | None = None,
+        lookup_field: str = "id",
+    ) -> StorageDownload:
+        material = await self.get_material_for_view(identifier, user, lookup_field)
+        if material.status == MaterialStatus.APPROVED and user is None:
+            raise AuthenticationError("Authentication is required to download this material")
         file_entry = (
             await self.files.get(file_id)
             if file_id
@@ -233,7 +359,7 @@ class MaterialService:
         )
         if not file_entry or file_entry.material_id != material.id:
             raise ResourceNotFound("Material file not found")
-        if not self.storage.exists(file_entry.storage_key):
+        if not await self.storage.exists(file_entry.storage_key):
             raise ResourceNotFound("Stored file not found")
         await self.session.execute(
             update(Material)
@@ -243,16 +369,36 @@ class MaterialService:
         await self.session.commit()
         await self.cache.invalidate("materials:stats_summary")
         await self.cache.invalidate("materials:trending_ids")
-        return self.storage.open_for_download(file_entry.storage_key)
+        return await self.storage.resolve_for_download(file_entry.storage_key)
 
-    async def prepare_preview(self, material_id: str, file_id: str, user: User | None = None) -> Path:
-        material = await self.get_material_for_view(material_id, user)
+    async def prepare_preview(
+        self,
+        identifier: str,
+        file_id: str,
+        user: User | None = None,
+        lookup_field: str = "id",
+    ) -> StorageDownload:
+        material = await self.get_material_for_view(identifier, user, lookup_field)
         file_entry = await self.files.get(file_id)
         if not file_entry or file_entry.material_id != material.id:
             raise ResourceNotFound("Material file not found")
         if not file_entry.is_previewable:
             raise PermissionDenied("File is not previewable")
-        return self.storage.open_for_download(file_entry.storage_key)
+        if material.status == MaterialStatus.APPROVED and user is None:
+            if file_entry.file_kind == FileKind.IMAGE:
+                return await self.storage.resolve_for_download(file_entry.storage_key)
+            if file_entry.file_ext == "pdf":
+                if not file_entry.preview_storage_key:
+                    preview_storage_key, preview_page_count = await self._build_pdf_preview(
+                        material.id,
+                        file_entry.storage_key,
+                    )
+                    file_entry.preview_storage_key = preview_storage_key
+                    file_entry.preview_page_count = preview_page_count
+                    await self.session.commit()
+                return await self.storage.resolve_for_download(file_entry.preview_storage_key)
+            raise AuthenticationError("Authentication is required to preview this file")
+        return await self.storage.resolve_for_download(file_entry.storage_key)
 
     async def list_related(self, material_id: str) -> list[Material]:
         material = await self.materials.get(material_id)
@@ -357,11 +503,111 @@ class MaterialService:
             raise PermissionDenied("You do not own this material")
         return material
 
+    @staticmethod
+    def _ensure_material_is_editable(material: Material) -> None:
+        if material.status == MaterialStatus.PENDING_REVIEW:
+            raise ConflictError("Pending review material must be withdrawn before editing")
+
+    async def _mark_material_for_rereview_if_needed(self, material: Material, actor_id: str) -> None:
+        if material.status != MaterialStatus.APPROVED:
+            return
+        material.status = MaterialStatus.PENDING_REVIEW
+        material.submitted_at = datetime.now(UTC)
+        await self.logs.create(
+            MaterialReviewLog(material_id=material.id, action=ReviewAction.RESUBMITTED, actor_id=actor_id)
+        )
+
     async def _ensure_subject(self, subject_id: str) -> None:
         if not await self.subjects.get(subject_id):
             raise ResourceNotFound("Subject not found")
+
+    async def _get_material(self, identifier: str, lookup_field: str) -> Material | None:
+        if lookup_field == "slug":
+            return await self.materials.get_by_slug(identifier)
+        return await self.materials.get(identifier)
+
+    async def _generate_unique_slug(self, title: str) -> str:
+        base_slug = slugify(title)
+        slug = base_slug
+        suffix = 2
+        while await self.materials.get_by_slug(slug):
+            slug = f"{base_slug}-{suffix}"
+            suffix += 1
+        return slug
+
+    async def get_material_access_context(self, material: Material, user: User | None) -> dict[str, object]:
+        if material.status != MaterialStatus.APPROVED:
+            if user and user.role.value in {"admin", "moderator"}:
+                return self._build_access_context("moderator", True, True, False)
+            if user and material.uploaded_by == user.id:
+                return self._build_access_context("owner", True, True, False)
+            return self._build_access_context("restricted", False, False, True)
+
+        previewable_files = [file for file in material.files if file.is_previewable]
+        if user is None:
+            can_preview = any(
+                file.file_kind == FileKind.IMAGE or (file.file_ext == "pdf")
+                for file in previewable_files
+            )
+            preview_page_limit = PDF_PREVIEW_PAGE_LIMIT if any(file.file_ext == "pdf" for file in previewable_files) else None
+            return self._build_access_context("public", False, can_preview, True, preview_page_limit)
+
+        return self._build_access_context("authenticated", True, bool(previewable_files), False)
+
+    async def list_sitemap_entries(self) -> list[dict[str, str]]:
+        items = await self.materials.list_approved_for_sitemap()
+        base_url = self.settings.public_web_base_url.rstrip("/")
+        return [
+            {
+                "loc": f"{base_url}/materials/{item.slug}",
+                "lastmod": item.updated_at.date().isoformat(),
+            }
+            for item in items
+        ]
+
+    async def _build_pdf_preview(self, material_id: str, storage_key: str) -> tuple[str, int]:
+        try:
+            from pypdf import PdfReader, PdfWriter
+        except ImportError as exc:  # pragma: no cover - dependency declared at project level
+            raise ValidationAppError("PDF preview generation dependency is missing") from exc
+
+        source_bytes = await self.storage.read_bytes(storage_key)
+        reader = PdfReader(io.BytesIO(source_bytes))
+        page_count = min(len(reader.pages), PDF_PREVIEW_PAGE_LIMIT)
+        writer = PdfWriter()
+        for index in range(page_count):
+            writer.add_page(reader.pages[index])
+
+        buffer = io.BytesIO()
+        writer.write(buffer)
+        preview_storage_key = f"materials/{material_id}/previews/{uuid4()}.pdf"
+        await self.storage.save_bytes(buffer.getvalue(), preview_storage_key, "application/pdf")
+        return preview_storage_key, page_count
+
+    @staticmethod
+    def _build_access_context(
+        access_level: str,
+        can_download: bool,
+        can_preview: bool,
+        requires_auth_for_download: bool,
+        preview_page_limit: int | None = None,
+    ) -> dict[str, object]:
+        return {
+            "access_level": access_level,
+            "can_download": can_download,
+            "can_preview": can_preview,
+            "requires_auth_for_download": requires_auth_for_download,
+            "preview_page_limit": preview_page_limit,
+        }
 
     async def _invalidate_material_caches(self) -> None:
         await self.cache.invalidate("materials:stats_summary")
         await self.cache.invalidate("materials:trending_ids")
         await self.cache.invalidate_prefix("admin:dashboard_")
+
+    async def _best_effort_delete_storage_keys(self, storage_keys: list[str]) -> None:
+        for key in storage_keys:
+            try:
+                await self.storage.delete(key)
+            except Exception:
+                continue

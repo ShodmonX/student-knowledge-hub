@@ -5,7 +5,7 @@ import sqlalchemy as sa
 
 
 revision = "0004_refresh_token_sessions"
-down_revision = "0003_catalog_proposals_and_home_university"
+down_revision = "0003_cat_prop_and_home_univer"
 branch_labels = None
 depends_on = None
 

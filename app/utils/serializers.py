@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from app.models.material_file import MaterialFile
 from app.models.audit_log import AuditLog
 from app.models.catalog_proposal import FacultyProposal, SubjectProposal, UniversityProposal
 from app.models.comment import Comment
@@ -11,12 +12,14 @@ from app.schemas.audit import AuditLogRead
 from app.schemas.catalog_proposal import CatalogProposalRead
 from app.schemas.comment import CommentRead
 from app.schemas.material import MaterialRead
+from app.schemas.material_file import MaterialFileRead
 from app.schemas.report import MaterialReportRead
 from app.schemas.summary import (
     FacultySummary,
     MaterialSummary,
     PublicUserSummary,
     SubjectSummary,
+    TagSummary,
     UniversitySummary,
 )
 
@@ -38,10 +41,39 @@ def build_public_user_summary(user: User | None) -> PublicUserSummary | None:
     )
 
 
-def build_material_read(material: Material, average_rating: float = 0.0, rating_count: int = 0) -> MaterialRead:
+def build_material_file_read(file: MaterialFile, include_sensitive_fields: bool = False) -> MaterialFileRead:
+    return MaterialFileRead(
+        id=file.id,
+        material_id=file.material_id,
+        storage_key=file.storage_key if include_sensitive_fields else None,
+        preview_storage_key=file.preview_storage_key if include_sensitive_fields else None,
+        original_filename=file.original_filename,
+        mime_type=file.mime_type,
+        file_size=file.file_size,
+        file_ext=file.file_ext,
+        file_kind=file.file_kind,
+        file_order=file.file_order,
+        checksum_hash=file.checksum_hash if include_sensitive_fields else None,
+        is_previewable=file.is_previewable,
+        preview_page_count=file.preview_page_count,
+    )
+
+
+def build_material_read(
+    material: Material,
+    average_rating: float = 0.0,
+    rating_count: int = 0,
+    access_level: str = "public",
+    can_download: bool = False,
+    can_preview: bool = False,
+    requires_auth_for_download: bool = True,
+    preview_page_limit: int | None = None,
+    include_sensitive_file_fields: bool = False,
+) -> MaterialRead:
     subject = getattr(material, "subject", None)
     faculty = getattr(subject, "faculty", None) if subject else None
     university = getattr(faculty, "university", None) if faculty else None
+    material_tags = material.__dict__.get("tags", [])
     subject_summary = (
         SubjectSummary(
             id=subject.id,
@@ -65,6 +97,7 @@ def build_material_read(material: Material, average_rating: float = 0.0, rating_
     )
     return MaterialRead(
         id=material.id,
+        slug=material.slug,
         title=material.title,
         description=material.description,
         material_type=material.material_type,
@@ -83,13 +116,22 @@ def build_material_read(material: Material, average_rating: float = 0.0, rating_
         reviewed_at=material.reviewed_at,
         created_at=material.created_at,
         updated_at=material.updated_at,
-        files=[file for file in material.files],
+        files=[build_material_file_read(file, include_sensitive_file_fields) for file in material.files],
         uploader=build_public_user_summary(getattr(material, "uploader", None)),
         subject=subject_summary,
         faculty=faculty_summary,
         university=build_university_summary(university),
+        tags=[
+            TagSummary(id=tag.id, name=tag.name, slug=tag.slug)
+            for tag in material_tags
+        ],
         average_rating=average_rating,
         rating_count=rating_count,
+        access_level=access_level,
+        can_download=can_download,
+        can_preview=can_preview,
+        requires_auth_for_download=requires_auth_for_download,
+        preview_page_limit=preview_page_limit,
     )
 
 

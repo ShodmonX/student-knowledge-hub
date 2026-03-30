@@ -7,7 +7,7 @@ from app.enums.material_type import MaterialType
 from app.enums.reject_reason import RejectReason
 from app.schemas.common import ORMModel
 from app.schemas.material_file import MaterialFileRead
-from app.schemas.summary import FacultySummary, PublicUserSummary, SubjectSummary, UniversitySummary
+from app.schemas.summary import FacultySummary, PublicUserSummary, SubjectSummary, TagSummary, UniversitySummary
 
 
 class MaterialCreate(BaseModel):
@@ -54,6 +54,7 @@ class MaterialReportCreate(BaseModel):
 
 class MaterialRead(ORMModel):
     id: str
+    slug: str
     title: str
     description: str | None
     material_type: MaterialType
@@ -77,8 +78,14 @@ class MaterialRead(ORMModel):
     subject: SubjectSummary | None = None
     faculty: FacultySummary | None = None
     university: UniversitySummary | None = None
+    tags: list[TagSummary] = []
     average_rating: float = 0.0
     rating_count: int = 0
+    access_level: str = "public"
+    can_download: bool = False
+    can_preview: bool = False
+    requires_auth_for_download: bool = True
+    preview_page_limit: int | None = None
 
 
 class MaterialStatsSummary(BaseModel):

@@ -1,6 +1,6 @@
 import json
 from functools import lru_cache
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
@@ -32,7 +32,15 @@ class Settings(BaseSettings):
     upload_max_total_size: int = 50 * 1024 * 1024
     upload_max_file_count: int = 10
 
+    storage_backend: Literal["local", "s3"] = "local"
     storage_root: str = "./storage"
+    s3_bucket: str | None = None
+    s3_region: str | None = None
+    s3_endpoint_url: str | None = None
+    s3_access_key_id: str | None = None
+    s3_secret_access_key: str | None = None
+    s3_presigned_expiry_seconds: int = 300
+    public_web_base_url: str = "http://localhost:3000"
     redis_url: str | None = None
     cache_ttl_stats_seconds: int = 300
     cache_ttl_trending_seconds: int = 300
@@ -63,6 +71,32 @@ class Settings(BaseSettings):
             if stripped.startswith("["):
                 return json.loads(stripped)
             return [item.strip() for item in stripped.split(",") if item.strip()]
+        return value
+
+    @field_validator("storage_backend", mode="before")
+    @classmethod
+    def normalize_storage_backend(cls, value):
+        if isinstance(value, str):
+            normalized = value.strip().lower()
+            if normalized in {"spaces", "digitalocean-spaces", "do-spaces"}:
+                return "s3"
+            return normalized
+        return value
+
+    @field_validator("s3_endpoint_url", mode="before")
+    @classmethod
+    def normalize_s3_endpoint_url(cls, value):
+        if isinstance(value, str):
+            stripped = value.strip()
+            return stripped or None
+        return value
+
+    @field_validator("s3_bucket", "s3_region", "s3_access_key_id", "s3_secret_access_key", mode="before")
+    @classmethod
+    def normalize_optional_strings(cls, value):
+        if isinstance(value, str):
+            stripped = value.strip()
+            return stripped or None
         return value
 
 

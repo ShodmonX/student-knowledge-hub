@@ -116,10 +116,7 @@ class AuthService:
         self.session.add(reset_token)
         await self.audit.log("password_reset_requested", "user", user, user.id)
         await self.session.commit()
-        return {
-            "message": "If the account exists, reset instructions have been generated.",
-            "reset_token": token,
-        }
+        return {"message": "If the account exists, reset instructions have been generated."}
 
     async def reset_password(self, payload: ResetPasswordRequest) -> dict[str, str]:
         result = await self.session.execute(
@@ -140,6 +137,33 @@ class AuthService:
 
     async def revoke_user_sessions(self, user_id: str) -> None:
         await self._revoke_all_refresh_tokens(user_id)
+
+    async def list_sessions(self, user: User) -> list[RefreshTokenSession]:
+        result = await self.session.execute(
+            select(RefreshTokenSession)
+            .where(RefreshTokenSession.user_id == user.id)
+            .order_by(RefreshTokenSession.created_at.desc())
+        )
+        return list(result.scalars().all())
+
+    async def revoke_session(self, user: User, session_id: str) -> dict[str, str]:
+        result = await self.session.execute(
+            select(RefreshTokenSession).where(
+                RefreshTokenSession.id == session_id,
+                RefreshTokenSession.user_id == user.id,
+            )
+        )
+        token_session = result.scalar_one_or_none()
+        if not token_session:
+            raise ResourceNotFound("Session not found")
+        token_session.revoked_at = datetime.now(UTC)
+        await self.session.commit()
+        return {"message": "Session revoked"}
+
+    async def logout_all(self, user: User) -> dict[str, str]:
+        await self._revoke_all_refresh_tokens(user.id)
+        await self.session.commit()
+        return {"message": "All sessions revoked"}
 
     async def _issue_token_pair(self, user: User) -> dict[str, str]:
         access_token = create_access_token(user.id, user.role.value)

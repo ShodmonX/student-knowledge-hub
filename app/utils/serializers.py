@@ -1,20 +1,17 @@
 from __future__ import annotations
 
-from app.models.material_file import MaterialFile
-from app.models.audit_log import AuditLog
-from app.models.catalog_proposal import FacultyProposal, SubjectProposal, UniversityProposal
-from app.models.comment import Comment
-from app.models.material import Material
-from app.models.material_report import MaterialReport
-from app.models.university import University
-from app.models.user import User
-from app.schemas.audit import AuditLogRead
-from app.schemas.catalog_proposal import CatalogProposalRead
-from app.schemas.comment import CommentRead
-from app.schemas.material import MaterialRead
-from app.schemas.material_file import MaterialFileRead
-from app.schemas.report import MaterialReportRead
-from app.schemas.summary import (
+from app.modules.audit.models import AuditLog
+from app.modules.catalog.models import University
+from app.modules.catalog_proposals.models import FacultyProposal, SubjectProposal, UniversityProposal
+from app.modules.community.models import Comment
+from app.modules.materials.models import Material, MaterialFile, MaterialReport
+from app.modules.users.models import User
+from app.modules.audit.schemas import AuditLogRead
+from app.modules.admin.schemas import MaterialReportRead
+from app.modules.catalog_proposals.schemas import CatalogProposalRead
+from app.modules.community.schemas import CommentRead
+from app.modules.materials.schemas import MaterialFileRead, MaterialRead
+from app.shared.schemas.summary import (
     FacultySummary,
     MaterialSummary,
     PublicUserSummary,

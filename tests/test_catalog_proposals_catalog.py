@@ -1,18 +1,16 @@
 import pytest
 
 from app.core.exceptions import ConflictError, ResourceNotFound, ValidationAppError
-from app.enums.material_status import MaterialStatus
-from app.schemas.catalog_proposal import (
+from app.modules.materials.enums import MaterialStatus
+from app.modules.catalog_proposals.schemas import (
     FacultyProposalCreate,
     HomeUniversityUpdateRequest,
     SubjectProposalCreate,
     UniversityProposalCreate,
 )
-from app.schemas.faculty import FacultyCreate, FacultyUpdate
-from app.schemas.subject import SubjectCreate, SubjectUpdate
-from app.schemas.university import UniversityCreate, UniversityUpdate
-from app.services.catalog_proposal_service import CatalogProposalService
-from app.services.catalog_service import CatalogService
+from app.modules.catalog.schemas import FacultyCreate, FacultyUpdate, SubjectCreate, SubjectUpdate, UniversityCreate, UniversityUpdate
+from app.modules.catalog.service import CatalogService
+from app.modules.catalog_proposals.service import CatalogProposalService
 from tests.helpers import (
     access_headers,
     seed_faculty,

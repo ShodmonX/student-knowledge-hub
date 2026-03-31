@@ -4,7 +4,7 @@ from pathlib import Path
 from zipfile import BadZipFile, ZipFile
 
 from app.core.exceptions import ValidationAppError
-from app.enums.file_kind import FileKind
+from app.modules.materials.enums import FileKind
 
 IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
 DOCUMENT_EXTENSIONS = {"pdf", "docx"}

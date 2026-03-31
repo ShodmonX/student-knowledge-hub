@@ -5,22 +5,18 @@ from fastapi import UploadFile
 from pypdf import PdfWriter
 
 from app.core.security import create_access_token, hash_password
-from app.enums.material_status import MaterialStatus
-from app.enums.material_type import MaterialType
-from app.enums.report_status import ReportStatus
-from app.enums.user_role import UserRole
-from app.models.faculty import Faculty
-from app.models.material_report import MaterialReport
-from app.models.moderator_scope import (
+from app.modules.materials.enums import MaterialStatus, MaterialType, ReportStatus
+from app.modules.users.enums import UserRole
+from app.modules.admin.scope_models import (
     ModeratorFacultyScope,
     ModeratorSubjectScope,
     ModeratorUniversityScope,
 )
-from app.models.subject import Subject
-from app.models.university import University
-from app.models.user import User
-from app.schemas.material import MaterialCreate
-from app.services.material_service import MaterialService
+from app.modules.catalog.models import Faculty, Subject, University
+from app.modules.materials.models import MaterialReport
+from app.modules.users.models import User
+from app.modules.materials.schemas import MaterialCreate
+from app.modules.materials.service import MaterialService
 from app.utils.slug import slugify
 
 

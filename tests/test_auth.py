@@ -6,20 +6,15 @@ from sqlalchemy import func, select
 
 from app.core.exceptions import ConflictError
 from app.core.security import create_access_token, hash_password
-from app.enums.material_status import MaterialStatus
-from app.enums.material_type import MaterialType
-from app.enums.user_role import UserRole
-from app.models.faculty import Faculty
-from app.models.subject import Subject
-from app.models.university import University
-from app.models.user import User
-from app.schemas.faculty import FacultyCreate
-from app.schemas.material import MaterialCreate
-from app.schemas.subject import SubjectCreate
-from app.schemas.university import UniversityCreate
-from app.services.catalog_service import CatalogService
-from app.services.material_service import MaterialService
-from app.services.seed_service import seed
+from app.modules.catalog.models import Faculty, Subject, University
+from app.modules.materials.enums import MaterialStatus, MaterialType
+from app.modules.users.enums import UserRole
+from app.modules.users.models import User
+from app.modules.catalog.schemas import FacultyCreate, SubjectCreate, UniversityCreate
+from app.modules.materials.schemas import MaterialCreate
+from app.bootstrap.seed_service import seed
+from app.modules.catalog.service import CatalogService
+from app.modules.materials.service import MaterialService
 from app.utils.slug import slugify
 
 

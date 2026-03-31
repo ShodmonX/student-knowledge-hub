@@ -4,9 +4,9 @@ from fastapi import UploadFile
 from app.core.cache import CacheService, RedisError
 from app.core.config import get_settings
 from app.core.exceptions import ConflictError, ResourceNotFound, ValidationAppError
-from app.enums.user_role import UserRole
-from app.models.notification import Notification
-from app.services.storage_service import StorageService
+from app.modules.notifications.models import Notification
+from app.modules.users.enums import UserRole
+from app.infrastructure.storage.service import StorageService
 from tests.helpers import access_headers, png_upload, seed_faculty, seed_material, seed_subject, seed_university, seed_user
 
 
@@ -244,8 +244,8 @@ async def test_user_service_save_and_unrate_error_paths(session):
     user = await seed_user(session, university.id, "error-user@example.com")
     material = await seed_material(session, user, subject.id, "Error Material")
 
-    from app.services.community_service import CommunityService
-    from app.services.user_service import UserService
+    from app.modules.community.service import CommunityService
+    from app.modules.users.service import UserService
 
     with pytest.raises(ResourceNotFound):
         await UserService(session).save_material("missing-material", user)

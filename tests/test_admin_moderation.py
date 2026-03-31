@@ -1,14 +1,12 @@
 import pytest
 from sqlalchemy import select
 
-from app.enums.material_status import MaterialStatus
-from app.enums.proposal_status import ProposalStatus
-from app.enums.report_status import ReportStatus
-from app.enums.review_action import ReviewAction
-from app.enums.user_role import UserRole
-from app.models.audit_log import AuditLog
-from app.models.catalog_proposal import FacultyProposal, SubjectProposal, UniversityProposal
-from app.models.material_review_log import MaterialReviewLog
+from app.modules.catalog_proposals.enums import ProposalStatus
+from app.modules.materials.enums import MaterialStatus, ReportStatus, ReviewAction
+from app.modules.users.enums import UserRole
+from app.modules.audit.models import AuditLog
+from app.modules.catalog_proposals.models import FacultyProposal, SubjectProposal, UniversityProposal
+from app.modules.materials.models import MaterialReviewLog
 from tests.helpers import (
     access_headers,
     add_faculty_scope,

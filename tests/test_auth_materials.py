@@ -5,14 +5,12 @@ from sqlalchemy import select
 
 from app.core.config import get_settings
 from app.core.exceptions import ResourceNotFound
-from app.enums.material_status import MaterialStatus
-from app.enums.material_type import MaterialType
-from app.models.material import Material
-from app.models.password_reset_token import PasswordResetToken
-from app.models.refresh_token_session import RefreshTokenSession
-from app.schemas.auth import RegisterRequest
-from app.services.auth_service import AuthService
-from app.services.material_service import MaterialService
+from app.modules.auth.models import PasswordResetToken, RefreshTokenSession
+from app.modules.materials.enums import MaterialStatus, MaterialType
+from app.modules.materials.models import Material
+from app.modules.auth.schemas import RegisterRequest
+from app.modules.auth.service import AuthService
+from app.modules.materials.service import MaterialService
 from tests.helpers import access_headers, seed_faculty, seed_material, seed_subject, seed_university, seed_user
 
 

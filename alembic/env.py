@@ -7,7 +7,7 @@ from sqlalchemy import engine_from_config, pool
 
 from app.core.config import get_settings
 from app.db.base import Base
-from app.models import *  # noqa: F403
+from app.db.models import *  # noqa: F403
 
 config = context.config
 settings = get_settings()

@@ -3,16 +3,15 @@ from datetime import UTC, datetime
 import pytest
 
 from app.core.exceptions import ConflictError, PermissionDenied, ResourceNotFound, ValidationAppError
-from app.enums.material_status import MaterialStatus
-from app.enums.report_status import ReportStatus
-from app.enums.user_role import UserRole
-from app.repositories.moderator_scope_repository import ModeratorScopeRepository
-from app.schemas.moderation import MoveSubjectRequest, RejectRequest
-from app.schemas.tag import TagCreate, TagUpdate
-from app.services.admin_service import AdminService
-from app.services.community_service import CommunityService
-from app.services.moderation_service import ModerationService
-from app.services.tag_service import TagService
+from app.modules.materials.enums import MaterialStatus, ReportStatus
+from app.modules.users.enums import UserRole
+from app.modules.admin.repository import ModeratorScopeRepository
+from app.modules.moderation.schemas import MoveSubjectRequest, RejectRequest
+from app.modules.tags.schemas import TagCreate, TagUpdate
+from app.modules.admin.service import AdminService
+from app.modules.community.service import CommunityService
+from app.modules.moderation.service import ModerationService
+from app.modules.tags.service import TagService
 from tests.helpers import add_university_scope, seed_faculty, seed_material, seed_report, seed_subject, seed_university, seed_user
 
 

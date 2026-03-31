@@ -1,6 +1,6 @@
 import asyncio
 
-from app.services.seed_service import seed
+from app.bootstrap.seed_service import seed
 
 
 if __name__ == "__main__":

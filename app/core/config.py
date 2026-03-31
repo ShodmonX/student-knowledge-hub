@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     app_name: str = "Student Knowledge Hub API"
     app_env: str = "development"
     debug: bool = False
+    api_prefix: str = "/api"
     api_v1_prefix: str = "/api/v1"
 
     db_url: str = "sqlite+aiosqlite:///./student_knowledge_hub.db"

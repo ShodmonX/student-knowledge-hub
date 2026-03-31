@@ -18,25 +18,20 @@ from app.core.exceptions import (
     ValidationAppError,
 )
 from app.core.security import create_refresh_token
-from app.dependencies.pagination import get_pagination_params
-from app.enums.material_status import MaterialStatus
-from app.enums.material_type import MaterialType
-from app.enums.proposal_entity_type import ProposalEntityType
-from app.enums.proposal_status import ProposalStatus
-from app.enums.reject_reason import RejectReason
-from app.enums.user_role import UserRole
-from app.models.catalog_proposal import CatalogProposalLog, FacultyProposal, SubjectProposal, UniversityProposal
-from app.models.material import Material
-from app.models.material_file import MaterialFile
-from app.models.material_rating import MaterialRating
-from app.models.notification import Notification
-from app.models.password_reset_token import PasswordResetToken
-from app.models.refresh_token_session import RefreshTokenSession
-from app.models.tag import Tag
-from app.models.subject import Subject
-from app.models.user_preference import UserPreference
-from app.schemas.auth import ForgotPasswordRequest, LoginRequest, LogoutRequest, RefreshRequest, RegisterRequest, ResetPasswordRequest
-from app.schemas.catalog_proposal import (
+from app.modules.audit.models import AuditLog
+from app.modules.auth.models import PasswordResetToken, RefreshTokenSession
+from app.modules.catalog_proposals.enums import ProposalEntityType, ProposalStatus
+from app.modules.catalog.models import Subject
+from app.modules.catalog_proposals.models import CatalogProposalLog, FacultyProposal, SubjectProposal, UniversityProposal
+from app.modules.community.models import MaterialRating
+from app.modules.materials.enums import MaterialStatus, MaterialType, RejectReason
+from app.modules.materials.models import Material, MaterialFile
+from app.modules.notifications.models import Notification
+from app.modules.tags.models import Tag
+from app.modules.users.enums import UserRole
+from app.modules.users.models import UserPreference
+from app.modules.auth.schemas import ForgotPasswordRequest, LoginRequest, LogoutRequest, RefreshRequest, RegisterRequest, ResetPasswordRequest
+from app.modules.catalog_proposals.schemas import (
     FacultyProposalCreate,
     HomeUniversityUpdateRequest,
     ProposalApproveRequest,
@@ -44,21 +39,21 @@ from app.schemas.catalog_proposal import (
     SubjectProposalCreate,
     UniversityProposalCreate,
 )
-from app.schemas.material import MaterialCreate, MaterialReportCreate, MaterialUpdate
-from app.schemas.moderation import MoveSubjectRequest
-from app.schemas.preferences import UserPreferenceUpdate
-from app.schemas.user import UserUpdateMe
-from app.services.auth_service import AuthService
-from app.services.catalog_proposal_service import CatalogProposalService
-from app.services.material_service import MaterialService
-from app.services.policy_service import PolicyService
-from app.services.storage_service import (
+from app.modules.materials.schemas import MaterialCreate, MaterialReportCreate, MaterialUpdate
+from app.modules.moderation.schemas import MoveSubjectRequest
+from app.modules.users.schemas import UserPreferenceUpdate, UserUpdateMe
+from app.infrastructure.storage.service import (
     LocalStorageProvider,
     SpacesStorageProvider,
     StorageDownload,
     StorageService,
 )
-from app.services.user_service import UserService
+from app.modules.auth.service import AuthService
+from app.modules.catalog_proposals.service import CatalogProposalService
+from app.modules.materials.service import MaterialService
+from app.modules.users.service import UserService
+from app.shared.dependencies.pagination import get_pagination_params
+from app.shared.services.policy import PolicyService
 from app.utils.files import detect_file_kind, detect_mime_type, get_extension, validate_file_signature
 from app.utils.hashing import sha256_text
 from tests.helpers import (
@@ -760,7 +755,7 @@ async def test_user_service_storage_cache_utils_and_small_modules(session, tmp_p
         def client(*args, **kwargs):
             return fake_client
 
-    import app.services.storage_service as storage_module
+    import app.infrastructure.storage.service as storage_module
 
     monkeypatch.setattr(storage_module, "boto3", FakeBoto3())
     monkeypatch.setattr(storage_module, "ClientError", FakeClientError)

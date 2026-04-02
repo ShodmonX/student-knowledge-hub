@@ -5,6 +5,7 @@ from sqlalchemy.exc import OperationalError
 
 from app.core.config import get_settings
 from app.core.security import hash_password
+from app.db import models as _models  # noqa: F401
 from app.db.session import AsyncSessionLocal, engine
 from app.modules.users.enums import UserRole
 from app.modules.catalog.models import Faculty, Subject, University
@@ -22,7 +23,7 @@ async def seed() -> None:
                 print(f"Seed skipped: database already contains {university_count} universities.")
                 return
 
-            university = University(name="Demo University", slug=slugify("Demo University"))
+            university = University(name="O'zbekiston Milliy Universiteti", slug=slugify("O'zbekiston Milliy Universiteti"))
             session.add(university)
             await session.flush()
 
@@ -36,19 +37,19 @@ async def seed() -> None:
             )
             session.add(admin)
 
-            faculty_names = ["Engineering", "Economics", "Computer Science"]
+            faculty_names = ["Matematika", "Amaliy Matematika", "Fizika"]
             subject_specs = [
-                ("Calculus", 1),
-                ("Physics", 1),
-                ("Programming Fundamentals", 1),
-                ("Data Structures", 2),
-                ("Database Systems", 3),
+                ("Chiziqli Algebra", 1),
+                ("Umumiy Fizika", 1),
+                ("Algoritmlar va Dasturlash Asoslari", 1),
+                ("Algebra", 2),
+                ("Umumiy Fizika", 3),
             ]
             for faculty_name in faculty_names:
                 faculty = Faculty(name=faculty_name, slug=slugify(faculty_name), university_id=university.id)
                 session.add(faculty)
                 await session.flush()
-                faculty_subjects = subject_specs if faculty_name == "Computer Science" else subject_specs[:2]
+                faculty_subjects = subject_specs if faculty_name == "Matematika" else subject_specs[:2]
                 for subject_name, semester in faculty_subjects:
                     session.add(
                         Subject(
@@ -60,7 +61,7 @@ async def seed() -> None:
                     )
 
             await session.commit()
-            print("Seed completed: demo university, faculties, subjects, and admin user were created.")
+            print("Seed completed: O'zbekiston Milliy Universiteti, faculties, subjects, and admin user were created.")
     except OperationalError as exc:
         db_url = settings.db_url
         if "@postgres:" in db_url:

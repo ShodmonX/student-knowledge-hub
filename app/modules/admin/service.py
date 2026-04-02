@@ -4,8 +4,10 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.bootstrap.backup_service import BackupRecord, BackupRestoreResult, BackupService
 from app.core.cache import get_cache
 from app.core.exceptions import ResourceNotFound, ValidationAppError
+from app.modules.admin.schemas import BackupRead, BackupRestoreResponse
 from app.modules.audit.models import AuditLog
 from app.modules.admin.scope_models import (
     ModeratorFacultyScope,
@@ -136,6 +138,27 @@ class AdminService:
             for scope in scopes:
                 result.append({"user_id": user.id, "user_name": user.full_name, **scope})
         return result
+
+    async def list_backups(self) -> list[BackupRead]:
+        return [self._backup_read_from_record(record) for record in BackupService().list_backups()]
+
+    async def get_backup(self, backup_id: str) -> BackupRead:
+        return self._backup_read_from_record(BackupService().get_backup(backup_id))
+
+    async def create_backup(self) -> BackupRead:
+        result = BackupService().run_backup()
+        return self._backup_read_from_record(
+            BackupRecord(
+                manifest=result.manifest,
+                available_local=True,
+                available_offsite=bool(result.manifest.offsite_dump_key),
+            )
+        )
+
+    async def restore_backup(self, backup_id: str) -> BackupRestoreResponse:
+        await self.session.close()
+        result = BackupService().restore_backup(backup_id)
+        return self._backup_restore_response(result)
 
     async def list_reports(self, page: int = 1, page_size: int = 20, status: ReportStatus | None = None):
         stmt = (
@@ -280,3 +303,37 @@ class AdminService:
 
     async def _invalidate_dashboard_cache(self) -> None:
         await self.cache.invalidate_prefix("admin:dashboard_")
+
+    def _backup_read_from_record(self, record: BackupRecord) -> BackupRead:
+        manifest = record.manifest
+        return BackupRead(
+            backup_id=manifest.backup_id,
+            created_at=datetime.fromisoformat(manifest.created_at),
+            database_name=manifest.database_name,
+            dump_format=manifest.dump_format,
+            checksum_sha256=manifest.checksum_sha256,
+            size_bytes=manifest.size_bytes,
+            verified=manifest.verified,
+            trigger=manifest.trigger,
+            local_dump_path=manifest.local_dump_path,
+            local_manifest_path=manifest.local_manifest_path,
+            offsite_enabled=manifest.offsite_enabled,
+            offsite_bucket=manifest.offsite_bucket,
+            offsite_dump_key=manifest.offsite_dump_key,
+            offsite_manifest_key=manifest.offsite_manifest_key,
+            available_local=record.available_local,
+            available_offsite=record.available_offsite,
+        )
+
+    def _backup_restore_response(self, result: BackupRestoreResult) -> BackupRestoreResponse:
+        return BackupRestoreResponse(
+            restored_backup=self._backup_read_from_record(result.restored_backup),
+            pre_restore_backup=self._backup_read_from_record(
+                BackupRecord(
+                    manifest=result.pre_restore_backup,
+                    available_local=True,
+                    available_offsite=bool(result.pre_restore_backup.offsite_dump_key),
+                )
+            ),
+            restored_at=datetime.fromisoformat(result.restored_at),
+        )

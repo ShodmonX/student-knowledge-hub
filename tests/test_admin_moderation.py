@@ -1,6 +1,7 @@
 import pytest
 from sqlalchemy import select
 
+from app.bootstrap.backup_service import BackupManifest, BackupRecord, BackupResult, BackupRestoreResult
 from app.modules.catalog_proposals.enums import ProposalStatus
 from app.modules.materials.enums import MaterialStatus, ReportStatus, ReviewAction
 from app.modules.users.enums import UserRole
@@ -469,3 +470,99 @@ async def test_admin_endpoints_cover_catalog_user_scope_report_and_dashboard_flo
 
     audit_rows = (await session.execute(select(AuditLog))).scalars().all()
     assert any(row.action == "report_resolved" for row in audit_rows)
+
+
+@pytest.mark.asyncio
+async def test_admin_backup_endpoints_cover_list_detail_create_and_restore(client, session, monkeypatch):
+    university = await seed_university(session, "Backup Admin University")
+    admin = await seed_user(session, university.id, "backup-admin@example.com", role=UserRole.ADMIN)
+    admin_headers = access_headers(admin)
+
+    manual_manifest = BackupManifest(
+        backup_id="student-knowledge-hub-20260401T020000Z",
+        created_at="2026-04-01T02:00:00+00:00",
+        database_name="student_knowledge_hub",
+        dump_format="custom",
+        checksum_sha256="abc",
+        size_bytes=128,
+        verified=True,
+        trigger="manual",
+        local_dump_path="/tmp/manual.dump",
+        local_manifest_path="/tmp/manual.manifest.json",
+        offsite_enabled=True,
+        offsite_bucket="backup-bucket",
+        offsite_dump_key="production/postgres/manual.dump",
+        offsite_manifest_key="production/postgres/manual.manifest.json",
+    )
+    pre_restore_manifest = BackupManifest(
+        backup_id="student-knowledge-hub-20260402T020000Z-pre-restore",
+        created_at="2026-04-02T02:00:00+00:00",
+        database_name="student_knowledge_hub",
+        dump_format="custom",
+        checksum_sha256="def",
+        size_bytes=256,
+        verified=True,
+        trigger="pre-restore",
+        local_dump_path="/tmp/pre-restore.dump",
+        local_manifest_path="/tmp/pre-restore.manifest.json",
+        offsite_enabled=True,
+        offsite_bucket="backup-bucket",
+        offsite_dump_key="production/postgres/pre-restore.dump",
+        offsite_manifest_key="production/postgres/pre-restore.manifest.json",
+    )
+
+    class FakeBackupService:
+        def list_backups(self):
+            return [BackupRecord(manifest=manual_manifest, available_local=True, available_offsite=True)]
+
+        def get_backup(self, backup_id):
+            assert backup_id == manual_manifest.backup_id
+            return BackupRecord(manifest=manual_manifest, available_local=True, available_offsite=True)
+
+        def run_backup(self):
+            return BackupResult(
+                manifest=manual_manifest,
+                local_deleted=[],
+                offsite_deleted=[],
+            )
+
+        def restore_backup(self, backup_id):
+            assert backup_id == manual_manifest.backup_id
+            return BackupRestoreResult(
+                restored_backup=BackupRecord(
+                    manifest=manual_manifest,
+                    available_local=True,
+                    available_offsite=True,
+                ),
+                pre_restore_backup=pre_restore_manifest,
+                restored_at="2026-04-02T02:05:00+00:00",
+            )
+
+    monkeypatch.setattr("app.modules.admin.service.BackupService", FakeBackupService)
+
+    backups_response = await client.get("/api/v1/admin/backups", headers=admin_headers)
+    backup_detail = await client.get(
+        f"/api/v1/admin/backups/{manual_manifest.backup_id}",
+        headers=admin_headers,
+    )
+    manual_create = await client.post("/api/v1/admin/backups", headers=admin_headers)
+    restore_response = await client.post(
+        f"/api/v1/admin/backups/{manual_manifest.backup_id}/restore",
+        headers=admin_headers,
+    )
+
+    assert backups_response.status_code == 200
+    assert backups_response.json()["total"] == 1
+    assert backups_response.json()["items"][0]["backup_id"] == manual_manifest.backup_id
+    assert backups_response.json()["items"][0]["available_offsite"] is True
+
+    assert backup_detail.status_code == 200
+    assert backup_detail.json()["backup_id"] == manual_manifest.backup_id
+    assert backup_detail.json()["trigger"] == "manual"
+
+    assert manual_create.status_code == 200
+    assert manual_create.json()["backup_id"] == manual_manifest.backup_id
+
+    assert restore_response.status_code == 200
+    assert restore_response.json()["restored_backup"]["backup_id"] == manual_manifest.backup_id
+    assert restore_response.json()["pre_restore_backup"]["trigger"] == "pre-restore"

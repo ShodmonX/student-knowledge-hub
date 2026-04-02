@@ -206,5 +206,9 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 *.md
-storage/
-test_storage/
+/storage/
+/test_storage/
+/backups/
+/test_backups/
+!app/infrastructure/storage/
+!app/infrastructure/storage/**

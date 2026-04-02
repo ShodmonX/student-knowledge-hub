@@ -7,7 +7,7 @@ from types import SimpleNamespace
 import pytest
 from sqlalchemy import select
 
-from app.core.cache import CacheService, InMemoryCacheBackend
+from app.core.cache import CacheService, NullCacheBackend
 from app.core.config import get_settings
 from app.core.exceptions import (
     AuthenticationError,
@@ -591,9 +591,10 @@ async def test_material_service_direct_covers_submission_tags_reporting_and_coll
 
     await service.cache.set("materials:trending_ids", [second_id], 60)
     trending = await service.list_trending()
-    assert trending[0].id == second_id
+    assert second_id in {item.id for item in trending}
     await service.cache.set("materials:stats_summary", {"cached": True}, 60)
-    assert await service.stats_summary() == {"cached": True}
+    summary = await service.stats_summary()
+    assert summary["total_materials"] >= 1
     assert await service.get_rating_snapshot([]) == {}
 
     session.add(MaterialRating(material_id=second_id, user_id=user.id, value=4))
@@ -800,9 +801,9 @@ async def test_user_service_storage_cache_utils_and_small_modules(session, tmp_p
 
     cache = CacheService()
     await cache.initialize(None)
-    assert isinstance(cache.backend, InMemoryCacheBackend)
+    assert isinstance(cache.backend, NullCacheBackend)
     await cache.set("materials:1", {"ok": True}, 60)
-    assert await cache.get("materials:1") == {"ok": True}
+    assert await cache.get("materials:1") is None
     await cache.invalidate("materials:1")
     assert await cache.get("materials:1") is None
     await cache.set("admin:dashboard:1", 1, 60)
@@ -817,7 +818,7 @@ async def test_user_service_storage_cache_utils_and_small_modules(session, tmp_p
 
     monkeypatch.setattr(cache_module.RedisCacheBackend, "connect", broken_connect)
     await cache.initialize("redis://localhost:6379/0")
-    assert isinstance(cache.backend, InMemoryCacheBackend)
+    assert isinstance(cache.backend, NullCacheBackend)
     await cache.close()
 
     page = get_pagination_params(page=2, page_size=999)

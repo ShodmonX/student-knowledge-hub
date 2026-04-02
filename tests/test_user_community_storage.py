@@ -214,14 +214,14 @@ async def test_storage_service_local_provider_lifecycle(tmp_path, monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_cache_service_in_memory_and_redis_fallback(monkeypatch):
+async def test_cache_service_uses_redis_or_disables_cache(monkeypatch):
     cache = CacheService()
     await cache.initialize(None)
     assert cache.is_redis_enabled is False
 
     await cache.set("alpha", {"value": 1}, 60)
     await cache.set("alpha:child", {"value": 2}, 60)
-    assert await cache.get("alpha") == {"value": 1}
+    assert await cache.get("alpha") is None
     await cache.invalidate("alpha")
     assert await cache.get("alpha") is None
     await cache.invalidate_prefix("alpha:")

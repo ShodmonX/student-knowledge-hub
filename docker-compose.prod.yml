@@ -1,20 +1,19 @@
-version: "3.9"
-
 services:
   api:
     build: .
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     env_file:
       - .env
     environment:
       REDIS_URL: redis://redis:6379/0
+      APP_ENV: production
+      DEBUG: "false"
       STORAGE_ROOT: /home/appuser/storage
       BACKUP_LOCAL_ROOT: /home/appuser/backups
     ports:
-      - "127.0.0.1:8000:8000"
+      - "8000:8000"
+    restart: unless-stopped
     volumes:
-      - .:/app
-      - ./storage:/home/appuser/storage
+      - storage_data:/home/appuser/storage
       - backups_data:/home/appuser/backups
     depends_on:
       postgres:
@@ -40,12 +39,15 @@ services:
     env_file:
       - .env
     environment:
+      APP_ENV: production
+      DEBUG: "false"
       RUN_MIGRATIONS_ON_START: "false"
       RUN_SEED_ON_START: "false"
       REDIS_URL: redis://redis:6379/0
+      BACKUP_SCHEDULE_ENABLED: "true"
       BACKUP_LOCAL_ROOT: /home/appuser/backups
+    restart: unless-stopped
     volumes:
-      - .:/app
       - backups_data:/home/appuser/backups
     depends_on:
       api:
@@ -61,8 +63,7 @@ services:
       POSTGRES_DB: student_knowledge_hub
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-    ports:
-      - "127.0.0.1:5432:5432"
+    restart: unless-stopped
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -74,12 +75,12 @@ services:
 
   redis:
     image: redis:7-alpine
-    ports:
-      - "127.0.0.1:6379:6379"
+    restart: unless-stopped
     volumes:
       - redis_data:/data
 
 volumes:
   postgres_data:
   redis_data:
+  storage_data:
   backups_data:

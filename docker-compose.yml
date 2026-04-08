@@ -33,6 +33,9 @@ services:
       timeout: 10s
       retries: 5
       start_period: 20s
+    networks:
+      - web
+      - default
 
   backup:
     build: .
@@ -83,3 +86,7 @@ volumes:
   postgres_data:
   redis_data:
   backups_data:
+
+networks:
+  web:
+    external: true

@@ -1,4 +1,8 @@
 import io
+import hashlib
+import hmac
+import json
+import time
 from zipfile import ZIP_DEFLATED, ZipFile
 
 from fastapi import UploadFile
@@ -79,6 +83,29 @@ async def seed_user(
 def access_headers(user: User) -> dict[str, str]:
     token = create_access_token(user.id, user.role.value)
     return {"Authorization": f"Bearer {token}"}
+
+
+def internal_headers(
+    method: str,
+    path: str,
+    payload: dict | None = None,
+    *,
+    service_name: str = "telegram-bot",
+    secret: str = "test-internal-secret",
+    timestamp: int | None = None,
+) -> dict[str, str]:
+    raw_body = b""
+    if payload is not None:
+        raw_body = json.dumps(payload, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    ts = str(timestamp or int(time.time()))
+    body_hash = hashlib.sha256(raw_body).hexdigest()
+    canonical = "\n".join([service_name, ts, method.upper(), path, body_hash])
+    signature = hmac.new(secret.encode("utf-8"), canonical.encode("utf-8"), hashlib.sha256).hexdigest()
+    return {
+        "X-Internal-Service-Name": service_name,
+        "X-Request-Timestamp": ts,
+        "X-Signature": signature,
+    }
 
 
 def png_upload(filename: str, color_seed: bytes) -> UploadFile:

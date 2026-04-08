@@ -27,6 +27,8 @@ from app.modules.auth.schemas import (
 from app.modules.catalog.repositories import UniversityRepository
 from app.modules.users.repository import UserRepository
 from app.modules.audit.service import AuditService
+from app.modules.telegram.dispatcher import TelegramEventDispatcher
+from app.modules.telegram.event_service import TelegramEventService
 from app.utils.hashing import sha256_text
 
 
@@ -51,6 +53,8 @@ class AuthService:
         )
         await self.users.create(user)
         await self.audit.log("user_registered", "user", user, user.id)
+        events = await TelegramEventService(self.session).enqueue_user_registered_events(user)
+        await TelegramEventDispatcher(self.session).dispatch_events(events)
         await self.session.commit()
         return user
 

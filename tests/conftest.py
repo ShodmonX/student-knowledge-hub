@@ -10,6 +10,10 @@ os.environ["DB_URL"] = "postgresql+asyncpg://postgres:postgres@127.0.0.1:5432/st
 os.environ["JWT_SECRET_KEY"] = "test-secret"
 os.environ["STORAGE_BACKEND"] = "local"
 os.environ["STORAGE_ROOT"] = "./test_storage"
+os.environ["TELEGRAM_BOT_USERNAME"] = "bilimhub_bot"
+os.environ["INTERNAL_SERVICE_NAME"] = "telegram-bot"
+os.environ["INTERNAL_SERVICE_SECRET"] = "test-internal-secret"
+os.environ["INTERNAL_REQUEST_TTL_SECONDS"] = "300"
 
 from app.db.base import Base
 from app.db.session import get_db_session

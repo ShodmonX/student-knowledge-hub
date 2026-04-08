@@ -7,6 +7,7 @@ from app.modules.community.models import Comment, MaterialRating
 from app.modules.materials.models import Material, MaterialFile, MaterialReport, MaterialReviewLog
 from app.modules.notifications.models import Notification
 from app.modules.tags.models import MaterialTag, Tag
+from app.modules.telegram.models import TelegramEventOutbox, TelegramLink, TelegramLinkSession
 from app.modules.users.models import SavedMaterial, User, UserPreference
 
 __all__ = [
@@ -31,6 +32,9 @@ __all__ = [
     "Subject",
     "SubjectProposal",
     "Tag",
+    "TelegramEventOutbox",
+    "TelegramLink",
+    "TelegramLinkSession",
     "University",
     "UniversityProposal",
     "User",

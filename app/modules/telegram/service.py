@@ -250,8 +250,12 @@ class TelegramService:
             return TelegramInternalLinkResponse(status=expired_status)
 
         user = await self._get_user(db_session.user_id)
-        same_link = await self._get_active_link_by_user_id(user.id)
-        if same_link and same_link.telegram_user_id == telegram_user.telegram_user_id:
+        existing_user_link = await self._get_link_by_user_id(user.id)
+        if (
+            existing_user_link
+            and existing_user_link.is_active
+            and existing_user_link.telegram_user_id == telegram_user.telegram_user_id
+        ):
             db_session.used_at = now
             db_session.is_active = False
             await self.session.commit()
@@ -260,23 +264,39 @@ class TelegramService:
                 platform_user=self._build_platform_identity(user),
             )
 
-        existing_telegram_link = await self._get_active_link_by_telegram_user_id(telegram_user.telegram_user_id)
-        if existing_telegram_link and existing_telegram_link.user_id != user.id:
+        existing_telegram_link = await self._get_link_by_telegram_user_id(telegram_user.telegram_user_id)
+        if (
+            existing_telegram_link
+            and existing_telegram_link.is_active
+            and existing_telegram_link.user_id != user.id
+        ):
             return TelegramInternalLinkResponse(status="telegram_account_already_used")
 
-        if same_link and same_link.telegram_user_id != telegram_user.telegram_user_id:
+        if (
+            existing_user_link
+            and existing_user_link.is_active
+            and existing_user_link.telegram_user_id != telegram_user.telegram_user_id
+        ):
             return TelegramInternalLinkResponse(status="platform_account_has_another_telegram")
 
-        link = TelegramLink(
-            user_id=user.id,
-            telegram_user_id=telegram_user.telegram_user_id,
-            telegram_username=telegram_user.username,
-            telegram_first_name=telegram_user.first_name,
-            telegram_last_name=telegram_user.last_name,
-            language_code=telegram_user.language_code,
-            linked_at=now,
-        )
-        self.session.add(link)
+        link = await self._resolve_link_record(existing_user_link, existing_telegram_link)
+        if link is None:
+            link = TelegramLink(
+                user_id=user.id,
+                telegram_user_id=telegram_user.telegram_user_id,
+                linked_at=now,
+            )
+            self.session.add(link)
+
+        link.user_id = user.id
+        link.telegram_user_id = telegram_user.telegram_user_id
+        link.telegram_username = telegram_user.username
+        link.telegram_first_name = telegram_user.first_name
+        link.telegram_last_name = telegram_user.last_name
+        link.language_code = telegram_user.language_code
+        link.linked_at = now
+        link.unlinked_at = None
+        link.is_active = True
         db_session.used_at = now
         db_session.is_active = False
         await self.audit.log("telegram_linked", "telegram_link", user, link.id, str(telegram_user.telegram_user_id))
@@ -304,6 +324,10 @@ class TelegramService:
         )
         return result.scalar_one_or_none()
 
+    async def _get_link_by_user_id(self, user_id: str) -> TelegramLink | None:
+        result = await self.session.execute(select(TelegramLink).where(TelegramLink.user_id == user_id))
+        return result.scalar_one_or_none()
+
     async def _get_active_link_by_telegram_user_id(self, telegram_user_id: int) -> TelegramLink | None:
         result = await self.session.execute(
             select(TelegramLink).where(
@@ -312,6 +336,29 @@ class TelegramService:
             )
         )
         return result.scalar_one_or_none()
+
+    async def _get_link_by_telegram_user_id(self, telegram_user_id: int) -> TelegramLink | None:
+        result = await self.session.execute(
+            select(TelegramLink).where(TelegramLink.telegram_user_id == telegram_user_id)
+        )
+        return result.scalar_one_or_none()
+
+    async def _resolve_link_record(
+        self,
+        existing_user_link: TelegramLink | None,
+        existing_telegram_link: TelegramLink | None,
+    ) -> TelegramLink | None:
+        if existing_user_link and existing_telegram_link:
+            if existing_user_link.id == existing_telegram_link.id:
+                return existing_user_link
+            await self.session.delete(existing_telegram_link)
+            await self.session.flush()
+            return existing_user_link
+        if existing_user_link:
+            return existing_user_link
+        if existing_telegram_link:
+            return existing_telegram_link
+        return None
 
     async def _get_user(self, user_id: str) -> User:
         result = await self.session.execute(

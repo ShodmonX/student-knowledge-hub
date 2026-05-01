@@ -351,6 +351,13 @@ async def test_admin_endpoints_cover_catalog_user_scope_report_and_dashboard_flo
     assert user_update.status_code == 200
     assert user_update.json()["full_name"] == "Managed User Updated"
 
+    invalid_user_update = await client.patch(
+        f"/api/v1/admin/users/{managed_user.id}",
+        headers=admin_headers,
+        json={"hashed_password": "overposted"},
+    )
+    assert invalid_user_update.status_code == 422
+
     user_status = await client.patch(
         f"/api/v1/admin/users/{managed_user.id}/status",
         headers=admin_headers,
@@ -538,6 +545,9 @@ async def test_admin_backup_endpoints_cover_list_detail_create_and_restore(clien
                 restored_at="2026-04-02T02:05:00+00:00",
             )
 
+    from app.core.config import get_settings
+
+    monkeypatch.setattr(get_settings(), "backup_restore_api_enabled", True)
     monkeypatch.setattr("app.modules.admin.service.BackupService", FakeBackupService)
 
     backups_response = await client.get("/api/v1/admin/backups", headers=admin_headers)
@@ -546,9 +556,15 @@ async def test_admin_backup_endpoints_cover_list_detail_create_and_restore(clien
         headers=admin_headers,
     )
     manual_create = await client.post("/api/v1/admin/backups", headers=admin_headers)
+    invalid_restore = await client.post(
+        f"/api/v1/admin/backups/{manual_manifest.backup_id}/restore",
+        headers=admin_headers,
+        json={"confirmation": "RESTORE:wrong-backup"},
+    )
     restore_response = await client.post(
         f"/api/v1/admin/backups/{manual_manifest.backup_id}/restore",
         headers=admin_headers,
+        json={"confirmation": f"RESTORE:{manual_manifest.backup_id}"},
     )
 
     assert backups_response.status_code == 200
@@ -563,6 +579,8 @@ async def test_admin_backup_endpoints_cover_list_detail_create_and_restore(clien
     assert manual_create.status_code == 200
     assert manual_create.json()["backup_id"] == manual_manifest.backup_id
 
+    assert invalid_restore.status_code == 422
     assert restore_response.status_code == 200
     assert restore_response.json()["restored_backup"]["backup_id"] == manual_manifest.backup_id
     assert restore_response.json()["pre_restore_backup"]["trigger"] == "pre-restore"
+    assert restore_response.json()["restored_backup"]["local_dump_path"] is None

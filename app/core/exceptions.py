@@ -39,6 +39,11 @@ class ValidationAppError(AppException):
     error_code = "validation_error"
 
 
+class RateLimitExceeded(AppException):
+    status_code = 429
+    error_code = "rate_limit_exceeded"
+
+
 class PolicyViolation(AppException):
     status_code = 422
     error_code = "policy_violation"

@@ -4,51 +4,75 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.bootstrap.backup_service import BackupRecord, BackupRestoreResult, BackupService
+from app.bootstrap.backup_service import (
+    BackupError,
+    BackupRecord,
+    BackupRestoreResult,
+    BackupService,
+)
 from app.core.cache import get_cache
-from app.core.exceptions import ResourceNotFound, ValidationAppError
-from app.modules.admin.schemas import BackupRead, BackupRestoreResponse
-from app.modules.audit.models import AuditLog
+from app.core.config import get_settings
+from app.core.exceptions import PermissionDenied, ResourceNotFound, ValidationAppError
+from app.modules.admin.repository import ModeratorScopeRepository
+from app.modules.admin.schemas import BackupRead, BackupRestoreResponse, ModeratorScopeCreate
 from app.modules.admin.scope_models import (
     ModeratorFacultyScope,
     ModeratorSubjectScope,
     ModeratorUniversityScope,
 )
-from app.modules.materials.enums import MaterialStatus, ReportStatus
-from app.modules.catalog.models import Faculty, Subject, University
-from app.modules.materials.models import Material
-from app.modules.notifications.models import Notification
-from app.modules.users.models import User
-from app.modules.admin.repository import ModeratorScopeRepository
-from app.modules.materials.models import MaterialReport
-from app.modules.users.enums import UserRole
-from app.modules.users.repository import UserRepository
-from app.modules.admin.schemas import ModeratorScopeCreate
+from app.modules.audit.models import AuditLog
 from app.modules.audit.service import AuditService
+from app.modules.catalog.models import Faculty, Subject, University
+from app.modules.materials.enums import MaterialStatus, ReportStatus
+from app.modules.materials.models import Material, MaterialReport
+from app.modules.notifications.models import Notification
+from app.modules.users.enums import UserRole
+from app.modules.users.models import User
+from app.modules.users.repository import UserRepository
 
 
 class AdminService:
+    USER_UPDATE_FIELDS = {"full_name", "avatar_url", "university_id", "is_active", "is_verified"}
+
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
         self.users = UserRepository(session)
         self.scopes = ModeratorScopeRepository(session)
         self.audit = AuditService(session)
         self.cache = get_cache()
+        self.settings = get_settings()
 
-    async def update_user_role(self, user_id: str, role: UserRole):
+    async def update_user_role(self, user_id: str, role: UserRole, actor: User | None = None):
         user = await self.users.get_by_id(user_id)
         if not user:
             raise ResourceNotFound("User not found")
+        if actor and actor.id == user.id and role != UserRole.ADMIN:
+            raise PermissionDenied("Admin cannot demote their own account")
+        if user.role == UserRole.ADMIN and role != UserRole.ADMIN:
+            await self._ensure_not_last_active_admin(user)
         user.role = role
         await self.audit.log("user_role_updated", "user", None, user.id, role.value)
         await self.session.commit()
         await self._invalidate_dashboard_cache()
         return user
 
-    async def update_user(self, user_id: str, payload: dict):
+    async def update_user(self, user_id: str, payload: dict, actor: User | None = None):
         user = await self.users.get_by_id(user_id)
         if not user:
             raise ResourceNotFound("User not found")
+        disallowed_fields = sorted(set(payload) - self.USER_UPDATE_FIELDS)
+        if disallowed_fields:
+            raise ValidationAppError(
+                "User update contains unsupported fields",
+                {"fields": disallowed_fields},
+            )
+        if payload.get("university_id"):
+            await self._ensure_university_exists(payload["university_id"])
+        if payload.get("is_active") is False:
+            if actor and actor.id == user.id:
+                raise PermissionDenied("Admin cannot disable their own account")
+            if user.role == UserRole.ADMIN:
+                await self._ensure_not_last_active_admin(user)
         for field, value in payload.items():
             setattr(user, field, value)
         await self.audit.log("user_updated", "user", None, user.id)
@@ -56,8 +80,8 @@ class AdminService:
         await self._invalidate_dashboard_cache()
         return user
 
-    async def set_user_status(self, user_id: str, is_active: bool):
-        return await self.update_user(user_id, {"is_active": is_active})
+    async def set_user_status(self, user_id: str, is_active: bool, actor: User | None = None):
+        return await self.update_user(user_id, {"is_active": is_active}, actor=actor)
 
     async def verify_user(self, user_id: str, is_verified: bool = True):
         return await self.update_user(user_id, {"is_verified": is_verified})
@@ -97,7 +121,7 @@ class AdminService:
         await self.audit.log("moderator_scope_added", "user_scope", None, user_id)
         await self.session.commit()
         await self._invalidate_dashboard_cache()
-        return {"message": "Moderator scope assigned", "scope_id": scope.id}
+        return {"message": "Moderator scope biriktirildi", "scope_id": scope.id}
 
     async def list_moderator_scopes(self, user_id: str) -> list[dict]:
         rows = []
@@ -143,10 +167,17 @@ class AdminService:
         return [self._backup_read_from_record(record) for record in BackupService().list_backups()]
 
     async def get_backup(self, backup_id: str) -> BackupRead:
-        return self._backup_read_from_record(BackupService().get_backup(backup_id))
+        try:
+            record = BackupService().get_backup(backup_id)
+        except BackupError as exc:
+            raise ValidationAppError(str(exc)) from exc
+        return self._backup_read_from_record(record)
 
     async def create_backup(self) -> BackupRead:
-        result = BackupService().run_backup()
+        try:
+            result = BackupService().run_backup()
+        except BackupError as exc:
+            raise ValidationAppError(str(exc)) from exc
         return self._backup_read_from_record(
             BackupRecord(
                 manifest=result.manifest,
@@ -155,9 +186,16 @@ class AdminService:
             )
         )
 
-    async def restore_backup(self, backup_id: str) -> BackupRestoreResponse:
+    async def restore_backup(self, backup_id: str, confirmation: str) -> BackupRestoreResponse:
+        if not self.settings.backup_restore_api_enabled:
+            raise PermissionDenied("Backup restore API is disabled; use the manual restore script")
+        if self.settings.backup_restore_confirmation_required:
+            self._validate_restore_confirmation(backup_id, confirmation)
         await self.session.close()
-        result = BackupService().restore_backup(backup_id)
+        try:
+            result = BackupService().restore_backup(backup_id)
+        except BackupError as exc:
+            raise ValidationAppError(str(exc)) from exc
         return self._backup_restore_response(result)
 
     async def list_reports(self, page: int = 1, page_size: int = 20, status: ReportStatus | None = None):
@@ -304,6 +342,32 @@ class AdminService:
     async def _invalidate_dashboard_cache(self) -> None:
         await self.cache.invalidate_prefix("admin:dashboard_")
 
+    async def _ensure_university_exists(self, university_id: str) -> None:
+        exists = await self.session.scalar(
+            select(func.count(University.id)).where(University.id == university_id)
+        )
+        if not exists:
+            raise ResourceNotFound("University not found")
+
+    async def _ensure_not_last_active_admin(self, user: User) -> None:
+        active_admin_count = await self.session.scalar(
+            select(func.count(User.id)).where(
+                User.role == UserRole.ADMIN,
+                User.is_active.is_(True),
+            )
+        )
+        if user.is_active and active_admin_count <= 1:
+            raise ValidationAppError("At least one active admin must remain")
+
+    @staticmethod
+    def _validate_restore_confirmation(backup_id: str, confirmation: str) -> None:
+        expected = f"RESTORE:{backup_id}"
+        if confirmation != expected:
+            raise ValidationAppError(
+                "Backup restore confirmation is invalid",
+                {"expected_confirmation": expected},
+            )
+
     def _backup_read_from_record(self, record: BackupRecord) -> BackupRead:
         manifest = record.manifest
         return BackupRead(
@@ -315,12 +379,12 @@ class AdminService:
             size_bytes=manifest.size_bytes,
             verified=manifest.verified,
             trigger=manifest.trigger,
-            local_dump_path=manifest.local_dump_path,
-            local_manifest_path=manifest.local_manifest_path,
+            local_dump_path=None,
+            local_manifest_path=None,
             offsite_enabled=manifest.offsite_enabled,
-            offsite_bucket=manifest.offsite_bucket,
-            offsite_dump_key=manifest.offsite_dump_key,
-            offsite_manifest_key=manifest.offsite_manifest_key,
+            offsite_bucket=None,
+            offsite_dump_key=None,
+            offsite_manifest_key=None,
             available_local=record.available_local,
             available_offsite=record.available_offsite,
         )

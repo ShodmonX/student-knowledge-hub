@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db_session
 from app.modules.auth.dependencies import get_current_user
+from app.modules.materials.common import serialize_materials
 from app.modules.materials.schemas import (
     MaterialCreate,
     MaterialFileReorderRequest,
@@ -13,10 +14,9 @@ from app.modules.materials.schemas import (
     MaterialReportCreate,
     MaterialUpdate,
 )
-from app.modules.users.models import User
 from app.modules.materials.service import MaterialService
-
-from app.modules.materials.common import serialize_materials
+from app.modules.users.models import User
+from app.shared.schemas.common import MessageResponse
 
 router = APIRouter()
 
@@ -91,7 +91,13 @@ async def update_material_file_selection(
     session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> MaterialRead:
     service = MaterialService(session)
-    material = await service.update_file_selection(material_id, file_id, payload.cover, payload.primary, user)
+    material = await service.update_file_selection(
+        material_id,
+        file_id,
+        payload.cover,
+        payload.primary,
+        user,
+    )
     return (await serialize_materials(service, [material], user))[0]
 
 
@@ -129,22 +135,22 @@ async def update_material(
     return (await serialize_materials(service, [material]))[0]
 
 
-@router.delete("/{material_id}")
+@router.delete("/{material_id}", response_model=MessageResponse)
 async def delete_material(
     material_id: str,
     user: Annotated[User, Depends(get_current_user)],
     session: Annotated[AsyncSession, Depends(get_db_session)],
-) -> dict[str, str]:
+) -> MessageResponse:
     await MaterialService(session).delete_material(material_id, user)
-    return {"message": "Material deleted"}
+    return MessageResponse(message="Material o'chirildi")
 
 
-@router.post("/{material_id}/report")
+@router.post("/{material_id}/report", response_model=MessageResponse)
 async def report_material(
     material_id: str,
     payload: MaterialReportCreate,
     user: Annotated[User, Depends(get_current_user)],
     session: Annotated[AsyncSession, Depends(get_db_session)],
-) -> dict[str, str]:
+) -> MessageResponse:
     await MaterialService(session).report_material(material_id, payload, user)
-    return {"message": "Material reported"}
+    return MessageResponse(message="Material bo'yicha shikoyat yuborildi")

@@ -7,7 +7,12 @@ from sqlalchemy.orm import selectinload
 from app.modules.materials.enums import MaterialStatus
 from app.modules.catalog.models import Faculty, Subject, University
 from app.modules.materials.models import Material, MaterialFile, MaterialReviewLog
+from app.modules.community.models import MaterialRating
 from app.modules.users.models import User
+
+
+def escape_like(value: str) -> str:
+    return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
 
 
 class MaterialRepository:
@@ -119,10 +124,11 @@ class MaterialRepository:
     @staticmethod
     def apply_filters(statement: Select[tuple[Material]], query, include_text: bool = True):
         if include_text and query.q:
+            search_pattern = f"%{escape_like(query.q)}%"
             statement = statement.where(
                 or_(
-                    Material.title.ilike(f"%{query.q}%"),
-                    Material.description.ilike(f"%{query.q}%"),
+                    Material.title.ilike(search_pattern, escape="\\"),
+                    Material.description.ilike(search_pattern, escape="\\"),
                 )
             )
         if query.subject_id:
@@ -150,12 +156,30 @@ class MaterialRepository:
         if getattr(query, "file_format", None):
             statement = statement.where(Material.files.any(MaterialFile.file_ext == query.file_format.lower()))
 
+        if query.sort == "rating_desc":
+            rating_summary = (
+                select(
+                    MaterialRating.material_id.label("material_id"),
+                    func.avg(MaterialRating.value).label("average_rating"),
+                    func.count(MaterialRating.id).label("rating_count"),
+                )
+                .group_by(MaterialRating.material_id)
+                .subquery()
+            )
+            return (
+                statement.outerjoin(rating_summary, rating_summary.c.material_id == Material.id)
+                .order_by(
+                    func.coalesce(rating_summary.c.average_rating, 0).desc(),
+                    func.coalesce(rating_summary.c.rating_count, 0).desc(),
+                    Material.created_at.desc(),
+                )
+            )
+
         order_map = {
             "created_at_desc": Material.created_at.desc(),
             "created_at_asc": Material.created_at.asc(),
             "title_asc": Material.title.asc(),
             "download_count_desc": Material.download_count.desc(),
-            "rating_desc": Material.download_count.desc(),
         }
         return statement.order_by(order_map.get(query.sort, Material.created_at.desc()))
 

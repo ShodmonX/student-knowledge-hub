@@ -212,3 +212,5 @@ __marimo__/
 /test_backups/
 !app/infrastructure/storage/
 !app/infrastructure/storage/**
+app/infrastructure/storage/__pycache__/
+app/infrastructure/storage/**/*.py[codz]

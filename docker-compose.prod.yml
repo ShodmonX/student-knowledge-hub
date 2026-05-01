@@ -1,16 +1,18 @@
 services:
   api:
     build: .
+    command: ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers $${APP_WORKERS}"]
     env_file:
       - .env
     environment:
-      REDIS_URL: redis://redis:6379/0
+      REDIS_URL: ${REDIS_URL:?REDIS_URL is required}
       APP_ENV: production
       DEBUG: "false"
+      RUN_SEED_ON_START: "false"
       STORAGE_ROOT: /home/appuser/storage
       BACKUP_LOCAL_ROOT: /home/appuser/backups
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     restart: unless-stopped
     volumes:
       - storage_data:/home/appuser/storage
@@ -43,15 +45,31 @@ services:
       DEBUG: "false"
       RUN_MIGRATIONS_ON_START: "false"
       RUN_SEED_ON_START: "false"
-      REDIS_URL: redis://redis:6379/0
+      REDIS_URL: ${REDIS_URL:?REDIS_URL is required}
       BACKUP_SCHEDULE_ENABLED: "true"
       BACKUP_LOCAL_ROOT: /home/appuser/backups
     restart: unless-stopped
     volumes:
       - backups_data:/home/appuser/backups
     depends_on:
-      api:
+      postgres:
         condition: service_healthy
+      redis:
+        condition: service_started
+
+  email-worker:
+    build: .
+    command: python scripts/email_worker.py
+    env_file:
+      - .env
+    environment:
+      APP_ENV: production
+      DEBUG: "false"
+      RUN_MIGRATIONS_ON_START: "false"
+      RUN_SEED_ON_START: "false"
+      REDIS_URL: ${REDIS_URL:?REDIS_URL is required}
+    restart: unless-stopped
+    depends_on:
       postgres:
         condition: service_healthy
       redis:
@@ -60,14 +78,14 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: student_knowledge_hub
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
     restart: unless-stopped
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d student_knowledge_hub"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -75,6 +93,9 @@ services:
 
   redis:
     image: redis:7-alpine
+    command: ["sh", "-c", "redis-server --appendonly yes --requirepass \"$${REDIS_PASSWORD}\""]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
     restart: unless-stopped
     volumes:
       - redis_data:/data

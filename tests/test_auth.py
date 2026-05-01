@@ -4,9 +4,11 @@ import pytest
 from fastapi import UploadFile
 from sqlalchemy import func, select
 
+from app.core.config import get_settings
 from app.core.exceptions import ConflictError
 from app.core.security import create_access_token, hash_password
 from app.modules.catalog.models import Faculty, Subject, University
+from app.modules.community.models import MaterialRating
 from app.modules.materials.enums import MaterialStatus, MaterialType
 from app.modules.users.enums import UserRole
 from app.modules.users.models import User
@@ -300,6 +302,60 @@ async def test_public_material_list_and_search_force_approved_only(client, sessi
 
 
 @pytest.mark.asyncio
+async def test_material_search_matches_description_and_rating_desc_sort(client, session):
+    university = await _seed_university(session)
+    faculty = await _seed_faculty(session, university.id, "Mathematics")
+    subject = await _seed_subject(session, faculty.id, "Analysis", 2)
+    user = await _seed_user(session, university.id, "rating-search@example.com")
+    service = MaterialService(session)
+    high_rated = await service.create_draft(
+        MaterialCreate(
+            title="Analiz kursi",
+            description="Matematika asoslari va limitlar",
+            material_type=MaterialType.NOTES,
+            subject_id=subject.id,
+            cover_file_id=None,
+            primary_file_id=None,
+        ),
+        user,
+    )
+    low_rated = await service.create_draft(
+        MaterialCreate(
+            title="Geometriya konspekti",
+            description="Matematika masalalari",
+            material_type=MaterialType.NOTES,
+            subject_id=subject.id,
+            cover_file_id=None,
+            primary_file_id=None,
+        ),
+        user,
+    )
+    high_rated.status = MaterialStatus.APPROVED
+    low_rated.status = MaterialStatus.APPROVED
+    session.add_all(
+        [
+            high_rated,
+            low_rated,
+            MaterialRating(material_id=high_rated.id, user_id=user.id, value=5),
+            MaterialRating(material_id=low_rated.id, user_id=user.id, value=2),
+        ]
+    )
+    await session.commit()
+
+    response = await client.get(
+        "/api/v1/materials/search",
+        params={"q": "matematika", "sort": "rating_desc"},
+    )
+    wildcard_response = await client.get("/api/v1/materials/search", params={"q": "%"})
+
+    assert response.status_code == 200
+    assert [item["id"] for item in response.json()["items"][:2]] == [high_rated.id, low_rated.id]
+    assert response.json()["items"][0]["average_rating"] == 5.0
+    assert wildcard_response.status_code == 200
+    assert wildcard_response.json()["total"] == 0
+
+
+@pytest.mark.asyncio
 async def test_forgot_password_does_not_return_reset_token(client, session):
     university = await _seed_university(session)
     await _seed_user(session, university.id, "forgot@example.com")
@@ -307,7 +363,9 @@ async def test_forgot_password_does_not_return_reset_token(client, session):
     response = await client.post("/api/v1/auth/forgot-password", json={"email": "forgot@example.com"})
 
     assert response.status_code == 200
-    assert response.json() == {"message": "If the account exists, reset instructions have been generated."}
+    assert response.json() == {
+        "message": "Agar akkaunt mavjud bo'lsa, email yuborish navbatga qo'yildi."
+    }
 
 
 @pytest.mark.asyncio
@@ -387,6 +445,87 @@ async def test_auth_session_endpoints_revoke_refresh_tokens(client, session):
         json={"refresh_token": second_refresh},
     )
     assert refresh_after_logout_all.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_login_brute_force_lockout_uses_security_store(client, session, monkeypatch):
+    settings = get_settings()
+    monkeypatch.setattr(settings, "login_lockout_max_attempts", 2)
+    monkeypatch.setattr(settings, "login_lockout_seconds", 60)
+    university = await _seed_university(session)
+    await _seed_user(session, university.id, "lockout@example.com")
+
+    first_wrong = await client.post(
+        "/api/v1/auth/login",
+        json={"email": "lockout@example.com", "password": "wrong-password"},
+    )
+    second_wrong = await client.post(
+        "/api/v1/auth/login",
+        json={"email": "lockout@example.com", "password": "wrong-password"},
+    )
+    correct_after_lock = await client.post(
+        "/api/v1/auth/login",
+        json={"email": "lockout@example.com", "password": "password123"},
+    )
+
+    assert first_wrong.status_code == 401
+    assert second_wrong.status_code == 429
+    assert second_wrong.json()["details"]["scope"] == "auth.login.lockout"
+    assert correct_after_lock.status_code == 429
+
+
+@pytest.mark.asyncio
+async def test_register_rate_limit_is_configurable(client, session, monkeypatch):
+    settings = get_settings()
+    monkeypatch.setattr(settings, "rate_limit_register_max_requests", 1)
+    university = await _seed_university(session)
+
+    first = await client.post(
+        "/api/v1/auth/register",
+        json={
+            "full_name": "Rate Limited",
+            "email": "limited-register@example.com",
+            "password": "password123",
+            "university_id": university.id,
+        },
+    )
+    second = await client.post(
+        "/api/v1/auth/register",
+        json={
+            "full_name": "Rate Limited",
+            "email": "limited-register@example.com",
+            "password": "password123",
+            "university_id": university.id,
+        },
+    )
+
+    assert first.status_code == 201
+    assert second.status_code == 429
+    assert second.json()["details"]["scope"] == "auth.register"
+
+
+@pytest.mark.asyncio
+async def test_logout_revokes_current_access_token(client, session):
+    university = await _seed_university(session)
+    await _seed_user(session, university.id, "revoke-access@example.com")
+    login = await client.post(
+        "/api/v1/auth/login",
+        json={"email": "revoke-access@example.com", "password": "password123"},
+    )
+    access_token = login.json()["access_token"]
+    refresh_token = login.json()["refresh_token"]
+    headers = {"Authorization": f"Bearer {access_token}"}
+
+    logout = await client.post(
+        "/api/v1/auth/logout",
+        headers=headers,
+        json={"refresh_token": refresh_token},
+    )
+    me_after_logout = await client.get("/api/v1/auth/me", headers=headers)
+
+    assert logout.status_code == 200
+    assert me_after_logout.status_code == 401
+    assert me_after_logout.json()["message"] == "Access token has been revoked"
 
 
 @pytest.mark.asyncio

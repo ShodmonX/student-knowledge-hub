@@ -6,10 +6,19 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db_session
 from app.modules.auth.dependencies import get_current_user
 from app.modules.auth.schemas import ChangePasswordRequest
-from app.modules.catalog_proposals.models import FacultyProposal, SubjectProposal, UniversityProposal
-from app.modules.catalog_proposals.schemas import CatalogProposalRead, HomeUniversityUpdateRequest, HomeUniversityUpdateResponse
+from app.modules.catalog_proposals.models import (
+    FacultyProposal,
+    SubjectProposal,
+    UniversityProposal,
+)
+from app.modules.catalog_proposals.schemas import (
+    CatalogProposalRead,
+    HomeUniversityUpdateRequest,
+    HomeUniversityUpdateResponse,
+)
 from app.modules.catalog_proposals.service import CatalogProposalService
 from app.modules.materials.schemas import MaterialListQuery, MaterialRead
+from app.modules.materials.service import MaterialService
 from app.modules.users.models import User
 from app.modules.users.schemas import (
     PublicUserRead,
@@ -19,8 +28,12 @@ from app.modules.users.schemas import (
     UserUpdateMe,
 )
 from app.modules.users.service import UserService
-from app.modules.materials.service import MaterialService
-from app.utils.serializers import build_catalog_proposal_read, build_material_read, build_public_user_summary
+from app.shared.schemas.common import MessageResponse
+from app.utils.serializers import (
+    build_catalog_proposal_read,
+    build_material_read,
+    build_public_user_summary,
+)
 
 router = APIRouter()
 
@@ -42,14 +55,14 @@ async def update_me(
     return UserRead.model_validate(updated)
 
 
-@router.post("/me/change-password")
+@router.post("/me/change-password", response_model=MessageResponse)
 async def change_password(
     payload: ChangePasswordRequest,
     user: Annotated[User, Depends(get_current_user)],
     session: Annotated[AsyncSession, Depends(get_db_session)],
-) -> dict[str, str]:
+) -> MessageResponse:
     await UserService(session).change_password(user, payload)
-    return {"message": "Password changed"}
+    return MessageResponse(message="Parol o'zgartirildi")
 
 
 @router.patch("/me/home-university", response_model=HomeUniversityUpdateResponse)
@@ -174,30 +187,30 @@ async def list_saved_materials(
     ]
 
 
-@router.post("/me/saved-materials/{material_id}")
+@router.post("/me/saved-materials/{material_id}", response_model=MessageResponse)
 async def save_material(
     material_id: str,
     user: Annotated[User, Depends(get_current_user)],
     session: Annotated[AsyncSession, Depends(get_db_session)],
-) -> dict[str, str]:
+) -> MessageResponse:
     await UserService(session).save_material(material_id, user)
-    return {"message": "Material saved"}
+    return MessageResponse(message="Material saqlandi")
 
 
-@router.delete("/me/saved-materials/{material_id}")
+@router.delete("/me/saved-materials/{material_id}", response_model=MessageResponse)
 async def remove_saved_material(
     material_id: str,
     user: Annotated[User, Depends(get_current_user)],
     session: Annotated[AsyncSession, Depends(get_db_session)],
-) -> dict[str, str]:
+) -> MessageResponse:
     await UserService(session).remove_saved_material(material_id, user)
-    return {"message": "Saved material removed"}
+    return MessageResponse(message="Saqlangan material o'chirildi")
 
 
-@router.delete("/me/saved-materials")
+@router.delete("/me/saved-materials", response_model=MessageResponse)
 async def clear_saved_materials(
     user: Annotated[User, Depends(get_current_user)],
     session: Annotated[AsyncSession, Depends(get_db_session)],
-) -> dict[str, str]:
+) -> MessageResponse:
     await UserService(session).clear_saved_materials(user)
-    return {"message": "Saved materials cleared"}
+    return MessageResponse(message="Saqlangan materiallar tozalandi")

@@ -1,9 +1,11 @@
 from datetime import UTC, datetime, timedelta
+from html import escape
 from uuid import uuid4
 
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import Settings, get_settings
 from app.core.exceptions import AuthenticationError, ConflictError, ResourceNotFound
 from app.core.security import (
     claims_expiration_to_datetime,
@@ -13,31 +15,37 @@ from app.core.security import (
     hash_password,
     verify_password,
 )
-from app.modules.users.models import User
-from app.modules.auth.models import PasswordResetToken, RefreshTokenSession
+from app.core.security_controls import AccessTokenRevocationStore
+from app.modules.audit.service import AuditService
+from app.modules.auth.email_outbox import EmailOutboxService
+from app.modules.auth.models import EmailVerificationToken, PasswordResetToken, RefreshTokenSession
 from app.modules.auth.schemas import (
     ForgotPasswordRequest,
     LoginRequest,
     LogoutRequest,
     RefreshRequest,
     RegisterRequest,
+    ResendVerificationRequest,
     ResetPasswordRequest,
     TokenResponse,
+    VerifyEmailRequest,
 )
 from app.modules.catalog.repositories import UniversityRepository
-from app.modules.users.repository import UserRepository
-from app.modules.audit.service import AuditService
 from app.modules.telegram.dispatcher import TelegramEventDispatcher
 from app.modules.telegram.event_service import TelegramEventService
+from app.modules.users.models import User
+from app.modules.users.repository import UserRepository
 from app.utils.hashing import sha256_text
 
 
 class AuthService:
-    def __init__(self, session: AsyncSession) -> None:
+    def __init__(self, session: AsyncSession, settings: Settings | None = None) -> None:
         self.session = session
+        self.settings = settings or get_settings()
         self.users = UserRepository(session)
         self.universities = UniversityRepository(session)
         self.audit = AuditService(session)
+        self.email_outbox = EmailOutboxService(session, self.settings)
 
     async def register(self, payload: RegisterRequest) -> User:
         if await self.users.get_by_email(payload.email):
@@ -53,6 +61,8 @@ class AuthService:
         )
         await self.users.create(user)
         await self.audit.log("user_registered", "user", user, user.id)
+        verification_token = await self._create_email_verification_token(user)
+        await self._queue_verification_email(user, verification_token)
         events = await TelegramEventService(self.session).enqueue_user_registered_events(user)
         await TelegramEventDispatcher(self.session).dispatch_events(events)
         await self.session.commit()
@@ -95,48 +105,91 @@ class AuthService:
         await self.session.commit()
         return TokenResponse(**tokens, role=user.role)
 
-    async def logout(self, payload: LogoutRequest | None) -> dict[str, str]:
+    async def logout(
+        self,
+        payload: LogoutRequest | None,
+        access_token: str | None = None,
+    ) -> dict[str, str]:
+        if access_token:
+            await AccessTokenRevocationStore().revoke_token(access_token)
         if not payload or not payload.refresh_token:
-            return {"message": "Logged out"}
+            return {"message": "Tizimdan chiqildi"}
         claims = decode_token(payload.refresh_token)
         if claims.get("type") != "refresh":
             raise AuthenticationError("Invalid token type")
         token_session = await self._get_refresh_session(claims["jti"], payload.refresh_token)
         token_session.revoked_at = datetime.now(UTC)
         await self.session.commit()
-        return {"message": "Logged out"}
+        return {"message": "Tizimdan chiqildi"}
 
     async def forgot_password(self, payload: ForgotPasswordRequest) -> dict[str, str]:
         user = await self.users.get_by_email(payload.email)
         if not user:
-            return {"message": "If the account exists, reset instructions have been generated."}
+            return {
+                "message": "Agar akkaunt mavjud bo'lsa, email yuborish navbatga qo'yildi."
+            }
+        await self._consume_password_reset_tokens(user.id)
         token = uuid4().hex + uuid4().hex
         reset_token = PasswordResetToken(
             user_id=user.id,
-            token=token,
+            token=sha256_text(token),
             expires_at=datetime.now(UTC) + timedelta(hours=1),
         )
         self.session.add(reset_token)
+        await self._queue_password_reset_email(user, token)
         await self.audit.log("password_reset_requested", "user", user, user.id)
         await self.session.commit()
-        return {"message": "If the account exists, reset instructions have been generated."}
+        return {"message": "Agar akkaunt mavjud bo'lsa, email yuborish navbatga qo'yildi."}
 
     async def reset_password(self, payload: ResetPasswordRequest) -> dict[str, str]:
         result = await self.session.execute(
-            select(PasswordResetToken).where(PasswordResetToken.token == payload.token)
+            select(PasswordResetToken).where(PasswordResetToken.token == sha256_text(payload.token))
         )
         reset_token = result.scalar_one_or_none()
         if not reset_token or reset_token.consumed or reset_token.expires_at < datetime.now(UTC):
-            raise AuthenticationError("Invalid or expired reset token")
+            raise AuthenticationError("Parolni tiklash tokeni noto'g'ri yoki muddati tugagan")
         user = await self.users.get_by_id(reset_token.user_id)
         if not user:
             raise ResourceNotFound("User not found")
         user.hashed_password = hash_password(payload.new_password)
         reset_token.consumed = True
         await self._revoke_all_refresh_tokens(user.id)
+        await AccessTokenRevocationStore().revoke_all_for_user(user.id)
         await self.audit.log("password_reset_completed", "user", user, user.id)
         await self.session.commit()
-        return {"message": "Password has been reset"}
+        return {"message": "Parol tiklandi"}
+
+    async def verify_email(self, payload: VerifyEmailRequest) -> dict[str, str]:
+        result = await self.session.execute(
+            select(EmailVerificationToken).where(
+                EmailVerificationToken.token == sha256_text(payload.token)
+            )
+        )
+        verification_token = result.scalar_one_or_none()
+        if (
+            not verification_token
+            or verification_token.consumed
+            or verification_token.expires_at < datetime.now(UTC)
+        ):
+            raise AuthenticationError("Tasdiqlash tokeni noto'g'ri yoki muddati tugagan")
+        user = await self.users.get_by_id(verification_token.user_id)
+        if not user:
+            raise ResourceNotFound("User not found")
+        user.is_verified = True
+        verification_token.consumed = True
+        await self.audit.log("email_verified", "user", user, user.id)
+        await self.session.commit()
+        return {"message": "Email tasdiqlandi"}
+
+    async def resend_verification(self, payload: ResendVerificationRequest) -> dict[str, str]:
+        user = await self.users.get_by_email(payload.email)
+        if not user or user.is_verified:
+            return {"message": "Agar akkaunt mavjud bo'lsa, email yuborish navbatga qo'yildi."}
+        verification_token = await self._create_email_verification_token(user)
+        await self._queue_verification_email(user, verification_token)
+        await self.audit.log("email_verification_requested", "user", user, user.id)
+        await self.session.commit()
+        return {"message": "Agar akkaunt mavjud bo'lsa, email yuborish navbatga qo'yildi."}
 
     async def revoke_user_sessions(self, user_id: str) -> None:
         await self._revoke_all_refresh_tokens(user_id)
@@ -161,12 +214,12 @@ class AuthService:
             raise ResourceNotFound("Session not found")
         token_session.revoked_at = datetime.now(UTC)
         await self.session.commit()
-        return {"message": "Session revoked"}
+        return {"message": "Sessiya bekor qilindi"}
 
     async def logout_all(self, user: User) -> dict[str, str]:
         await self._revoke_all_refresh_tokens(user.id)
         await self.session.commit()
-        return {"message": "All sessions revoked"}
+        return {"message": "Barcha sessiyalar bekor qilindi"}
 
     async def _issue_token_pair(self, user: User) -> dict[str, str]:
         access_token = create_access_token(user.id, user.role.value)
@@ -186,7 +239,11 @@ class AuthService:
         }
 
     async def _get_refresh_session(self, jti: str, refresh_token: str) -> RefreshTokenSession:
-        result = await self.session.execute(select(RefreshTokenSession).where(RefreshTokenSession.jti == jti))
+        result = await self.session.execute(
+            select(RefreshTokenSession)
+            .where(RefreshTokenSession.jti == jti)
+            .with_for_update()
+        )
         token_session = result.scalar_one_or_none()
         if not token_session or token_session.token_hash != sha256_text(refresh_token):
             claims = decode_token(refresh_token)
@@ -204,3 +261,78 @@ class AuthService:
             )
             .values(revoked_at=datetime.now(UTC))
         )
+
+    async def _create_email_verification_token(self, user: User) -> str:
+        await self._consume_email_verification_tokens(user.id)
+        token = uuid4().hex + uuid4().hex
+        self.session.add(
+            EmailVerificationToken(
+                user_id=user.id,
+                token=sha256_text(token),
+                expires_at=datetime.now(UTC)
+                + timedelta(hours=self.settings.email_verification_token_expire_hours),
+            )
+        )
+        return token
+
+    async def _consume_email_verification_tokens(self, user_id: str) -> None:
+        await self.session.execute(
+            update(EmailVerificationToken)
+            .where(
+                EmailVerificationToken.user_id == user_id,
+                EmailVerificationToken.consumed.is_(False),
+            )
+            .values(consumed=True)
+        )
+
+    async def _consume_password_reset_tokens(self, user_id: str) -> None:
+        await self.session.execute(
+            update(PasswordResetToken)
+            .where(
+                PasswordResetToken.user_id == user_id,
+                PasswordResetToken.consumed.is_(False),
+            )
+            .values(consumed=True)
+        )
+
+    async def _queue_verification_email(self, user: User, token: str) -> None:
+        verification_url = self._build_public_url(self.settings.email_verification_url_path, token)
+        await self.email_outbox.enqueue(
+            recipient_email=user.email,
+            subject="Verify your Student Knowledge Hub email",
+            text_body=(
+                f"Hello {user.full_name},\n\n"
+                "Verify your email address using this link:\n"
+                f"{verification_url}\n\n"
+                "If you did not create this account, you can ignore this email."
+            ),
+            html_body=(
+                f"<p>Hello {escape(user.full_name)},</p>"
+                "<p>Verify your email address using this link:</p>"
+                f'<p><a href="{escape(verification_url, quote=True)}">Verify email</a></p>'
+                "<p>If you did not create this account, you can ignore this email.</p>"
+            ),
+        )
+
+    async def _queue_password_reset_email(self, user: User, token: str) -> None:
+        reset_url = self._build_public_url(self.settings.password_reset_url_path, token)
+        await self.email_outbox.enqueue(
+            recipient_email=user.email,
+            subject="Reset your Student Knowledge Hub password",
+            text_body=(
+                f"Hello {user.full_name},\n\n"
+                "Reset your password using this link:\n"
+                f"{reset_url}\n\n"
+                "If you did not request a password reset, you can ignore this email."
+            ),
+            html_body=(
+                f"<p>Hello {escape(user.full_name)},</p>"
+                "<p>Reset your password using this link:</p>"
+                f'<p><a href="{escape(reset_url, quote=True)}">Reset password</a></p>'
+                "<p>If you did not request a password reset, you can ignore this email.</p>"
+            ),
+        )
+
+    def _build_public_url(self, path: str, token: str) -> str:
+        normalized_path = path if path.startswith("/") else f"/{path}"
+        return f"{self.settings.public_web_base_url.rstrip('/')}{normalized_path}?token={token}"

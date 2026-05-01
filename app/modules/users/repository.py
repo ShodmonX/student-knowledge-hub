@@ -6,6 +6,10 @@ from app.modules.users.enums import UserRole
 from app.modules.users.models import User
 
 
+def escape_like(value: str) -> str:
+    return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+
+
 class UserRepository:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
@@ -39,8 +43,10 @@ class UserRepository:
     ):
         statement = select(User).options(selectinload(User.university))
         if q:
+            search_pattern = f"%{escape_like(q.lower())}%"
             statement = statement.where(
-                func.lower(User.full_name).contains(q.lower()) | func.lower(User.email).contains(q.lower())
+                func.lower(User.full_name).ilike(search_pattern, escape="\\")
+                | func.lower(User.email).ilike(search_pattern, escape="\\")
             )
         if role:
             statement = statement.where(User.role == UserRole(role))

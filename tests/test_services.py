@@ -2,17 +2,30 @@ from datetime import UTC, datetime
 
 import pytest
 
-from app.core.exceptions import ConflictError, PermissionDenied, ResourceNotFound, ValidationAppError
-from app.modules.materials.enums import MaterialStatus, ReportStatus
-from app.modules.users.enums import UserRole
+from app.core.exceptions import (
+    ConflictError,
+    PermissionDenied,
+    ResourceNotFound,
+    ValidationAppError,
+)
 from app.modules.admin.repository import ModeratorScopeRepository
-from app.modules.moderation.schemas import MoveSubjectRequest, RejectRequest
-from app.modules.tags.schemas import TagCreate, TagUpdate
 from app.modules.admin.service import AdminService
 from app.modules.community.service import CommunityService
+from app.modules.materials.enums import MaterialStatus, ReportStatus
+from app.modules.moderation.schemas import MoveSubjectRequest, RejectRequest
 from app.modules.moderation.service import ModerationService
+from app.modules.tags.schemas import TagCreate, TagUpdate
 from app.modules.tags.service import TagService
-from tests.helpers import add_university_scope, seed_faculty, seed_material, seed_report, seed_subject, seed_university, seed_user
+from app.modules.users.enums import UserRole
+from tests.helpers import (
+    add_university_scope,
+    seed_faculty,
+    seed_material,
+    seed_report,
+    seed_subject,
+    seed_university,
+    seed_user,
+)
 
 
 @pytest.mark.asyncio
@@ -25,6 +38,12 @@ async def test_admin_service_direct_covers_validation_reports_and_dashboard(sess
     managed_user = await seed_user(session, university.id, "managed-service@example.com")
     report_user = await seed_user(session, university.id, "report-service@example.com")
     uploader = await seed_user(session, university.id, "uploader-service@example.com")
+    admin_user = await seed_user(
+        session,
+        university.id,
+        "admin-service@example.com",
+        role=UserRole.ADMIN,
+    )
     service = AdminService(session)
 
     updated_role_user = await service.update_user_role(managed_user.id, UserRole.MODERATOR)
@@ -32,10 +51,27 @@ async def test_admin_service_direct_covers_validation_reports_and_dashboard(sess
 
     updated_user = await service.update_user(managed_user.id, {"full_name": "Managed Service User"})
     assert updated_user.full_name == "Managed Service User"
+    with pytest.raises(ValidationAppError):
+        await service.update_user(managed_user.id, {"hashed_password": "overposted"})
+    with pytest.raises(ResourceNotFound):
+        await service.update_user(managed_user.id, {"university_id": "missing-university"})
+    with pytest.raises(PermissionDenied):
+        await service.update_user_role(admin_user.id, UserRole.STUDENT, actor=admin_user)
+    with pytest.raises(PermissionDenied):
+        await service.update_user(admin_user.id, {"is_active": False}, actor=admin_user)
+    with pytest.raises(ValidationAppError):
+        await service.update_user_role(admin_user.id, UserRole.STUDENT)
+    with pytest.raises(ValidationAppError):
+        await service.update_user(admin_user.id, {"is_active": False})
     assert (await service.set_user_status(managed_user.id, False)).is_active is False
     assert (await service.verify_user(managed_user.id, True)).is_verified is True
 
-    filtered_users, total = await service.list_users(q="managed", role="moderator", status=False, university_id=university.id)
+    filtered_users, total = await service.list_users(
+        q="managed",
+        role="moderator",
+        status=False,
+        university_id=university.id,
+    )
     assert total == 1
     assert filtered_users[0].id == managed_user.id
     assert (await service.get_user_detail(managed_user.id)).id == managed_user.id
@@ -54,7 +90,7 @@ async def test_admin_service_direct_covers_validation_reports_and_dashboard(sess
         managed_user.id,
         type("Payload", (), {"university_id": second_university.id, "faculty_id": None, "subject_id": None})(),
     )
-    assert result["message"] == "Moderator scope assigned"
+    assert result["message"] == "Moderator scope biriktirildi"
     scope_id = result["scope_id"]
 
     listed_scopes = await service.list_moderator_scopes(managed_user.id)

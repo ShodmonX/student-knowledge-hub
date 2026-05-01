@@ -10,7 +10,7 @@ ENV RUN_MIGRATIONS_ON_START=true
 ENV RUN_SEED_ON_START=true
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends postgresql-client \
+    && apt-get install -y --no-install-recommends postgresql-client gosu \
     && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml README.md ./
@@ -24,7 +24,4 @@ RUN mkdir -p /app/storage /home/appuser/storage /home/appuser/backups \
     && chmod +x /app/docker/entrypoint.sh \
     && chown -R appuser:appuser /app /home/appuser/storage /home/appuser/backups
 
-USER appuser
-
 ENTRYPOINT ["sh", "/app/docker/entrypoint.sh"]
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers ${APP_WORKERS}"]

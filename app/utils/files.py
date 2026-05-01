@@ -7,7 +7,7 @@ from app.core.exceptions import ValidationAppError
 from app.modules.materials.enums import FileKind
 
 IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
-DOCUMENT_EXTENSIONS = {"pdf", "docx"}
+DOCUMENT_EXTENSIONS = {"pdf", "docx", "djvu"}
 ALLOWED_EXTENSIONS = IMAGE_EXTENSIONS | DOCUMENT_EXTENSIONS
 PREVIEWABLE_EXTENSIONS = ALLOWED_EXTENSIONS
 
@@ -18,6 +18,7 @@ MIME_BY_EXTENSION = {
     "webp": "image/webp",
     "pdf": "application/pdf",
     "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "djvu": "image/vnd.djvu",
 }
 
 
@@ -53,6 +54,9 @@ def validate_file_signature(extension: str, header: bytes, stored_path: Path) ->
     elif extension == "pdf":
         if not header.startswith(b"%PDF-"):
             raise ValidationAppError("Uploaded file content does not match PDF signature")
+    elif extension == "djvu":
+        if not header.startswith(b"AT&TFORM"):
+            raise ValidationAppError("Uploaded file content does not match DJVU signature")
     elif extension == "docx":
         if not header.startswith(b"PK\x03\x04"):
             raise ValidationAppError("Uploaded file content does not match DOCX signature")

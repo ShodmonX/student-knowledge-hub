@@ -1,8 +1,9 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.security_controls import AuthRateLimiter
 from app.db.session import get_db_session
 from app.modules.auth.dependencies import require_internal_service
 from app.modules.telegram.event_service import TelegramEventService
@@ -27,17 +28,21 @@ router = APIRouter(dependencies=[Depends(require_internal_service)])
 
 @router.post("/link/consume", response_model=TelegramInternalLinkResponse)
 async def consume_telegram_link_token(
+    request: Request,
     payload: TelegramInternalConsumeRequest,
     session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> TelegramInternalLinkResponse:
+    await AuthRateLimiter().check_sensitive_rate(request, payload.token, "auth.telegram.link_consume")
     return await TelegramService(session).consume_token(payload.token, payload.telegram_user)
 
 
 @router.post("/link/verify-code", response_model=TelegramInternalLinkResponse)
 async def verify_telegram_link_code(
+    request: Request,
     payload: TelegramInternalVerifyCodeRequest,
     session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> TelegramInternalLinkResponse:
+    await AuthRateLimiter().check_sensitive_rate(request, payload.code, "auth.telegram.code_verify")
     return await TelegramService(session).verify_code(payload.code, payload.telegram_user)
 
 

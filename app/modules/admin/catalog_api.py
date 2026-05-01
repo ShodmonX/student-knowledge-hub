@@ -4,9 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db_session
-from app.modules.catalog.service import CatalogService
 from app.modules.auth.dependencies import require_roles
-from app.modules.users.enums import UserRole
 from app.modules.catalog.schemas import (
     FacultyCreate,
     FacultyRead,
@@ -18,6 +16,9 @@ from app.modules.catalog.schemas import (
     UniversityRead,
     UniversityUpdate,
 )
+from app.modules.catalog.service import CatalogService
+from app.modules.users.enums import UserRole
+from app.shared.schemas.common import MessageResponse
 
 router = APIRouter()
 
@@ -43,14 +44,14 @@ async def update_university(
     return UniversityRead.model_validate(item)
 
 
-@router.delete("/universities/{university_id}")
+@router.delete("/universities/{university_id}", response_model=MessageResponse)
 async def delete_university(
     university_id: str,
     _: Annotated[object, Depends(require_roles(UserRole.ADMIN))],
     session: Annotated[AsyncSession, Depends(get_db_session)],
-) -> dict[str, str]:
+) -> MessageResponse:
     await CatalogService(session).delete_university(university_id)
-    return {"message": "University deleted"}
+    return MessageResponse(message="Universitet o'chirildi")
 
 
 @router.post("/faculties", response_model=FacultyRead)
@@ -74,14 +75,14 @@ async def update_faculty(
     return FacultyRead.model_validate(item)
 
 
-@router.delete("/faculties/{faculty_id}")
+@router.delete("/faculties/{faculty_id}", response_model=MessageResponse)
 async def delete_faculty(
     faculty_id: str,
     _: Annotated[object, Depends(require_roles(UserRole.ADMIN))],
     session: Annotated[AsyncSession, Depends(get_db_session)],
-) -> dict[str, str]:
+) -> MessageResponse:
     await CatalogService(session).delete_faculty(faculty_id)
-    return {"message": "Faculty deleted"}
+    return MessageResponse(message="Fakultet o'chirildi")
 
 
 @router.post("/subjects", response_model=SubjectRead)
@@ -105,11 +106,11 @@ async def update_subject(
     return SubjectRead.model_validate(item)
 
 
-@router.delete("/subjects/{subject_id}")
+@router.delete("/subjects/{subject_id}", response_model=MessageResponse)
 async def delete_subject(
     subject_id: str,
     _: Annotated[object, Depends(require_roles(UserRole.ADMIN))],
     session: Annotated[AsyncSession, Depends(get_db_session)],
-) -> dict[str, str]:
+) -> MessageResponse:
     await CatalogService(session).delete_subject(subject_id)
-    return {"message": "Subject deleted"}
+    return MessageResponse(message="Fan o'chirildi")

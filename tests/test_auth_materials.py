@@ -1,21 +1,38 @@
 from datetime import UTC, datetime, timedelta
+from urllib.parse import parse_qs, urlparse
 
 import pytest
 from sqlalchemy import select
 
 from app.core.config import get_settings
 from app.core.exceptions import ResourceNotFound
-from app.modules.auth.models import PasswordResetToken, RefreshTokenSession
-from app.modules.materials.enums import MaterialStatus, MaterialType
-from app.modules.materials.models import Material
+from app.modules.auth.models import EmailOutbox, PasswordResetToken, RefreshTokenSession
 from app.modules.auth.schemas import RegisterRequest
 from app.modules.auth.service import AuthService
+from app.modules.materials.enums import MaterialStatus, MaterialType
+from app.modules.materials.models import Material
 from app.modules.materials.service import MaterialService
-from tests.helpers import access_headers, seed_faculty, seed_material, seed_subject, seed_university, seed_user
+from app.utils.hashing import sha256_text
+from tests.helpers import (
+    access_headers,
+    seed_faculty,
+    seed_material,
+    seed_subject,
+    seed_university,
+    seed_user,
+)
+
+
+def _extract_token_from_email(message: EmailOutbox) -> str:
+    for word in message.text_body.split():
+        if "token=" in word:
+            return parse_qs(urlparse(word).query)["token"][0]
+    raise AssertionError("email token link not found")
 
 
 @pytest.mark.asyncio
-async def test_auth_flows_cover_reset_logout_and_revocation_paths(client, session):
+async def test_auth_flows_cover_reset_logout_and_revocation_paths(client, session, monkeypatch):
+    monkeypatch.setattr(get_settings(), "mail_enabled", True)
     university = await seed_university(session, "Auth University")
 
     register = await client.post(
@@ -74,8 +91,18 @@ async def test_auth_flows_cover_reset_logout_and_revocation_paths(client, sessio
     )
     assert forgot_password.status_code == 200
 
-    reset_token = await session.scalar(select(PasswordResetToken).order_by(PasswordResetToken.created_at.desc()))
+    reset_token = await session.scalar(
+        select(PasswordResetToken).order_by(PasswordResetToken.created_at.desc())
+    )
     assert reset_token is not None
+    reset_email = await session.scalar(
+        select(EmailOutbox)
+        .where(EmailOutbox.recipient_email == "auth-user@example.com")
+        .order_by(EmailOutbox.created_at.desc())
+    )
+    assert reset_email is not None
+    raw_reset_token = _extract_token_from_email(reset_email)
+    assert reset_token.token == sha256_text(raw_reset_token)
 
     invalid_reset = await client.post(
         "/api/v1/auth/reset-password",
@@ -85,13 +112,13 @@ async def test_auth_flows_cover_reset_logout_and_revocation_paths(client, sessio
 
     reset_password = await client.post(
         "/api/v1/auth/reset-password",
-        json={"token": reset_token.token, "new_password": "brand-new-password123"},
+        json={"token": raw_reset_token, "new_password": "brand-new-password123"},
     )
     assert reset_password.status_code == 200
 
     reused_reset = await client.post(
         "/api/v1/auth/reset-password",
-        json={"token": reset_token.token, "new_password": "another-password123"},
+        json={"token": raw_reset_token, "new_password": "another-password123"},
     )
     assert reused_reset.status_code == 401
 

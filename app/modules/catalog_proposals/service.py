@@ -154,7 +154,7 @@ class CatalogProposalService:
         user.university_changed_at = now
         await self.session.commit()
         return {
-            "message": "Home university updated successfully",
+            "message": "Asosiy universitet yangilandi",
             "home_university_id": user.university_id,
         }
 

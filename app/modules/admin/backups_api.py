@@ -4,7 +4,12 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db_session
-from app.modules.admin.schemas import BackupListResponse, BackupRead, BackupRestoreResponse
+from app.modules.admin.schemas import (
+    BackupListResponse,
+    BackupRead,
+    BackupRestoreRequest,
+    BackupRestoreResponse,
+)
 from app.modules.admin.service import AdminService
 from app.modules.auth.dependencies import require_roles
 from app.modules.users.enums import UserRole
@@ -41,7 +46,8 @@ async def create_backup(
 @router.post("/backups/{backup_id}/restore", response_model=BackupRestoreResponse)
 async def restore_backup(
     backup_id: str,
+    payload: BackupRestoreRequest,
     _: Annotated[object, Depends(require_roles(UserRole.ADMIN))],
     session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> BackupRestoreResponse:
-    return await AdminService(session).restore_backup(backup_id)
+    return await AdminService(session).restore_backup(backup_id, payload.confirmation)

@@ -8,7 +8,14 @@ from pathlib import Path
 
 import pytest
 
-from app.bootstrap.backup_service import BackupError, BackupManifest, BackupService, ClientError
+from app.bootstrap.backup_service import (
+    BackupError,
+    DatabaseConnectionInfo,
+    BackupManifest,
+    BackupRecord,
+    BackupService,
+    ClientError,
+)
 from app.core.config import Settings
 from app.core.exceptions import ResourceNotFound
 
@@ -38,6 +45,8 @@ def build_settings(tmp_path: Path, **overrides) -> Settings:
         "backup_offsite_enabled": False,
         "backup_retention_offsite": 2,
         "backup_s3_prefix": "production/postgres",
+        "backup_max_restore_size_bytes": 5 * 1024 * 1024,
+        "backup_restore_confirmation_required": True,
         "s3_bucket": None,
         "s3_region": None,
         "s3_endpoint_url": None,
@@ -403,6 +412,58 @@ def test_backup_service_restore_creates_pre_restore_backup_and_restores(monkeypa
     ]
 
 
+def test_backup_service_restore_filters_transaction_timeout_for_postgres_16(tmp_path):
+    settings = build_settings(tmp_path, backup_verify_restore=False)
+    service = BackupService(settings)
+    dump_path = tmp_path / "compatible.dump"
+    dump_path.write_bytes(b"dump")
+    commands: list[list[str]] = []
+    filtered_sql: dict[str, str] = {}
+
+    def fake_run_command(command, env):
+        commands.append(command)
+        if command[0] == "pg_restore" and "--dbname" in command:
+            raise BackupError('ERROR: unrecognized configuration parameter "transaction_timeout"')
+        if command[0] == "pg_restore" and "--file" in command:
+            sql_path = Path(command[command.index("--file") + 1])
+            sql_path.write_text(
+                "SET statement_timeout = 0;\n"
+                "SET transaction_timeout = 0;\n"
+                "CREATE TABLE public.example (id integer);\n",
+                encoding="utf-8",
+            )
+        if command[0] == "psql" and "--file" in command:
+            sql_path = Path(command[command.index("--file") + 1])
+            filtered_sql["content"] = sql_path.read_text(encoding="utf-8")
+
+    service._run_command = fake_run_command
+
+    service._restore_dump(
+        DatabaseConnectionInfo(
+            database="student_knowledge_hub",
+            username="postgres",
+            password="secret",
+            host="postgres",
+            port=5432,
+        ),
+        dump_path,
+    )
+
+    assert [command[0] for command in commands] == [
+        "psql",
+        "dropdb",
+        "createdb",
+        "pg_restore",
+        "dropdb",
+        "createdb",
+        "pg_restore",
+        "psql",
+    ]
+    assert "SET statement_timeout = 0;" in filtered_sql["content"]
+    assert "SET transaction_timeout = 0;" not in filtered_sql["content"]
+    assert "CREATE TABLE public.example" in filtered_sql["content"]
+
+
 def test_backup_service_restore_verifies_offsite_dump_before_restore(monkeypatch, tmp_path):
     settings = build_settings(
         tmp_path,
@@ -615,3 +676,52 @@ def test_backup_service_list_backups_ignores_paginator_iteration_nosuchkey(monke
     )
 
     assert service.list_backups() == []
+
+
+def test_backup_service_ignores_local_manifest_with_dump_path_outside_root(tmp_path):
+    settings = build_settings(tmp_path, backup_verify_restore=False)
+    service = BackupService(settings)
+    local_root = Path(settings.backup_local_root) / "daily"
+    local_root.mkdir(parents=True)
+    manifest = BackupManifest(
+        backup_id="outside-root",
+        created_at="2026-04-01T02:00:00+00:00",
+        database_name="student_knowledge_hub",
+        dump_format="custom",
+        checksum_sha256="abc",
+        size_bytes=128,
+        verified=True,
+        trigger="manual",
+        local_dump_path="/tmp/outside-root.dump",
+        local_manifest_path=str(local_root / "outside-root.manifest.json"),
+        offsite_enabled=False,
+    )
+    Path(manifest.local_manifest_path).write_text(manifest.to_json() + "\n", encoding="utf-8")
+
+    assert service.list_backups() == []
+
+
+def test_backup_service_rejects_restore_dump_over_configured_size(tmp_path):
+    settings = build_settings(tmp_path, backup_max_restore_size_bytes=3)
+    service = BackupService(settings)
+    local_root = Path(settings.backup_local_root) / "daily"
+    local_root.mkdir(parents=True)
+    dump_path = local_root / "too-large.dump"
+    dump_path.write_bytes(b"1234")
+    manifest = BackupManifest(
+        backup_id="too-large",
+        created_at="2026-04-01T02:00:00+00:00",
+        database_name="student_knowledge_hub",
+        dump_format="custom",
+        checksum_sha256="03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+        size_bytes=4,
+        verified=True,
+        trigger="manual",
+        local_dump_path=str(dump_path),
+        local_manifest_path=str(local_root / "too-large.manifest.json"),
+        offsite_enabled=False,
+    )
+    record = BackupRecord(manifest=manifest, available_local=True, available_offsite=False)
+
+    with pytest.raises(BackupError, match="exceeds maximum restore size"):
+        service._prepare_restore_dump(record)

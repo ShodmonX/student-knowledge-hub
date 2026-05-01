@@ -1,8 +1,9 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.security_controls import AuthRateLimiter
 from app.db.session import get_db_session
 from app.modules.auth.dependencies import get_current_user
 from app.modules.telegram.schemas import TelegramLinkActionRead, TelegramLinkSessionRead, TelegramLinkStatusRead
@@ -14,9 +15,11 @@ router = APIRouter()
 
 @router.post("/users/me/telegram-link-sessions", response_model=TelegramLinkSessionRead, status_code=status.HTTP_201_CREATED)
 async def create_telegram_link_session(
+    request: Request,
     user: Annotated[User, Depends(get_current_user)],
     session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> TelegramLinkSessionRead:
+    await AuthRateLimiter().check_sensitive_rate(request, user.id, "auth.telegram.link_session")
     return await TelegramService(session).create_link_session(user)
 
 

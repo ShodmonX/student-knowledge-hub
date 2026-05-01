@@ -7,12 +7,12 @@ from app.db.session import get_db_session
 from app.modules.auth.dependencies import get_current_user
 from app.modules.community.schemas import CommentCreate, CommentRead, RatingCreate, RatingSummary
 from app.modules.community.service import CommunityService
-from app.modules.materials.schemas import MaterialRead
-from app.modules.users.models import User
-from app.modules.materials.service import MaterialService
-from app.utils.serializers import build_comment_read
-
 from app.modules.materials.common import OptionalUser, serialize_materials
+from app.modules.materials.schemas import MaterialRead
+from app.modules.materials.service import MaterialService
+from app.modules.users.models import User
+from app.shared.schemas.common import MessageResponse
+from app.utils.serializers import build_comment_read
 
 router = APIRouter()
 
@@ -56,14 +56,14 @@ async def rate_material(
     return RatingSummary(**(await CommunityService(session).rate(material_id, payload.value, user)))
 
 
-@router.delete("/{material_id}/rating")
+@router.delete("/{material_id}/rating", response_model=MessageResponse)
 async def unrate_material(
     material_id: str,
     user: Annotated[User, Depends(get_current_user)],
     session: Annotated[AsyncSession, Depends(get_db_session)],
-) -> dict[str, str]:
+) -> MessageResponse:
     await CommunityService(session).unrate(material_id, user)
-    return {"message": "Rating removed"}
+    return MessageResponse(message="Reyting o'chirildi")
 
 
 @router.post("/{material_id}/tags/{tag_id}", response_model=MaterialRead)

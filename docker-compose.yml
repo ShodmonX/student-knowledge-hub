@@ -5,11 +5,11 @@ services:
     env_file:
       - .env
     environment:
-      REDIS_URL: redis://redis:6379/0
+      REDIS_URL: ${REDIS_URL:-redis://:dev-redis-password@redis:6379/0}
       STORAGE_ROOT: /home/appuser/storage
       BACKUP_LOCAL_ROOT: /home/appuser/backups
     ports:
-      - "127.0.0.1:8001:8000"
+      - "8000:8000"
     volumes:
       - .:/app
       - ./storage:/home/appuser/storage
@@ -43,7 +43,7 @@ services:
     environment:
       RUN_MIGRATIONS_ON_START: "false"
       RUN_SEED_ON_START: "false"
-      REDIS_URL: redis://redis:6379/0
+      REDIS_URL: ${REDIS_URL:-redis://:dev-redis-password@redis:6379/0}
       BACKUP_LOCAL_ROOT: /home/appuser/backups
     volumes:
       - .:/app
@@ -56,18 +56,35 @@ services:
       redis:
         condition: service_started
 
+  email-worker:
+    build: .
+    command: python scripts/email_worker.py
+    env_file:
+      - .env
+    environment:
+      RUN_MIGRATIONS_ON_START: "false"
+      RUN_SEED_ON_START: "false"
+      REDIS_URL: ${REDIS_URL:-redis://:dev-redis-password@redis:6379/0}
+    volumes:
+      - .:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: student_knowledge_hub
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-student_knowledge_hub}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     ports:
       - "127.0.0.1:5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d student_knowledge_hub"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -75,6 +92,9 @@ services:
 
   redis:
     image: redis:7-alpine
+    command: ["sh", "-c", "redis-server --appendonly yes --requirepass \"$${REDIS_PASSWORD}\""]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-dev-redis-password}
     ports:
       - "127.0.0.1:6380:6379"
     volumes:

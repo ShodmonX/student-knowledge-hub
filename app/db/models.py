@@ -1,8 +1,22 @@
+from app.modules.admin.scope_models import (
+    ModeratorFacultyScope,
+    ModeratorSubjectScope,
+    ModeratorUniversityScope,
+)
 from app.modules.audit.models import AuditLog
-from app.modules.admin.scope_models import ModeratorFacultyScope, ModeratorSubjectScope, ModeratorUniversityScope
-from app.modules.auth.models import PasswordResetToken, RefreshTokenSession
+from app.modules.auth.models import (
+    EmailOutbox,
+    EmailVerificationToken,
+    PasswordResetToken,
+    RefreshTokenSession,
+)
 from app.modules.catalog.models import Faculty, Subject, University
-from app.modules.catalog_proposals.models import CatalogProposalLog, FacultyProposal, SubjectProposal, UniversityProposal
+from app.modules.catalog_proposals.models import (
+    CatalogProposalLog,
+    FacultyProposal,
+    SubjectProposal,
+    UniversityProposal,
+)
 from app.modules.community.models import Comment, MaterialRating
 from app.modules.materials.models import Material, MaterialFile, MaterialReport, MaterialReviewLog
 from app.modules.notifications.models import Notification
@@ -26,6 +40,8 @@ __all__ = [
     "ModeratorSubjectScope",
     "ModeratorUniversityScope",
     "Notification",
+    "EmailVerificationToken",
+    "EmailOutbox",
     "PasswordResetToken",
     "RefreshTokenSession",
     "SavedMaterial",

@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from types import SimpleNamespace
+from urllib.parse import parse_qs, urlparse
 
 import pytest
 from sqlalchemy import select
@@ -19,7 +20,7 @@ from app.core.exceptions import (
 )
 from app.core.security import create_refresh_token
 from app.modules.audit.models import AuditLog
-from app.modules.auth.models import PasswordResetToken, RefreshTokenSession
+from app.modules.auth.models import EmailOutbox, PasswordResetToken, RefreshTokenSession
 from app.modules.catalog_proposals.enums import ProposalEntityType, ProposalStatus
 from app.modules.catalog.models import Subject
 from app.modules.catalog_proposals.models import CatalogProposalLog, FacultyProposal, SubjectProposal, UniversityProposal
@@ -72,6 +73,13 @@ from tests.helpers import (
 )
 
 
+def _extract_token_from_email(message: EmailOutbox) -> str:
+    for word in message.text_body.split():
+        if "token=" in word:
+            return parse_qs(urlparse(word).query)["token"][0]
+    raise AssertionError("email token link not found")
+
+
 @pytest.mark.asyncio
 async def test_auth_service_direct_covers_refresh_replay_logout_and_reset_edges(session):
     university = await seed_university(session, "Branch Auth University")
@@ -118,10 +126,12 @@ async def test_auth_service_direct_covers_refresh_replay_logout_and_reset_edges(
 
     assert (
         await service.forgot_password(ForgotPasswordRequest(email="missing@example.com"))
-    )["message"].startswith("If the account exists")
+    )["message"].startswith("Agar akkaunt mavjud bo'lsa")
 
     logout_login = await service.login(LoginRequest(email=user.email, password="password123"))
-    assert await service.logout(LogoutRequest(refresh_token=logout_login.refresh_token)) == {"message": "Logged out"}
+    assert await service.logout(LogoutRequest(refresh_token=logout_login.refresh_token)) == {
+        "message": "Tizimdan chiqildi"
+    }
 
     with pytest.raises(ResourceNotFound):
         await service.revoke_session(user, "missing-session")
@@ -133,11 +143,11 @@ async def test_auth_service_direct_covers_refresh_replay_logout_and_reset_edges(
     )
     assert active_session is not None
     revoked = await service.revoke_session(user, active_session.id)
-    assert revoked["message"] == "Session revoked"
+    assert revoked["message"] == "Sessiya bekor qilindi"
 
     await service.login(LoginRequest(email=user.email, password="password123"))
     logout_all = await service.logout_all(user)
-    assert logout_all["message"] == "All sessions revoked"
+    assert logout_all["message"] == "Barcha sessiyalar bekor qilindi"
 
 
 @pytest.mark.asyncio
@@ -291,7 +301,8 @@ async def test_material_service_direct_covers_preview_download_cache_and_editing
 
 
 @pytest.mark.asyncio
-async def test_auth_service_direct_covers_register_and_reset_happy_paths(session):
+async def test_auth_service_direct_covers_register_and_reset_happy_paths(session, monkeypatch):
+    monkeypatch.setattr(get_settings(), "mail_enabled", True)
     university = await seed_university(session, "Register Service University")
     service = AuthService(session)
 
@@ -306,17 +317,25 @@ async def test_auth_service_direct_covers_register_and_reset_happy_paths(session
     assert registered.email == "register-service@example.com"
 
     forgot = await service.forgot_password(ForgotPasswordRequest(email=registered.email))
-    assert forgot["message"].startswith("If the account exists")
+    assert forgot["message"].startswith("Agar akkaunt mavjud bo'lsa")
 
     reset_token = await session.scalar(
         select(PasswordResetToken).where(PasswordResetToken.user_id == registered.id)
     )
     assert reset_token is not None
+    reset_email = await session.scalar(
+        select(EmailOutbox)
+        .where(EmailOutbox.recipient_email == registered.email)
+        .order_by(EmailOutbox.created_at.desc())
+    )
+    assert reset_email is not None
+    raw_reset_token = _extract_token_from_email(reset_email)
+    assert reset_token.token == sha256_text(raw_reset_token)
 
     completed = await service.reset_password(
-        ResetPasswordRequest(token=reset_token.token, new_password="updated-password123")
+        ResetPasswordRequest(token=raw_reset_token, new_password="updated-password123")
     )
-    assert completed["message"] == "Password has been reset"
+    assert completed["message"] == "Parol tiklandi"
 
     relogin = await service.login(
         LoginRequest(email=registered.email, password="updated-password123")

@@ -1,6 +1,7 @@
 import json
 from functools import lru_cache
 from typing import Annotated, Literal
+from urllib.parse import urlparse
 
 from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
@@ -29,6 +30,33 @@ class Settings(BaseSettings):
     default_page_size: int = 20
     max_page_size: int = 100
 
+    db_pool_size: int = 10
+    db_max_overflow: int = 20
+    db_pool_timeout: int = 30
+    db_pool_recycle: int = 1800
+    db_pool_pre_ping: bool = True
+    db_statement_timeout_ms: int | None = 30_000
+
+    rate_limit_enabled: bool = True
+    rate_limit_key_prefix: str = "skh"
+    rate_limit_in_memory_fallback: bool = True
+    rate_limit_login_max_requests: int = 10
+    rate_limit_login_window_seconds: int = 60
+    rate_limit_register_max_requests: int = 5
+    rate_limit_register_window_seconds: int = 300
+    rate_limit_password_reset_request_max_requests: int = 5
+    rate_limit_password_reset_request_window_seconds: int = 3600
+    rate_limit_password_reset_confirm_max_requests: int = 10
+    rate_limit_password_reset_confirm_window_seconds: int = 300
+    rate_limit_refresh_max_requests: int = 30
+    rate_limit_refresh_window_seconds: int = 60
+    rate_limit_sensitive_max_requests: int = 20
+    rate_limit_sensitive_window_seconds: int = 60
+    login_lockout_max_attempts: int = 5
+    login_lockout_window_seconds: int = 900
+    login_lockout_seconds: int = 900
+    access_token_revocation_enabled: bool = True
+
     upload_max_file_size: int = 10 * 1024 * 1024
     upload_max_total_size: int = 50 * 1024 * 1024
     upload_max_file_count: int = 10
@@ -49,10 +77,31 @@ class Settings(BaseSettings):
     backup_offsite_enabled: bool = False
     backup_retention_offsite: int = 14
     backup_s3_prefix: str = "production/postgres"
+    backup_max_restore_size_bytes: int = 5 * 1024 * 1024 * 1024
+    backup_restore_confirmation_required: bool = True
+    backup_restore_api_enabled: bool = False
     backup_schedule_enabled: bool = False
     backup_interval_seconds: int = 24 * 60 * 60
     backup_run_on_start: bool = True
     public_web_base_url: str = "http://localhost:3000"
+    mail_enabled: bool = False
+    mail_host: str = "sandbox.smtp.mailtrap.io"
+    mail_port: int = 2525
+    mail_username: str | None = None
+    mail_password: str | None = None
+    mail_api_token: str | None = None
+    mail_api_url: str = "https://send.api.mailtrap.io/api/send"
+    mail_from_email: str = "no-reply@studentknowledgehub.local"
+    mail_from_name: str = "Student Knowledge Hub"
+    mail_starttls: bool = True
+    mail_timeout_seconds: int = 10
+    email_outbox_poll_seconds: int = 10
+    email_outbox_batch_size: int = 10
+    email_outbox_max_attempts: int = 5
+    email_outbox_retry_base_seconds: int = 60
+    email_verification_token_expire_hours: int = 24
+    password_reset_url_path: str = "/reset-password"
+    email_verification_url_path: str = "/verify-email"
     telegram_bot_username: str | None = None
     telegram_link_session_ttl_seconds: int = 600
     internal_service_token: str | None = None
@@ -66,6 +115,7 @@ class Settings(BaseSettings):
     telegram_bot_service_secret: str | None = None
     telegram_bot_service_timeout_seconds: int = 10
     redis_url: str | None = None
+    redis_password: str | None = None
     cache_ttl_stats_seconds: int = 300
     cache_ttl_trending_seconds: int = 300
     pilot_university_required: bool = True
@@ -140,6 +190,10 @@ class Settings(BaseSettings):
         "s3_access_key_id",
         "s3_secret_access_key",
         "backup_s3_prefix",
+        "mail_username",
+        "mail_password",
+        "mail_api_token",
+        "redis_password",
         mode="before",
     )
     @classmethod
@@ -165,6 +219,24 @@ class Settings(BaseSettings):
             issues.append("ADMIN_PASSWORD must be changed in production")
         if not self.cors_origins:
             issues.append("CORS_ORIGINS must not be empty in production")
+        if (
+            self.rate_limit_enabled or self.access_token_revocation_enabled
+        ) and not self.redis_url:
+            issues.append(
+                "REDIS_URL is required in production for rate limiting and token revocation"
+            )
+        if self.redis_url and urlparse(self.redis_url).password is None:
+            issues.append("REDIS_URL must include a Redis password in production")
+        if self.mail_enabled:
+            has_api_credentials = bool(self.mail_api_token)
+            has_smtp_credentials = bool(self.mail_username and self.mail_password)
+            if not has_api_credentials and not has_smtp_credentials:
+                issues.append(
+                    "Mail delivery is enabled but missing MAIL_API_TOKEN or "
+                    "MAIL_USERNAME/MAIL_PASSWORD"
+                )
+            if not self.mail_from_email:
+                issues.append("Mail delivery is enabled but missing MAIL_FROM_EMAIL")
         if self.storage_backend == "s3":
             required_s3 = {
                 "S3_BUCKET": self.s3_bucket,

@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import subprocess
 import tempfile
 from dataclasses import asdict, dataclass
@@ -30,6 +31,12 @@ except ImportError:  # pragma: no cover - optional in local env until dependency
 
 class BackupError(RuntimeError):
     pass
+
+
+BACKUP_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.:-]{0,200}$")
+UNSUPPORTED_RESTORE_SET_COMMANDS = {
+    "SET transaction_timeout = 0;",
+}
 
 
 @dataclass(frozen=True)
@@ -129,7 +136,11 @@ class BackupService:
     def list_backups(self) -> list[BackupRecord]:
         records: dict[str, BackupRecord] = {}
         for manifest_path in self._list_local_manifests():
-            manifest = self.load_manifest(manifest_path)
+            try:
+                manifest = self.load_manifest(manifest_path)
+                self._validate_manifest_record(manifest, manifest_path)
+            except BackupError:
+                continue
             records[manifest.backup_id] = BackupRecord(
                 manifest=manifest,
                 available_local=Path(manifest.local_dump_path).exists(),
@@ -155,6 +166,7 @@ class BackupService:
         return sorted(records.values(), key=lambda item: item.manifest.created_at, reverse=True)
 
     def get_backup(self, backup_id: str) -> BackupRecord:
+        self._validate_backup_id(backup_id)
         for record in self.list_backups():
             if record.manifest.backup_id == backup_id:
                 return record
@@ -383,13 +395,16 @@ class BackupService:
         return code in {"NoSuchKey", "404", "NotFound"}
 
     def _prepare_restore_dump(self, record: BackupRecord) -> tuple[Path, list[Path]]:
+        self._validate_manifest_record(record.manifest, Path(record.manifest.local_manifest_path))
         local_dump_path = Path(record.manifest.local_dump_path)
         if record.available_local and local_dump_path.exists():
+            self._validate_restore_dump_path(local_dump_path)
             return local_dump_path, []
 
         if not record.available_offsite or not record.manifest.offsite_dump_key:
             raise BackupError("Backup dump is not available for restore")
 
+        self._validate_offsite_dump_key(record.manifest.offsite_dump_key)
         client = self._build_backup_s3_client()
         bucket = record.manifest.offsite_bucket or self.settings.s3_bucket or ""
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".dump")
@@ -400,6 +415,7 @@ class BackupService:
         except (BotoCoreError, ClientError, OSError) as exc:
             temp_path.unlink(missing_ok=True)
             raise BackupError(f"Offsite backup download failed: {exc}") from exc
+        self._validate_restore_dump_path(temp_path, require_allowed_root=False)
         return temp_path, [temp_path]
 
     def _verify_backup_integrity(self, manifest: BackupManifest, dump_path: Path) -> None:
@@ -410,12 +426,88 @@ class BackupService:
             raise BackupError("Backup checksum verification failed")
         self._verify_dump(dump_path)
 
+    def _validate_backup_id(self, backup_id: str) -> None:
+        if not BACKUP_ID_PATTERN.fullmatch(backup_id):
+            raise BackupError("Backup id contains invalid characters")
+        if "/" in backup_id or "\\" in backup_id or ".." in backup_id:
+            raise BackupError("Backup id contains invalid path segments")
+
+    def _validate_manifest_record(self, manifest: BackupManifest, manifest_path: Path) -> None:
+        self._validate_backup_id(manifest.backup_id)
+        if manifest.dump_format != "custom":
+            raise BackupError("Unsupported backup dump format")
+        manifest_path = Path(manifest_path)
+        if not manifest_path.name.endswith(".manifest.json"):
+            raise BackupError("Backup manifest must use .manifest.json extension")
+        if manifest.local_manifest_path:
+            recorded_manifest_path = Path(manifest.local_manifest_path)
+            if recorded_manifest_path.exists():
+                self._ensure_path_allowed(recorded_manifest_path)
+        self._validate_restore_dump_path(Path(manifest.local_dump_path), require_exists=False)
+        if manifest.offsite_dump_key:
+            self._validate_offsite_dump_key(manifest.offsite_dump_key)
+        if manifest.offsite_manifest_key:
+            self._validate_offsite_manifest_key(manifest.offsite_manifest_key)
+
+    def _validate_restore_dump_path(
+        self,
+        dump_path: Path,
+        *,
+        require_allowed_root: bool = True,
+        require_exists: bool = True,
+    ) -> None:
+        if dump_path.name != dump_path.name.strip() or not dump_path.name.endswith(".dump"):
+            raise BackupError("Backup dump must use .dump extension")
+        if require_allowed_root:
+            self._ensure_path_allowed(dump_path)
+        if require_exists:
+            if not dump_path.exists():
+                raise BackupError("Backup dump file not found")
+            size = dump_path.stat().st_size
+            if size <= 0:
+                raise BackupError("Backup dump file is empty")
+            if size > self.settings.backup_max_restore_size_bytes:
+                raise BackupError("Backup dump exceeds maximum restore size")
+
+    def _ensure_path_allowed(self, path: Path) -> None:
+        root = Path(self.settings.backup_local_root).resolve()
+        candidate = path.resolve()
+        try:
+            candidate.relative_to(root)
+        except ValueError as exc:
+            raise BackupError("Backup path is outside the configured backup root") from exc
+
+    def _validate_offsite_dump_key(self, key: str) -> None:
+        prefix = (self.settings.backup_s3_prefix or "production/postgres").rstrip("/") + "/"
+        if not key.startswith(prefix) or not key.endswith(".dump") or ".." in key:
+            raise BackupError("Offsite backup dump key is outside the allowed prefix")
+
+    def _validate_offsite_manifest_key(self, key: str) -> None:
+        prefix = (self.settings.backup_s3_prefix or "production/postgres").rstrip("/") + "/"
+        if not key.startswith(prefix) or not key.endswith(".manifest.json") or ".." in key:
+            raise BackupError("Offsite backup manifest key is outside the allowed prefix")
+
     def _restore_dump(self, connection: DatabaseConnectionInfo, dump_path: Path) -> None:
-        maintenance_db = "postgres" if connection.database != "postgres" else "template1"
         env = os.environ.copy()
         if connection.password:
             env["PGPASSWORD"] = connection.password
 
+        self._terminate_database_connections(connection, env)
+        self._drop_and_create_database(connection, env)
+        try:
+            self._run_pg_restore_direct(connection, dump_path, env)
+        except BackupError as exc:
+            if not self._is_transaction_timeout_restore_error(str(exc)):
+                raise
+            self._drop_and_create_database(connection, env)
+            self._run_pg_restore_filtered_sql(connection, dump_path, env)
+
+    def _terminate_database_connections(
+        self,
+        connection: DatabaseConnectionInfo,
+        env: dict[str, str],
+    ) -> None:
+        maintenance_db = "postgres" if connection.database != "postgres" else "template1"
         escaped_db_name = connection.database.replace("'", "''")
         terminate_sql = (
             "SELECT pg_terminate_backend(pid) "
@@ -439,6 +531,12 @@ class BackupService:
             ],
             env,
         )
+
+    def _drop_and_create_database(
+        self,
+        connection: DatabaseConnectionInfo,
+        env: dict[str, str],
+    ) -> None:
         self._run_command(
             [
                 "dropdb",
@@ -468,9 +566,17 @@ class BackupService:
             ],
             env,
         )
+
+    def _run_pg_restore_direct(
+        self,
+        connection: DatabaseConnectionInfo,
+        dump_path: Path,
+        env: dict[str, str],
+    ) -> None:
         self._run_command(
             [
                 "pg_restore",
+                "--exit-on-error",
                 "--no-owner",
                 "--no-privileges",
                 "--host",
@@ -484,4 +590,56 @@ class BackupService:
                 str(dump_path),
             ],
             env,
+        )
+
+    def _run_pg_restore_filtered_sql(
+        self,
+        connection: DatabaseConnectionInfo,
+        dump_path: Path,
+        env: dict[str, str],
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            raw_sql_path = Path(temp_dir) / "restore.sql"
+            filtered_sql_path = Path(temp_dir) / "restore.filtered.sql"
+            self._run_command(
+                [
+                    "pg_restore",
+                    "--no-owner",
+                    "--no-privileges",
+                    "--file",
+                    str(raw_sql_path),
+                    str(dump_path),
+                ],
+                env,
+            )
+            with raw_sql_path.open("r", encoding="utf-8", errors="replace") as raw_sql:
+                with filtered_sql_path.open("w", encoding="utf-8") as filtered_sql:
+                    for line in raw_sql:
+                        if line.strip() in UNSUPPORTED_RESTORE_SET_COMMANDS:
+                            continue
+                        filtered_sql.write(line)
+            self._run_command(
+                [
+                    "psql",
+                    "--host",
+                    connection.host,
+                    "--port",
+                    str(connection.port),
+                    "--username",
+                    connection.username,
+                    "--dbname",
+                    connection.database,
+                    "-v",
+                    "ON_ERROR_STOP=1",
+                    "--file",
+                    str(filtered_sql_path),
+                ],
+                env,
+            )
+
+    @staticmethod
+    def _is_transaction_timeout_restore_error(message: str) -> bool:
+        return (
+            'unrecognized configuration parameter "transaction_timeout"' in message
+            or "SET transaction_timeout = 0" in message
         )

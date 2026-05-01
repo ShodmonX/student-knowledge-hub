@@ -8,6 +8,7 @@ from app.modules.auth.dependencies import get_current_user
 from app.modules.community.schemas import CommentRead, CommentUpdate
 from app.modules.community.service import CommunityService
 from app.modules.users.models import User
+from app.shared.schemas.common import MessageResponse
 from app.utils.serializers import build_comment_read
 
 router = APIRouter()
@@ -24,11 +25,11 @@ async def update_comment(
     return build_comment_read(comment)
 
 
-@router.delete("/{comment_id}")
+@router.delete("/{comment_id}", response_model=MessageResponse)
 async def delete_comment(
     comment_id: str,
     user: Annotated[User, Depends(get_current_user)],
     session: Annotated[AsyncSession, Depends(get_db_session)],
-) -> dict[str, str]:
+) -> MessageResponse:
     await CommunityService(session).delete_comment(comment_id, user)
-    return {"message": "Comment deleted"}
+    return MessageResponse(message="Izoh o'chirildi")

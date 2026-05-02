@@ -70,6 +70,8 @@ services:
       REDIS_URL: ${REDIS_URL:?REDIS_URL is required}
     restart: unless-stopped
     depends_on:
+      api:
+        condition: service_healthy
       postgres:
         condition: service_healthy
       redis:

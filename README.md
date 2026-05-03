@@ -1,7 +1,7 @@
 # Student Knowledge Hub Backend
 
 [![CI](https://github.com/ShodmonX/student-knowledge-hub/actions/workflows/ci.yml/badge.svg)](https://github.com/ShodmonX/student-knowledge-hub/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/ShodmonX/student-knowledge-hub/graph/badge.svg)](https://codecov.io/gh/ShodmonX/student-knowledge-hub)
+[![codecov](https://codecov.io/gh/ShodmonX/student-knowledge-hub/graph/badge.svg?token=MLF01PI3SH)](https://codecov.io/gh/ShodmonX/student-knowledge-hub)
 
 FastAPI asosidagi backend API. Loyiha PostgreSQL, Redis, SQLAlchemy, Alembic, Docker Compose va JWT auth bilan ishlaydi.
 

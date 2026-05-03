@@ -22,9 +22,11 @@ os.environ["RATE_LIMIT_IN_MEMORY_FALLBACK"] = "true"
 os.environ["STORAGE_BACKEND"] = "local"
 os.environ["STORAGE_ROOT"] = "./test_storage"
 os.environ["TELEGRAM_BOT_USERNAME"] = "bilimhub_bot"
-os.environ["INTERNAL_SERVICE_NAME"] = "telegram-bot"
-os.environ["INTERNAL_SERVICE_SECRET"] = "test-internal-secret"
-os.environ["INTERNAL_REQUEST_TTL_SECONDS"] = "300"
+os.environ["BOT_SERVICE_NAME"] = "telegram-bot"
+os.environ["BACKEND_SERVICE_NAME"] = "backend-api"
+os.environ["INTERNAL_AUTH_SECRET"] = "test-internal-secret"
+os.environ["INTERNAL_AUTH_TTL_SECONDS"] = "300"
+os.environ["TELEGRAM_EVENT_PUSH_ENABLED"] = "false"
 
 from app.core.security_controls import clear_in_memory_security_store
 from app.db.base import Base

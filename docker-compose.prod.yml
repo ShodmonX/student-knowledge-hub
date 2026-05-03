@@ -77,6 +77,26 @@ services:
       redis:
         condition: service_started
 
+  telegram-worker:
+    build: .
+    command: python scripts/telegram_event_worker.py
+    env_file:
+      - .env
+    environment:
+      APP_ENV: production
+      DEBUG: "false"
+      RUN_MIGRATIONS_ON_START: "false"
+      RUN_SEED_ON_START: "false"
+      REDIS_URL: ${REDIS_URL:?REDIS_URL is required}
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
   postgres:
     image: postgres:16-alpine
     environment:

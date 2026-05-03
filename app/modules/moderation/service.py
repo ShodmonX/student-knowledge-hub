@@ -13,6 +13,8 @@ from app.modules.admin.scope_models import (
 )
 from app.modules.catalog.models import Faculty, Subject
 from app.modules.materials.models import Material
+from app.modules.telegram.enums import TelegramEventType
+from app.modules.telegram.event_service import TelegramEventService
 from app.modules.users.models import User
 from app.modules.catalog.repositories import SubjectRepository
 from app.modules.materials.models import MaterialReviewLog
@@ -51,6 +53,11 @@ class ModerationService:
             MaterialReviewLog(material_id=material.id, action=ReviewAction.APPROVED, actor_id=actor.id)
         )
         await self.audit.log("material_approved", "material", actor, material.id)
+        await TelegramEventService(self.session).enqueue_material_owner_event(
+            event_type=TelegramEventType.MATERIAL_APPROVED,
+            material=material,
+            actor=actor,
+        )
         await self.session.commit()
         await self._invalidate_material_caches()
         return await self.materials.get(material.id)
@@ -73,6 +80,13 @@ class ModerationService:
             )
         )
         await self.audit.log("material_rejected", "material", actor, material.id, payload.reason.value)
+        await TelegramEventService(self.session).enqueue_material_owner_event(
+            event_type=TelegramEventType.MATERIAL_REJECTED,
+            material=material,
+            actor=actor,
+            reason=payload.reason.value,
+            note=payload.note,
+        )
         await self.session.commit()
         await self._invalidate_material_caches()
         return await self.materials.get(material.id)
@@ -115,6 +129,13 @@ class ModerationService:
             )
         )
         await self.audit.log("material_revision_requested", "material", actor, material.id, payload.reason.value)
+        await TelegramEventService(self.session).enqueue_material_owner_event(
+            event_type=TelegramEventType.MATERIAL_REVISION_REQUESTED,
+            material=material,
+            actor=actor,
+            reason=payload.reason.value,
+            note=payload.note,
+        )
         await self.session.commit()
         await self._invalidate_material_caches()
         return await self.materials.get(material.id)

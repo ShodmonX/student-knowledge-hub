@@ -2,6 +2,13 @@ from enum import StrEnum
 
 
 class TelegramEventType(StrEnum):
+    EMAIL_VERIFIED = "email_verified"
+    MATERIAL_APPROVED = "material_approved"
+    MATERIAL_REJECTED = "material_rejected"
+    MATERIAL_REVISION_REQUESTED = "material_revision_requested"
+    MATERIAL_SUBMITTED_FOR_REVIEW = "material_submitted_for_review"
+    PASSWORD_CHANGED = "password_changed"
+    PASSWORD_RESET_REQUESTED = "password_reset_requested"
     PROPOSAL_CREATED = "proposal_created"
     USER_REGISTERED = "user_registered"
 

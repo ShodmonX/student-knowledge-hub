@@ -31,7 +31,7 @@ from app.modules.auth.schemas import (
     VerifyEmailRequest,
 )
 from app.modules.catalog.repositories import UniversityRepository
-from app.modules.telegram.dispatcher import TelegramEventDispatcher
+from app.modules.telegram.enums import TelegramEventType
 from app.modules.telegram.event_service import TelegramEventService
 from app.modules.users.models import User
 from app.modules.users.repository import UserRepository
@@ -63,8 +63,7 @@ class AuthService:
         await self.audit.log("user_registered", "user", user, user.id)
         verification_token = await self._create_email_verification_token(user)
         await self._queue_verification_email(user, verification_token)
-        events = await TelegramEventService(self.session).enqueue_user_registered_events(user)
-        await TelegramEventDispatcher(self.session).dispatch_events(events)
+        await TelegramEventService(self.session).enqueue_user_registered_events(user)
         await self.session.commit()
         return user
 
@@ -138,6 +137,11 @@ class AuthService:
         self.session.add(reset_token)
         await self._queue_password_reset_email(user, token)
         await self.audit.log("password_reset_requested", "user", user, user.id)
+        await TelegramEventService(self.session).enqueue_user_security_events(
+            event_type=TelegramEventType.PASSWORD_RESET_REQUESTED,
+            user=user,
+            entity_id=reset_token.id,
+        )
         await self.session.commit()
         return {"message": "Agar akkaunt mavjud bo'lsa, email yuborish navbatga qo'yildi."}
 
@@ -156,6 +160,11 @@ class AuthService:
         await self._revoke_all_refresh_tokens(user.id)
         await AccessTokenRevocationStore().revoke_all_for_user(user.id)
         await self.audit.log("password_reset_completed", "user", user, user.id)
+        await TelegramEventService(self.session).enqueue_user_security_events(
+            event_type=TelegramEventType.PASSWORD_CHANGED,
+            user=user,
+            entity_id=reset_token.id,
+        )
         await self.session.commit()
         return {"message": "Parol tiklandi"}
 
@@ -178,6 +187,11 @@ class AuthService:
         user.is_verified = True
         verification_token.consumed = True
         await self.audit.log("email_verified", "user", user, user.id)
+        await TelegramEventService(self.session).enqueue_user_security_events(
+            event_type=TelegramEventType.EMAIL_VERIFIED,
+            user=user,
+            entity_id=user.id,
+        )
         await self.session.commit()
         return {"message": "Email tasdiqlandi"}
 

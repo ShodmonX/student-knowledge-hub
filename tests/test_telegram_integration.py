@@ -137,6 +137,28 @@ async def test_manual_code_verify_identity_and_invalid_internal_token(client, se
     assert identity_response.json()["platform_user"]["id"] == user.id
     assert identity_response.json()["platform_user"]["role"] == UserRole.STUDENT.value
 
+    unlink_response = await client.delete(
+        "/api/internal/v1/telegram/link/1001",
+        headers=internal_headers("DELETE", "/api/internal/v1/telegram/link/1001"),
+    )
+    assert unlink_response.status_code == 200
+    assert unlink_response.json()["status"] == "unlinked"
+    assert unlink_response.json()["platform_user"]["id"] == user.id
+
+    identity_after_unlink = await client.get(
+        "/api/internal/v1/telegram/users/1001/identity",
+        headers=internal_headers("GET", "/api/internal/v1/telegram/users/1001/identity"),
+    )
+    assert identity_after_unlink.status_code == 200
+    assert identity_after_unlink.json() == {"is_linked": False, "platform_user": None}
+
+    second_unlink_response = await client.delete(
+        "/api/internal/v1/telegram/link/1001",
+        headers=internal_headers("DELETE", "/api/internal/v1/telegram/link/1001"),
+    )
+    assert second_unlink_response.status_code == 200
+    assert second_unlink_response.json() == {"status": "not_linked", "platform_user": None}
+
 
 @pytest.mark.asyncio
 async def test_internal_proposal_endpoints_cover_detail_list_message_and_moderation(client, session):

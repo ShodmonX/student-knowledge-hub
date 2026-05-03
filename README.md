@@ -1,5 +1,8 @@
 # Student Knowledge Hub Backend
 
+[![CI](https://github.com/ShodmonX/student-knowledge-hub/actions/workflows/ci.yml/badge.svg)](https://github.com/ShodmonX/student-knowledge-hub/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/ShodmonX/student-knowledge-hub/graph/badge.svg)](https://codecov.io/gh/ShodmonX/student-knowledge-hub)
+
 FastAPI asosidagi backend API. Loyiha PostgreSQL, Redis, SQLAlchemy, Alembic, Docker Compose va JWT auth bilan ishlaydi.
 
 ## Stack
@@ -112,7 +115,16 @@ JWT_SECRET_KEY=<long-random-secret>
 CORS_ORIGINS=https://your-frontend.example.com
 ADMIN_EMAIL=<admin-email>
 ADMIN_PASSWORD=<strong-admin-password>
-INTERNAL_SERVICE_SECRET=<long-random-secret>
+BACKEND_SERVICE_NAME=backend-api
+BOT_SERVICE_NAME=telegram-bot
+INTERNAL_AUTH_SECRET=<long-random-secret>
+INTERNAL_AUTH_TTL_SECONDS=300
+TELEGRAM_EVENT_PUSH_ENABLED=true
+BOT_INTERNAL_BASE_URL=http://telegram-bot:8000
+BOT_INTERNAL_EVENT_PATH=/internal/events
+TELEGRAM_EVENT_POLL_SECONDS=10
+TELEGRAM_EVENT_BATCH_SIZE=50
+TELEGRAM_EVENT_MAX_ATTEMPTS=5
 MAIL_ENABLED=true
 MAIL_HOST=sandbox.smtp.mailtrap.io
 MAIL_PORT=2525
@@ -152,6 +164,16 @@ Asosiy variablelar:
 | `REDIS_URL` | Prod ha | `None` | Rate limit, cache va token revocation uchun parolli Redis URL |
 | `JWT_SECRET_KEY` | Prod ha | `change-me` | Production’da kuchli random secret bo'lishi shart |
 | `CORS_ORIGINS` | Prod ha | localhostlar | Vergul bilan ajratilgan frontend originlar |
+| `BACKEND_SERVICE_NAME` | Telegram integration uchun ha | `backend-api` | Backend bot service’ga request yuborganda ishlatiladigan service nomi |
+| `BOT_SERVICE_NAME` | Telegram integration uchun ha | `telegram-bot` | Backend internal endpointlariga keladigan bot service nomi |
+| `INTERNAL_AUTH_SECRET` | Telegram integration uchun ha | `None` | Bot va backend orasidagi umumiy HMAC secret |
+| `INTERNAL_AUTH_TTL_SECONDS` | Yo'q | `300` | Internal request signature TTL |
+| `BOT_INTERNAL_BASE_URL` | Push yoqilganda ha | `None` | Backend eventlarni push qiladigan bot service URL |
+| `BOT_INTERNAL_EVENT_PATH` | Yo'q | `/internal/events` | Backend -> bot event endpoint path |
+| `BOT_INTERNAL_TIMEOUT_SECONDS` | Yo'q | `10` | Backend -> bot request timeout |
+| `TELEGRAM_EVENT_POLL_SECONDS` | Yo'q | `10` | `telegram-worker` event outbox’ni nechchi sekundda tekshirishi |
+| `TELEGRAM_EVENT_BATCH_SIZE` | Yo'q | `50` | Bir worker siklida jo‘natiladigan maksimal Telegram event soni |
+| `TELEGRAM_EVENT_MAX_ATTEMPTS` | Yo'q | `5` | Failed Telegram event qayta jo‘natish urinishlari limiti |
 | `STORAGE_BACKEND` | Ha | `local` | `local` yoki `s3` |
 | `BACKUP_LOCAL_ROOT` | Ha | `./backups` | Backup fayllar root papkasi |
 

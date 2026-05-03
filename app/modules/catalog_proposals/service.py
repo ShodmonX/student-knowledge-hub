@@ -27,7 +27,6 @@ from app.modules.catalog_proposals.schemas import (
     SubjectProposalCreate,
     UniversityProposalCreate,
 )
-from app.modules.telegram.dispatcher import TelegramEventDispatcher
 from app.modules.telegram.event_service import TelegramEventService
 from app.utils.slug import slugify
 
@@ -56,8 +55,7 @@ class CatalogProposalService:
         self.session.add(proposal)
         await self.session.flush()
         await self._log(ProposalEntityType.UNIVERSITY, proposal.id, "submitted", user.id)
-        events = await TelegramEventService(self.session).enqueue_proposal_created_events(proposal, "university")
-        await TelegramEventDispatcher(self.session).dispatch_events(events)
+        await TelegramEventService(self.session).enqueue_proposal_created_events(proposal, "university")
         await self.session.commit()
         return proposal
 
@@ -86,8 +84,7 @@ class CatalogProposalService:
         self.session.add(proposal)
         await self.session.flush()
         await self._log(ProposalEntityType.FACULTY, proposal.id, "submitted", user.id)
-        events = await TelegramEventService(self.session).enqueue_proposal_created_events(proposal, "faculty")
-        await TelegramEventDispatcher(self.session).dispatch_events(events)
+        await TelegramEventService(self.session).enqueue_proposal_created_events(proposal, "faculty")
         await self.session.commit()
         return proposal
 
@@ -120,8 +117,7 @@ class CatalogProposalService:
         self.session.add(proposal)
         await self.session.flush()
         await self._log(ProposalEntityType.SUBJECT, proposal.id, "submitted", user.id)
-        events = await TelegramEventService(self.session).enqueue_proposal_created_events(proposal, "subject")
-        await TelegramEventDispatcher(self.session).dispatch_events(events)
+        await TelegramEventService(self.session).enqueue_proposal_created_events(proposal, "subject")
         await self.session.commit()
         return proposal
 

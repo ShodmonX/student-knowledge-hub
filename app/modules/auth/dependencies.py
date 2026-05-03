@@ -64,11 +64,11 @@ async def require_internal_service(
     x_signature: Annotated[str | None, Header(alias="X-Signature")] = None,
 ) -> str:
     settings = get_settings()
-    if not settings.internal_service_secret:
+    if not settings.internal_auth_secret:
         raise AuthenticationError("Internal service auth is not configured")
     if not x_internal_service_name or not x_request_timestamp or not x_signature:
         raise AuthenticationError("Invalid internal service signature")
-    if not secrets.compare_digest(x_internal_service_name, settings.internal_service_name):
+    if not secrets.compare_digest(x_internal_service_name, settings.bot_service_name):
         raise AuthenticationError("Invalid internal service signature")
 
     try:
@@ -78,7 +78,7 @@ async def require_internal_service(
 
     now = datetime.now(UTC)
     age_seconds = abs((now - request_dt).total_seconds())
-    if age_seconds > settings.internal_request_ttl_seconds:
+    if age_seconds > settings.internal_auth_ttl_seconds:
         raise AuthenticationError("Internal request signature expired")
 
     body = await request.body()
@@ -96,7 +96,7 @@ async def require_internal_service(
         ]
     )
     expected_signature = hmac.new(
-        settings.internal_service_secret.encode("utf-8"),
+        settings.internal_auth_secret.encode("utf-8"),
         canonical.encode("utf-8"),
         hashlib.sha256,
     ).hexdigest()

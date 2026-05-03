@@ -12,10 +12,13 @@ from app.modules.auth.email_outbox import (
     EMAIL_STATUS_SENT,
     EmailOutboxService,
 )
-from app.modules.auth.models import EmailOutbox, EmailVerificationToken
+from app.modules.auth.models import EmailOutbox, EmailVerificationToken, PasswordResetToken
 from app.modules.auth.schemas import ResendVerificationRequest, VerifyEmailRequest
 from app.modules.auth.service import AuthService
 from app.modules.catalog.models import University
+from app.modules.telegram.enums import TelegramEventType
+from app.modules.telegram.models import TelegramEventOutbox
+from app.modules.users.enums import UserRole
 from app.modules.users.models import User
 from app.utils.hashing import sha256_text
 from app.utils.slug import slugify
@@ -29,12 +32,18 @@ async def _seed_university(session):
     return university
 
 
-async def _seed_user(session, university_id: str, email: str = "email-user@example.com"):
+async def _seed_user(
+    session,
+    university_id: str,
+    email: str = "email-user@example.com",
+    role: UserRole = UserRole.STUDENT,
+):
     user = User(
         full_name="Email User",
         email=email,
         hashed_password=hash_password("password123"),
         university_id=university_id,
+        role=role,
     )
     session.add(user)
     await session.commit()
@@ -250,6 +259,42 @@ async def test_verify_email_marks_user_verified(client, session, monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_verify_email_creates_admin_telegram_event(client, session, monkeypatch):
+    monkeypatch.setattr(get_settings(), "mail_enabled", True)
+    university = await _seed_university(session)
+    admin = await _seed_user(session, university.id, "verify-admin@example.com", role=UserRole.ADMIN)
+    await client.post(
+        "/api/v1/auth/register",
+        json={
+            "full_name": "Verify Event User",
+            "email": "verify-event@example.com",
+            "password": "password123",
+            "university_id": university.id,
+        },
+    )
+    user = await session.scalar(select(User).where(User.email == "verify-event@example.com"))
+    email = await session.scalar(
+        select(EmailOutbox)
+        .where(EmailOutbox.recipient_email == "verify-event@example.com")
+        .order_by(EmailOutbox.created_at.desc())
+    )
+    raw_token = _extract_token_from_email(email)
+
+    response = await client.post("/api/v1/auth/verify-email", json={"token": raw_token})
+
+    assert response.status_code == 200
+    event = await session.scalar(
+        select(TelegramEventOutbox).where(
+            TelegramEventOutbox.event_type == TelegramEventType.EMAIL_VERIFIED,
+            TelegramEventOutbox.entity_id == user.id,
+            TelegramEventOutbox.recipient_user_id == admin.id,
+        )
+    )
+    assert event is not None
+    assert event.payload == {"user_id": user.id, "email": user.email}
+
+
+@pytest.mark.asyncio
 async def test_verify_email_rejects_invalid_token(client):
     response = await client.post("/api/v1/auth/verify-email", json={"token": "x" * 64})
 
@@ -294,6 +339,57 @@ async def test_resend_verification_rotates_unconsumed_token(client, session):
     assert len(tokens) == 2
     assert tokens[0].consumed is True
     assert tokens[1].consumed is False
+
+
+@pytest.mark.asyncio
+async def test_password_reset_request_and_completion_create_admin_telegram_events(client, session, monkeypatch):
+    monkeypatch.setattr(get_settings(), "mail_enabled", True)
+    university = await _seed_university(session)
+    admin = await _seed_user(session, university.id, "password-admin@example.com", role=UserRole.ADMIN)
+    user = await _seed_user(session, university.id, "password-event@example.com")
+
+    forgot_response = await client.post(
+        "/api/v1/auth/forgot-password",
+        json={"email": "password-event@example.com"},
+    )
+
+    assert forgot_response.status_code == 200
+    reset_token = await session.scalar(
+        select(PasswordResetToken)
+        .where(PasswordResetToken.user_id == user.id)
+        .order_by(PasswordResetToken.created_at.desc())
+    )
+    request_event = await session.scalar(
+        select(TelegramEventOutbox).where(
+            TelegramEventOutbox.event_type == TelegramEventType.PASSWORD_RESET_REQUESTED,
+            TelegramEventOutbox.entity_id == reset_token.id,
+            TelegramEventOutbox.recipient_user_id == admin.id,
+        )
+    )
+    assert request_event is not None
+    assert request_event.payload == {"user_id": user.id, "email": user.email}
+
+    email = await session.scalar(
+        select(EmailOutbox)
+        .where(EmailOutbox.recipient_email == "password-event@example.com")
+        .order_by(EmailOutbox.created_at.desc())
+    )
+    raw_token = _extract_token_from_email(email)
+    reset_response = await client.post(
+        "/api/v1/auth/reset-password",
+        json={"token": raw_token, "new_password": "new-password123"},
+    )
+
+    assert reset_response.status_code == 200
+    changed_event = await session.scalar(
+        select(TelegramEventOutbox).where(
+            TelegramEventOutbox.event_type == TelegramEventType.PASSWORD_CHANGED,
+            TelegramEventOutbox.entity_id == reset_token.id,
+            TelegramEventOutbox.recipient_user_id == admin.id,
+        )
+    )
+    assert changed_event is not None
+    assert changed_event.payload == {"user_id": user.id, "email": user.email}
 
 
 @pytest.mark.asyncio

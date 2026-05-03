@@ -3,6 +3,10 @@ services:
     networks:
       - default
       - web
+  telegram-worker:
+    networks:
+      - default
+      - web
 
 networks:
   web:

@@ -3,6 +3,8 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
+from app.modules.materials.enums import RejectReason
+
 
 class TelegramUserPayload(BaseModel):
     telegram_user_id: int
@@ -100,6 +102,31 @@ class TelegramProposalModerationResponse(BaseModel):
     proposal: TelegramProposalSummary | None = None
     moderated_by: TelegramModerationActor | None = None
     reason: str | None = None
+    processed_at: datetime | None = None
+
+
+class TelegramMaterialSummary(BaseModel):
+    id: str
+    title: str
+    status: str
+
+
+class TelegramMaterialModerationRequest(BaseModel):
+    telegram_user_id: int
+
+
+class TelegramMaterialRejectRequest(BaseModel):
+    telegram_user_id: int
+    reason: RejectReason
+    note: str | None = Field(default=None, max_length=1000)
+
+
+class TelegramMaterialModerationResponse(BaseModel):
+    status: str
+    material: TelegramMaterialSummary | None = None
+    moderated_by: TelegramModerationActor | None = None
+    reason: str | None = None
+    note: str | None = None
     processed_at: datetime | None = None
 
 

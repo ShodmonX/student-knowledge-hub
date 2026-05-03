@@ -20,6 +20,7 @@ from app.modules.materials.models import Material, MaterialFile, MaterialReport,
 from app.modules.materials.repositories import MaterialFileRepository, MaterialRepository, MaterialReviewLogRepository
 from app.modules.materials.schemas import MaterialCreate, MaterialListQuery, MaterialReportCreate, MaterialUpdate
 from app.modules.tags.models import Tag
+from app.modules.telegram.event_service import TelegramEventService
 from app.modules.users.models import User
 from app.utils.files import PREVIEWABLE_EXTENSIONS
 from app.utils.slug import slugify
@@ -144,7 +145,11 @@ class MaterialService:
             raise ValidationAppError("At least one file is required before submission")
         material.status = MaterialStatus.PENDING_REVIEW
         material.submitted_at = datetime.now(UTC)
-        await self.logs.create(MaterialReviewLog(material_id=material.id, action=action, actor_id=user.id))
+        review_log = await self.logs.create(MaterialReviewLog(material_id=material.id, action=action, actor_id=user.id))
+        await TelegramEventService(self.session).enqueue_material_submitted_events(
+            material,
+            event_id=review_log.id,
+        )
         await self.session.commit()
         await self._invalidate_material_caches()
         return await self.materials.get(material.id)

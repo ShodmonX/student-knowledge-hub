@@ -1,8 +1,8 @@
 """add tables
 
-Revision ID: 0a08d4fa3447
+Revision ID: f788188214fb
 Revises: 
-Create Date: 2026-04-30 03:14:44.379672
+Create Date: 2026-05-03 02:56:08.419862
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '0a08d4fa3447'
+revision: str = 'f788188214fb'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -238,7 +238,7 @@ def upgrade() -> None:
     )
     op.create_index(op.f('ix_subjects_faculty_id'), 'subjects', ['faculty_id'], unique=False)
     op.create_table('telegram_event_outbox',
-    sa.Column('event_type', sa.Enum('PROPOSAL_CREATED', 'USER_REGISTERED', name='telegrameventtype'), nullable=False),
+    sa.Column('event_type', sa.Enum('EMAIL_VERIFIED', 'MATERIAL_APPROVED', 'MATERIAL_REJECTED', 'MATERIAL_REVISION_REQUESTED', 'MATERIAL_SUBMITTED_FOR_REVIEW', 'PASSWORD_CHANGED', 'PASSWORD_RESET_REQUESTED', 'PROPOSAL_CREATED', 'USER_REGISTERED', name='telegrameventtype'), nullable=False),
     sa.Column('entity_type', sa.String(length=64), nullable=True),
     sa.Column('entity_id', sa.String(length=36), nullable=True),
     sa.Column('recipient_user_id', sa.String(length=36), nullable=False),

@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import get_settings
 from app.modules.admin.scope_models import (
     ModeratorFacultyScope,
     ModeratorSubjectScope,
@@ -12,6 +13,7 @@ from app.modules.admin.scope_models import (
 )
 from app.modules.catalog.models import Faculty, Subject
 from app.modules.catalog_proposals.models import FacultyProposal, SubjectProposal, UniversityProposal
+from app.modules.materials.models import Material
 from app.modules.telegram.enums import TelegramEventStatus, TelegramEventType
 from app.modules.telegram.models import TelegramEventOutbox, TelegramLink
 from app.modules.telegram.schemas import TelegramEventRecipient, TelegramOutboxEventListResponse, TelegramOutboxEventRead
@@ -22,6 +24,7 @@ from app.modules.users.models import User
 class TelegramEventService:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
+        self.settings = get_settings()
 
     async def create_event(
         self,
@@ -61,7 +64,12 @@ class TelegramEventService:
     async def list_pending_events(self, limit: int = 100) -> list[TelegramEventOutbox]:
         result = await self.session.execute(
             select(TelegramEventOutbox)
-            .where(TelegramEventOutbox.status == TelegramEventStatus.PENDING)
+            .where(
+                TelegramEventOutbox.status.in_(
+                    [TelegramEventStatus.PENDING, TelegramEventStatus.FAILED]
+                ),
+                TelegramEventOutbox.attempt_count < self.settings.telegram_event_max_attempts,
+            )
             .order_by(TelegramEventOutbox.created_at.asc())
             .limit(limit)
         )
@@ -131,6 +139,81 @@ class TelegramEventService:
             events.append(event)
         return events
 
+    async def enqueue_user_security_events(
+        self,
+        *,
+        event_type: TelegramEventType,
+        user: User,
+        entity_id: str,
+        payload: dict | None = None,
+    ) -> list[TelegramEventOutbox]:
+        recipients = await self._list_admin_recipients()
+        events: list[TelegramEventOutbox] = []
+        for recipient in recipients:
+            event = await self.create_event(
+                event_type=event_type,
+                entity_type="user",
+                entity_id=entity_id,
+                recipient=recipient,
+                payload={
+                    "user_id": user.id,
+                    "email": user.email,
+                    **(payload or {}),
+                },
+            )
+            events.append(event)
+        return events
+
+    async def enqueue_material_submitted_events(
+        self,
+        material: Material,
+        *,
+        event_id: str,
+    ) -> list[TelegramEventOutbox]:
+        recipients = await self._resolve_material_recipients(material)
+        payload = self._build_material_payload(material)
+        events: list[TelegramEventOutbox] = []
+        for recipient in recipients:
+            event = await self.create_event(
+                event_type=TelegramEventType.MATERIAL_SUBMITTED_FOR_REVIEW,
+                entity_type="material",
+                entity_id=event_id,
+                recipient=recipient,
+                payload=payload,
+            )
+            events.append(event)
+        return events
+
+    async def enqueue_material_owner_event(
+        self,
+        *,
+        event_type: TelegramEventType,
+        material: Material,
+        actor: User,
+        reason: str | None = None,
+        note: str | None = None,
+    ) -> list[TelegramEventOutbox]:
+        owner = await self.session.get(User, material.uploaded_by)
+        if not owner or not owner.is_active:
+            return []
+        event = await self.create_event(
+            event_type=event_type,
+            entity_type="material",
+            entity_id=material.id,
+            recipient=owner,
+            payload={
+                **self._build_material_payload(material),
+                "reviewed_by": {
+                    "user_id": actor.id,
+                    "display_name": actor.full_name,
+                    "role": actor.role.value,
+                },
+                "reason": reason,
+                "note": note,
+            },
+        )
+        return [event]
+
     async def enqueue_proposal_created_events(
         self,
         proposal: UniversityProposal | FacultyProposal | SubjectProposal,
@@ -197,6 +280,70 @@ class TelegramEventService:
             recipient_ids.update(fac_scope_result.scalars().all())
             recipient_ids.update(sub_scope_result.scalars().all())
         return await self._load_users_by_ids(recipient_ids)
+
+    async def _resolve_material_recipients(self, material: Material) -> list[User]:
+        recipient_ids = {user.id for user in await self._list_admin_recipients()}
+        subject = await self.session.get(Subject, material.subject_id)
+        if not subject:
+            return await self._load_users_by_ids(recipient_ids)
+        faculty = await self.session.get(Faculty, subject.faculty_id)
+
+        sub_scope_result = await self.session.execute(
+            select(ModeratorSubjectScope.user_id).where(ModeratorSubjectScope.subject_id == subject.id)
+        )
+        fac_scope_result = await self.session.execute(
+            select(ModeratorFacultyScope.user_id).where(ModeratorFacultyScope.faculty_id == subject.faculty_id)
+        )
+        recipient_ids.update(sub_scope_result.scalars().all())
+        recipient_ids.update(fac_scope_result.scalars().all())
+
+        if faculty:
+            uni_scope_result = await self.session.execute(
+                select(ModeratorUniversityScope.user_id).where(
+                    ModeratorUniversityScope.university_id == faculty.university_id
+                )
+            )
+            recipient_ids.update(uni_scope_result.scalars().all())
+        return await self._load_users_by_ids(recipient_ids)
+
+    def _build_material_payload(self, material: Material) -> dict:
+        subject = getattr(material, "subject", None)
+        faculty = getattr(subject, "faculty", None) if subject else None
+        university = getattr(faculty, "university", None) if faculty else None
+        return {
+            "material_id": material.id,
+            "title": material.title,
+            "subject_id": material.subject_id,
+            "owner_user_id": material.uploaded_by,
+            "status": material.status.value,
+            "frontend_url": f"{self.settings.public_web_base_url.rstrip('/')}/materials/{material.slug}",
+            "university": (
+                {"id": university.id, "name": university.name, "slug": university.slug}
+                if university
+                else None
+            ),
+            "faculty": (
+                {
+                    "id": faculty.id,
+                    "name": faculty.name,
+                    "slug": faculty.slug,
+                    "university_id": faculty.university_id,
+                }
+                if faculty
+                else None
+            ),
+            "subject": (
+                {
+                    "id": subject.id,
+                    "name": subject.name,
+                    "slug": subject.slug,
+                    "semester": subject.semester,
+                    "faculty_id": subject.faculty_id,
+                }
+                if subject
+                else None
+            ),
+        }
 
     async def _load_users_by_ids(self, user_ids: set[str]) -> list[User]:
         if not user_ids:

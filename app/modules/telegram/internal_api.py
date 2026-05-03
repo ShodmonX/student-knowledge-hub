@@ -12,6 +12,9 @@ from app.modules.telegram.schemas import (
     TelegramInternalConsumeRequest,
     TelegramInternalLinkResponse,
     TelegramInternalVerifyCodeRequest,
+    TelegramMaterialModerationRequest,
+    TelegramMaterialModerationResponse,
+    TelegramMaterialRejectRequest,
     TelegramOutboxEventListResponse,
     TelegramProposalDetailResponse,
     TelegramProposalListResponse,
@@ -21,6 +24,7 @@ from app.modules.telegram.schemas import (
     TelegramProposalRejectRequest,
     TelegramUserRegistrationMessagePayload,
 )
+from app.modules.moderation.schemas import RejectRequest
 from app.modules.telegram.service import TelegramService
 
 router = APIRouter(dependencies=[Depends(require_internal_service)])
@@ -44,6 +48,14 @@ async def verify_telegram_link_code(
 ) -> TelegramInternalLinkResponse:
     await AuthRateLimiter().check_sensitive_rate(request, payload.code, "auth.telegram.code_verify")
     return await TelegramService(session).verify_code(payload.code, payload.telegram_user)
+
+
+@router.delete("/link/{telegram_user_id}", response_model=TelegramInternalLinkResponse)
+async def unlink_telegram_account_by_telegram_user_id(
+    telegram_user_id: int,
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> TelegramInternalLinkResponse:
+    return await TelegramService(session).unlink_by_telegram_user_id(telegram_user_id)
 
 
 @router.get("/users/{telegram_user_id}/identity", response_model=TelegramIdentityLookupResponse)
@@ -90,6 +102,41 @@ async def list_pending_proposals(
 ) -> TelegramProposalListResponse:
     del status
     return await TelegramService(session).list_pending_proposals(proposal_type, limit, offset)
+
+
+@router.post("/moderation/materials/{material_id}/approve", response_model=TelegramMaterialModerationResponse)
+async def approve_material(
+    material_id: str,
+    payload: TelegramMaterialModerationRequest,
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> TelegramMaterialModerationResponse:
+    return await TelegramService(session).approve_material(material_id, payload.telegram_user_id)
+
+
+@router.post("/moderation/materials/{material_id}/reject", response_model=TelegramMaterialModerationResponse)
+async def reject_material(
+    material_id: str,
+    payload: TelegramMaterialRejectRequest,
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> TelegramMaterialModerationResponse:
+    return await TelegramService(session).reject_material(
+        material_id,
+        payload.telegram_user_id,
+        RejectRequest(reason=payload.reason, note=payload.note),
+    )
+
+
+@router.post("/moderation/materials/{material_id}/request-revision", response_model=TelegramMaterialModerationResponse)
+async def request_material_revision(
+    material_id: str,
+    payload: TelegramMaterialRejectRequest,
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> TelegramMaterialModerationResponse:
+    return await TelegramService(session).request_material_revision(
+        material_id,
+        payload.telegram_user_id,
+        RejectRequest(reason=payload.reason, note=payload.note),
+    )
 
 
 @router.get("/notifications/proposals/{proposal_id}/telegram-message", response_model=TelegramProposalMessagePayload)

@@ -87,6 +87,40 @@ def test_production_settings_allow_hardened_configuration():
     assert settings.debug is False
 
 
+def test_production_settings_require_internal_auth_when_telegram_push_enabled():
+    with pytest.raises(ValidationError, match="INTERNAL_AUTH_SECRET"):
+        Settings(
+            _env_file=None,
+            app_env="production",
+            jwt_secret_key="super-secret-value",
+            admin_email="ops@example.com",
+            admin_password="custom-admin-password",
+            cors_origins="https://frontend.example.com",
+            storage_backend="local",
+            redis_url="redis://:strong-redis-password@redis:6379/0",
+            telegram_event_push_enabled=True,
+            bot_internal_base_url="http://telegram-bot:8000",
+            internal_auth_secret=None,
+        )
+
+
+def test_production_settings_require_bot_base_url_when_telegram_push_enabled():
+    with pytest.raises(ValidationError, match="BOT_INTERNAL_BASE_URL"):
+        Settings(
+            _env_file=None,
+            app_env="production",
+            jwt_secret_key="super-secret-value",
+            admin_email="ops@example.com",
+            admin_password="custom-admin-password",
+            cors_origins="https://frontend.example.com",
+            storage_backend="local",
+            redis_url="redis://:strong-redis-password@redis:6379/0",
+            telegram_event_push_enabled=True,
+            internal_auth_secret="shared-secret",
+            bot_internal_base_url=None,
+        )
+
+
 def test_asyncpg_engine_options_include_pool_and_statement_timeout():
     settings = Settings(
         _env_file=None,

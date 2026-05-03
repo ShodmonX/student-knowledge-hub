@@ -26,13 +26,13 @@ class TelegramEventDispatcher:
             return 0
 
         dispatched = 0
-        timeout = httpx.Timeout(self.settings.telegram_bot_service_timeout_seconds)
+        timeout = httpx.Timeout(self.settings.bot_internal_timeout_seconds)
         async with httpx.AsyncClient(timeout=timeout) as client:
             for event in events:
                 event_payload = await self.events.build_event_read(event)
                 url = self._build_url()
                 payload = event_payload.model_dump(mode="json")
-                headers = self._build_headers("POST", self.settings.telegram_bot_service_event_path, payload)
+                headers = self._build_headers("POST", self.settings.bot_internal_event_path, payload)
                 try:
                     response = await client.post(url, json=payload, headers=headers)
                     if 200 <= response.status_code < 300:
@@ -44,23 +44,26 @@ class TelegramEventDispatcher:
                     await self.events.mark_failed(event, str(exc))
         return dispatched
 
-    async def dispatch_pending_events(self, limit: int = 100) -> int:
-        pending = await self.events.list_pending_events(limit)
+    async def dispatch_pending_events(self, limit: int | None = None) -> int:
+        pending = await self.events.list_pending_events(limit or self.settings.telegram_event_batch_size)
         return await self.dispatch_events(pending)
 
     def _is_enabled(self) -> bool:
         return bool(
             self.settings.telegram_event_push_enabled
-            and self.settings.telegram_bot_service_base_url
-            and self.settings.telegram_bot_service_secret
+            and self.settings.bot_internal_base_url
+            and self.settings.internal_auth_secret
         )
 
     def _build_url(self) -> str:
-        return f"{self.settings.telegram_bot_service_base_url.rstrip('/')}{self.settings.telegram_bot_service_event_path}"
+        return (
+            f"{self.settings.bot_internal_base_url.rstrip('/')}"
+            f"{self.settings.bot_internal_event_path}"
+        )
 
     def _build_headers(self, method: str, path: str, payload: dict) -> dict[str, str]:
-        service_name = self.settings.telegram_bot_service_name
-        secret = self.settings.telegram_bot_service_secret or ""
+        service_name = self.settings.backend_service_name
+        secret = self.settings.internal_auth_secret or ""
         timestamp = str(int(time.time()))
         raw_body = json.dumps(payload, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
         body_hash = hashlib.sha256(raw_body).hexdigest()

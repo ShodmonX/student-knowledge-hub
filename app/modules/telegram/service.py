@@ -13,12 +13,17 @@ from app.modules.audit.service import AuditService
 from app.modules.catalog_proposals.models import FacultyProposal, SubjectProposal, UniversityProposal
 from app.modules.catalog_proposals.schemas import ProposalApproveRequest, ProposalRejectRequest
 from app.modules.catalog_proposals.service import CatalogProposalService
+from app.modules.materials.models import Material
+from app.modules.moderation.schemas import RejectRequest
+from app.modules.moderation.service import ModerationService
 from app.modules.telegram.models import TelegramLink, TelegramLinkSession
 from app.modules.telegram.schemas import (
     TelegramIdentityLookupResponse,
     TelegramInternalLinkResponse,
     TelegramLinkSessionRead,
     TelegramLinkStatusRead,
+    TelegramMaterialModerationResponse,
+    TelegramMaterialSummary,
     TelegramPlatformIdentity,
     TelegramProposalDetailResponse,
     TelegramProposalListItem,
@@ -40,6 +45,7 @@ class TelegramService:
         self.settings = get_settings()
         self.audit = AuditService(session)
         self.catalog_proposals = CatalogProposalService(session)
+        self.moderation = ModerationService(session)
 
     async def create_link_session(self, user: User) -> TelegramLinkSessionRead:
         await self.session.execute(
@@ -92,6 +98,27 @@ class TelegramService:
         await self.audit.log("telegram_unlinked", "telegram_link", user, link.id)
         await self.session.commit()
         return {"status": "unlinked"}
+
+    async def unlink_by_telegram_user_id(self, telegram_user_id: int) -> TelegramInternalLinkResponse:
+        link = await self._get_active_link_by_telegram_user_id(telegram_user_id)
+        if not link:
+            return TelegramInternalLinkResponse(status="not_linked")
+
+        user = await self._get_user(link.user_id)
+        link.is_active = False
+        link.unlinked_at = datetime.now(UTC)
+        await self.audit.log(
+            "telegram_unlinked_by_internal_service",
+            "telegram_link",
+            user,
+            link.id,
+            str(telegram_user_id),
+        )
+        await self.session.commit()
+        return TelegramInternalLinkResponse(
+            status="unlinked",
+            platform_user=self._build_platform_identity(user),
+        )
 
     async def consume_token(self, token: str, telegram_user: TelegramUserPayload) -> TelegramInternalLinkResponse:
         db_session = await self._get_session_by_token(token)
@@ -171,6 +198,65 @@ class TelegramService:
             proposal=self._build_proposal_summary(moderated, proposal_type),
             moderated_by={"user_id": actor.id, "display_name": actor.full_name},
             reason=reason,
+            processed_at=moderated.reviewed_at,
+        )
+
+    async def approve_material(self, material_id: str, telegram_user_id: int) -> TelegramMaterialModerationResponse:
+        actor = await self._resolve_actor_from_telegram(telegram_user_id)
+        if isinstance(actor, str):
+            return TelegramMaterialModerationResponse(status=actor)
+        try:
+            moderated = await self.moderation.approve(material_id, actor)
+        except Exception as exc:
+            return TelegramMaterialModerationResponse(status=self._map_moderation_exception(exc))
+        return TelegramMaterialModerationResponse(
+            status="approved",
+            material=self._build_material_summary(moderated),
+            moderated_by={"user_id": actor.id, "display_name": actor.full_name},
+            processed_at=moderated.reviewed_at,
+        )
+
+    async def reject_material(
+        self,
+        material_id: str,
+        telegram_user_id: int,
+        payload: RejectRequest,
+    ) -> TelegramMaterialModerationResponse:
+        actor = await self._resolve_actor_from_telegram(telegram_user_id)
+        if isinstance(actor, str):
+            return TelegramMaterialModerationResponse(status=actor)
+        try:
+            moderated = await self.moderation.reject(material_id, payload, actor)
+        except Exception as exc:
+            return TelegramMaterialModerationResponse(status=self._map_moderation_exception(exc))
+        return TelegramMaterialModerationResponse(
+            status="rejected",
+            material=self._build_material_summary(moderated),
+            moderated_by={"user_id": actor.id, "display_name": actor.full_name},
+            reason=payload.reason.value,
+            note=payload.note,
+            processed_at=moderated.reviewed_at,
+        )
+
+    async def request_material_revision(
+        self,
+        material_id: str,
+        telegram_user_id: int,
+        payload: RejectRequest,
+    ) -> TelegramMaterialModerationResponse:
+        actor = await self._resolve_actor_from_telegram(telegram_user_id)
+        if isinstance(actor, str):
+            return TelegramMaterialModerationResponse(status=actor)
+        try:
+            moderated = await self.moderation.request_revision(material_id, payload, actor)
+        except Exception as exc:
+            return TelegramMaterialModerationResponse(status=self._map_moderation_exception(exc))
+        return TelegramMaterialModerationResponse(
+            status="revision_requested",
+            material=self._build_material_summary(moderated),
+            moderated_by={"user_id": actor.id, "display_name": actor.full_name},
+            reason=payload.reason.value,
+            note=payload.note,
             processed_at=moderated.reviewed_at,
         )
 
@@ -448,7 +534,26 @@ class TelegramService:
         )
 
     @staticmethod
+    def _build_material_summary(material: Material) -> TelegramMaterialSummary:
+        return TelegramMaterialSummary(
+            id=material.id,
+            title=material.title,
+            status=material.status.value,
+        )
+
+    @staticmethod
     def _map_proposal_exception(exc: Exception) -> str:
+        name = exc.__class__.__name__
+        if name == "PermissionDenied":
+            return "forbidden"
+        if name == "ResourceNotFound":
+            return "not_found"
+        if name == "ConflictError":
+            return "already_processed"
+        return "invalid_state"
+
+    @staticmethod
+    def _map_moderation_exception(exc: Exception) -> str:
         name = exc.__class__.__name__
         if name == "PermissionDenied":
             return "forbidden"

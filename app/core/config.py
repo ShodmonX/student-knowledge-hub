@@ -104,16 +104,17 @@ class Settings(BaseSettings):
     email_verification_url_path: str = "/verify-email"
     telegram_bot_username: str | None = None
     telegram_link_session_ttl_seconds: int = 600
-    internal_service_token: str | None = None
-    internal_service_name: str = "telegram-bot"
-    internal_service_secret: str | None = None
-    internal_request_ttl_seconds: int = 300
+    backend_service_name: str = "backend-api"
+    bot_service_name: str = "telegram-bot"
+    internal_auth_secret: str | None = None
+    internal_auth_ttl_seconds: int = 300
     telegram_event_push_enabled: bool = False
-    telegram_bot_service_base_url: str | None = None
-    telegram_bot_service_event_path: str = "/internal/events"
-    telegram_bot_service_name: str = "backend-api"
-    telegram_bot_service_secret: str | None = None
-    telegram_bot_service_timeout_seconds: int = 10
+    bot_internal_base_url: str | None = None
+    bot_internal_event_path: str = "/internal/events"
+    bot_internal_timeout_seconds: int = 10
+    telegram_event_poll_seconds: int = 10
+    telegram_event_batch_size: int = 50
+    telegram_event_max_attempts: int = 5
     redis_url: str | None = None
     redis_password: str | None = None
     cache_ttl_stats_seconds: int = 300
@@ -193,6 +194,8 @@ class Settings(BaseSettings):
         "mail_username",
         "mail_password",
         "mail_api_token",
+        "internal_auth_secret",
+        "bot_internal_base_url",
         "redis_password",
         mode="before",
     )
@@ -237,6 +240,11 @@ class Settings(BaseSettings):
                 )
             if not self.mail_from_email:
                 issues.append("Mail delivery is enabled but missing MAIL_FROM_EMAIL")
+        if self.telegram_event_push_enabled:
+            if not self.internal_auth_secret:
+                issues.append("Telegram event push is enabled but missing INTERNAL_AUTH_SECRET")
+            if not self.bot_internal_base_url:
+                issues.append("Telegram event push is enabled but missing BOT_INTERNAL_BASE_URL")
         if self.storage_backend == "s3":
             required_s3 = {
                 "S3_BUCKET": self.s3_bucket,

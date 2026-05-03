@@ -31,9 +31,6 @@ services:
       timeout: 10s
       retries: 5
       start_period: 20s
-    networks:
-      - web
-      - default
 
   backup:
     build: .
@@ -59,6 +56,25 @@ services:
   email-worker:
     build: .
     command: python scripts/email_worker.py
+    env_file:
+      - .env
+    environment:
+      RUN_MIGRATIONS_ON_START: "false"
+      RUN_SEED_ON_START: "false"
+      REDIS_URL: ${REDIS_URL:-redis://:dev-redis-password@redis:6379/0}
+    volumes:
+      - .:/app
+    depends_on:
+      api:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  telegram-worker:
+    build: .
+    command: python scripts/telegram_event_worker.py
     env_file:
       - .env
     environment:
@@ -107,6 +123,3 @@ volumes:
   redis_data:
   backups_data:
 
-networks:
-  web:
-    external: true

@@ -27,7 +27,14 @@ async def lifespan(_: FastAPI):
     await cache.close()
 
 
-app = FastAPI(title=settings.app_name, debug=settings.debug, lifespan=lifespan)
+app = FastAPI(
+    title=settings.app_name, 
+    debug=settings.debug, 
+    lifespan=lifespan,
+    openapi_url="/openapi.json" if settings.debug else None,
+    docs_url="/docs" if settings.debug else None,
+    redoc_url="/redoc" if settings.debug else None
+)
 app.middleware("http")(request_context_middleware)
 app.add_middleware(
     CORSMiddleware,

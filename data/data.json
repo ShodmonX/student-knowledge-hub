@@ -1,0 +1,5344 @@
+[
+  {
+    "name": "Zahiriddin Muhammad Bobur nomidagi Andijon davlat universiteti",
+    "input_faculties": [
+      "Fizika-matematika-IT fakulteti",
+      "Filologiya fakulteti",
+      "Kimyo va biologiya fakulteti",
+      "Tarix va ijtimoiy fanlar fakulteti",
+      "Huquq-iqtisod fakulteti",
+      "Sport va madaniyat fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Fizika-matematika-IT fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Filologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Kimyo va biologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tarix va ijtimoiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Huquq-iqtisod fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Sport va madaniyat fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Alisher Navoiy nomidagi Toshkent davlat o‘zbek tili va adabiyoti universiteti",
+    "input_faculties": [
+      "O‘zbek filologiyasi fakulteti",
+      "Tarjima nazariyasi va amaliyoti fakulteti",
+      "Ona tili va adabiyot ta’limi fakulteti",
+      "O‘zbek tili ta’limi fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "O‘zbek filologiyasi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tarjima nazariyasi va amaliyoti fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Ona tili va adabiyot ta’limi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "O‘zbek tili ta’limi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Buxoro davlat universiteti",
+    "input_faculties": [
+      "Fizika-matematika va axborot texnologiyalari fakulteti",
+      "Filologiya fakulteti",
+      "Tabiiy fanlar fakulteti",
+      "Pedagogika fakulteti",
+      "Ijtimoiy-iqtisodiy fakultet",
+      "Jismoniy tarbiya fakulteti",
+      "Tarix va yuridik fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Fizika-matematika va axborot texnologiyalari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Filologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tabiiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Pedagogika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Ijtimoiy-iqtisodiy fakultet",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Jismoniy tarbiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tarix va yuridik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "O‘zbekiston xalqaro islomshunoslik akademiyasi",
+    "input_faculties": [
+      "Islomshunoslik fakulteti",
+      "Mumtoz sharq filologiyasi fakulteti",
+      "Islom iqtisodiyoti va xalqaro munosabatlar fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Islomshunoslik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Mumtoz sharq filologiyasi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Islom iqtisodiyoti va xalqaro munosabatlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Guliston davlat universiteti",
+    "input_faculties": [
+      "Tibbiyot fakulteti",
+      "Ishlab chiqarish texnologiyalari fakulteti",
+      "San’atshunoslik fakulteti",
+      "Psixologiya va ijtimoiy fanlar fakulteti",
+      "Filologiya fakulteti",
+      "Axborot texnologiyalari va fizika-matematika fakulteti",
+      "Tabiiy fanlar fakulteti",
+      "Sport faoliyati fakulteti",
+      "Raqamli iqtisodiyot va innovatsiyalar fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Tibbiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Ishlab chiqarish texnologiyalari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "San’atshunoslik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Psixologiya va ijtimoiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Filologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Axborot texnologiyalari va fizika-matematika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tabiiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Sport faoliyati fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Raqamli iqtisodiyot va innovatsiyalar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Jizzax politexnika instituti",
+    "input_faculties": [
+      "Transport muhandisligi fakulteti",
+      "Sanoat texnologiyalari fakulteti",
+      "Qurilish muhandisligi fakulteti",
+      "Energetika muhandisligi fakulteti",
+      "Kibersport fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Transport muhandisligi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Sanoat texnologiyalari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Qurilish muhandisligi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Energetika muhandisligi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Kibersport fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Namangan davlat universiteti",
+    "input_faculties": [
+      "Biotexnologiya fakulteti",
+      "Filologiya fakulteti",
+      "Fizika-matematika fakulteti",
+      "Ijtimoiy fanlar fakulteti",
+      "Iqtisodiyot fakulteti",
+      "Jahon tillari fakulteti",
+      "San’at va sport fakulteti",
+      "Tabiiy fanlar fakulteti",
+      "Tibbiyot fakulteti",
+      "Yuridik fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Biotexnologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Filologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Fizika-matematika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Ijtimoiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Iqtisodiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Jahon tillari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "San’at va sport fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tabiiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tibbiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Yuridik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Sharof Rashidov nomidagi Samarqand davlat universiteti",
+    "input_faculties": [
+      "Matematika fakulteti",
+      "Geografiya va ekologiya fakulteti",
+      "Tarix fakulteti",
+      "Psixologiya va ijtimoiy-siyosiy fanlar fakulteti",
+      "Intellektual tizimlar va kompyuter texnologiyalari fakulteti",
+      "Yuridik fakulteti",
+      "Filologiya fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Matematika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Geografiya va ekologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tarix fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Psixologiya va ijtimoiy-siyosiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Intellektual tizimlar va kompyuter texnologiyalari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Yuridik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Filologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Mirzo Ulug‘bek nomidagi Samarqand davlat arxitektura-qurilish universiteti",
+    "input_faculties": [
+      "Arxitektura fakulteti",
+      "Qurilish fakulteti",
+      "Muhandislik kommunikatsiyalari qurilishi fakulteti",
+      "Qurilishni boshqarish fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Arxitektura fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Qurilish fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Muhandislik kommunikatsiyalari qurilishi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Qurilishni boshqarish fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Mirzo Ulug‘bek nomidagi O‘zbekiston Milliy universiteti",
+    "input_faculties": [
+      "Fizika fakulteti",
+      "Matematika fakulteti",
+      "Kimyo fakulteti",
+      "Biologiya fakulteti",
+      "Geografiya va tabiiy resurslar fakulteti",
+      "Tarix fakulteti",
+      "Falsafa fakulteti",
+      "Iqtisodiyot fakulteti",
+      "Jurnalistika fakulteti",
+      "Xorijiy filologiya fakulteti",
+      "O‘zbek filologiyasi fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Fizika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Matematika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Kimyo fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Biologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Geografiya va tabiiy resurslar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tarix fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Falsafa fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Iqtisodiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Jurnalistika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Xorijiy filologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "O‘zbek filologiyasi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Islom Karimov nomidagi Toshkent davlat texnika universiteti",
+    "input_faculties": [
+      "Energetika fakulteti",
+      "Geologiya-qidiruv va kon-metallurgiya fakulteti",
+      "Mexanika-mashinasozlik fakulteti",
+      "Neft va gaz fakulteti",
+      "Elektronika va avtomatika fakulteti",
+      "Axborot texnologiyalari fakulteti",
+      "Transport fakulteti",
+      "Sanoat iqtisodiyoti va menejment fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Energetika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Geologiya-qidiruv va kon-metallurgiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Mexanika-mashinasozlik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Neft va gaz fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Elektronika va avtomatika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Axborot texnologiyalari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Transport fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Sanoat iqtisodiyoti va menejment fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Navoiy davlat konchilik va texnologiyalar universiteti",
+    "input_faculties": [
+      "Konchilik fakulteti",
+      "Energo-mexanika fakulteti",
+      "Kimyo-metallurgiya fakulteti",
+      "Agromuhandislik va kommunikatsion texnologiyalar fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Konchilik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Energo-mexanika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Kimyo-metallurgiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Agromuhandislik va kommunikatsion texnologiyalar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Samarqand davlat pedagogika instituti",
+    "input_faculties": [
+      "Tabiiy fanlar fakulteti",
+      "Ijtimoiy fanlar fakulteti",
+      "Pedagogika fakulteti",
+      "Tillar fakulteti",
+      "Aniq va amaliy fanlar fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Tabiiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Ijtimoiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Pedagogika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tillar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Aniq va amaliy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Buxoro davlat pedagogika instituti",
+    "input_faculties": [
+      "Pedagogika va ijtimoiy fanlar fakulteti",
+      "Jismoniy madaniyat fakulteti",
+      "Maktabgacha va boshlang‘ich ta’lim fakulteti",
+      "Harbiy ta’lim fakulteti",
+      "Aniq va tabiiy fanlar fakulteti",
+      "Tillar fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Pedagogika va ijtimoiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Jismoniy madaniyat fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Maktabgacha va boshlang‘ich ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Harbiy ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Aniq va tabiiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tillar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Toshkent davlat iqtisodiyot universiteti",
+    "input_faculties": [
+      "Iqtisodiyot fakulteti",
+      "Turizm fakulteti",
+      "Raqamli iqtisodiyot va axborot texnologiyalari fakulteti",
+      "Masofaviy va ikkinchi oliy ta’lim fakulteti",
+      "To‘rtko‘l fakulteti",
+      "Moliya fakulteti",
+      "Buxgalteriya hisobi fakulteti",
+      "Bank ishi fakulteti",
+      "Menejment fakulteti",
+      "Soliqlar va byudjet hisobi fakulteti",
+      "Qo‘shma ta’lim fakulteti",
+      "Kechki ta’lim va magistratura fakulteti",
+      "Sirtqi ta’lim fakulteti",
+      "Andijon fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Iqtisodiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Turizm fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Raqamli iqtisodiyot va axborot texnologiyalari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Masofaviy va ikkinchi oliy ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "To‘rtko‘l fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Moliya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Buxgalteriya hisobi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Bank ishi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Menejment fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Soliqlar va byudjet hisobi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Qo‘shma ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Kechki ta’lim va magistratura fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Sirtqi ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Andijon fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "O‘zbekiston davlat xoreografiya akademiyasi",
+    "input_faculties": [
+      "Xoreografiya sanʼati fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Xoreografiya sanʼati fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "O‘zbekiston davlat jahon tillari universiteti",
+    "input_faculties": [
+      "Ingliz filologiyasi fakulteti",
+      "Ingliz tili №1 fakulteti",
+      "Ingliz tili №2 fakulteti",
+      "Ingliz tili №3 fakulteti",
+      "Roman-german filologiyasi fakulteti",
+      "Rus filologiyasi fakulteti",
+      "Sharq filologiyasi fakulteti",
+      "Sirtqi va kechki ta’lim fakulteti",
+      "Tarjimonlik fakulteti",
+      "Xalqaro jurnalistika fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Ingliz filologiyasi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Ingliz tili №1 fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Ingliz tili №2 fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Ingliz tili №3 fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Roman-german filologiyasi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Rus filologiyasi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Sharq filologiyasi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Sirtqi va kechki ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tarjimonlik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Xalqaro jurnalistika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Toshkent davlat sharqshunoslik universiteti",
+    "input_faculties": [
+      "Sharq sivilizatsiyasi va falsafa fakulteti",
+      "Amaliy fanlar fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Sharq sivilizatsiyasi va falsafa fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Amaliy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Toshkent arxitektura-qurilish universiteti",
+    "input_faculties": [
+      "Arxitektura fakulteti",
+      "Muhandislik fakulteti",
+      "Qurilish fakulteti",
+      "Menejment fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Arxitektura fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Muhandislik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Qurilish fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Menejment fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Kamoliddin Behzod nomidagi Milliy rassomlik va dizayn instituti",
+    "input_faculties": [
+      "Dizayn fakulteti",
+      "Tasviriy sanʼat fakulteti",
+      "Sanʼatshunoslik va amaliy sanʼat fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Dizayn fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tasviriy sanʼat fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Sanʼatshunoslik va amaliy sanʼat fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Toshkent to‘qimachilik va yengil sanoat instituti",
+    "input_faculties": [
+      "Iqtisodiyot fakulteti",
+      "To‘qimachilik muhandisligi fakulteti",
+      "Sanoat texnologiyalari va mexanika fakulteti",
+      "Dizayn va texnologiyalar fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Iqtisodiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "To‘qimachilik muhandisligi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Sanoat texnologiyalari va mexanika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Dizayn va texnologiyalar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Toshkent davlat transport universiteti",
+    "input_faculties": [
+      "Aviatsiya transporti muhandisligi fakulteti",
+      "Avtomobil transporti muhandisligi fakulteti",
+      "Avtomobil yo‘llari muhandisligi fakulteti",
+      "Elektrotexnika va kompyuter muhandisligi fakulteti",
+      "Iqtisodiyot fakulteti",
+      "Qurilish muhandisligi fakulteti",
+      "Temir yo‘l transporti muhandisligi fakulteti",
+      "Transport tizimlari boshqaruvi fakulteti",
+      "Xalqaro taʼlim dasturlari fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Aviatsiya transporti muhandisligi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Avtomobil transporti muhandisligi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Avtomobil yo‘llari muhandisligi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Elektrotexnika va kompyuter muhandisligi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Iqtisodiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Qurilish muhandisligi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Temir yo‘l transporti muhandisligi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Transport tizimlari boshqaruvi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Xalqaro taʼlim dasturlari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Toshkent kimyo-texnologiya instituti",
+    "input_faculties": [
+      "Vinochilik texnologiyasi va sanoat uzumchiligi fakulteti",
+      "Noorganik moddalar kimyoviy texnologiyasi fakulteti",
+      "Menejment va professional taʼlim fakulteti",
+      "Oziq-ovqat mahsulotlari texnologiyasi fakulteti",
+      "Yoqilg‘i va organik birikmalar kimyoviy texnologiyasi fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Vinochilik texnologiyasi va sanoat uzumchiligi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Noorganik moddalar kimyoviy texnologiyasi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Menejment va professional taʼlim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Oziq-ovqat mahsulotlari texnologiyasi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Yoqilg‘i va organik birikmalar kimyoviy texnologiyasi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Urganch davlat tibbiyot instituti",
+    "input_faculties": [
+      "Davolash fakulteti",
+      "Pediatriya fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Davolash fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Pediatriya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "EMU University",
+    "input_faculties": [
+      "Stomatologiya fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Stomatologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Termiz davlat universiteti",
+    "input_faculties": [
+      "Fizika-matematika fakulteti",
+      "Axborot texnologiyalari fakulteti",
+      "Iqtisodiyot va turizm fakulteti",
+      "Ijtimoiy fanlar fakulteti",
+      "O‘zbek filologiyasi fakulteti",
+      "Tabiiy fanlar fakulteti",
+      "Tarix fakulteti",
+      "Kimyo fakulteti",
+      "Xorijiy filologiya fakulteti",
+      "Sport faoliyati va boshqaruvi fakulteti",
+      "Milliy libos va san’at fakulteti",
+      "Yuridik fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Fizika-matematika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Axborot texnologiyalari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Iqtisodiyot va turizm fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Ijtimoiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "O‘zbek filologiyasi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tabiiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tarix fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Kimyo fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Xorijiy filologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Sport faoliyati va boshqaruvi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Milliy libos va san’at fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Yuridik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Abu Rayhon Beruniy nomidagi Urganch davlat universiteti",
+    "input_faculties": [
+      "Fizika-matematika fakulteti",
+      "Xorijiy filologiya fakulteti",
+      "Filologiya va san’at fakulteti",
+      "Tabiiy va qishloq xo‘jaligi fanlari fakulteti",
+      "Sport faoliyati, pedagogika va psixologiya fakulteti",
+      "Ijtimoiy-iqtisodiy fanlar fakulteti",
+      "Texnika fakulteti",
+      "Kimyoviy texnologiya fakulteti",
+      "Kompyuter injiniringi fakulteti",
+      "Telekommunikatsiya texnologiyalari fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Fizika-matematika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Xorijiy filologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Filologiya va san’at fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tabiiy va qishloq xo‘jaligi fanlari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Sport faoliyati, pedagogika va psixologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Ijtimoiy-iqtisodiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Texnika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Kimyoviy texnologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Kompyuter injiniringi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Telekommunikatsiya texnologiyalari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Farg‘ona davlat universiteti",
+    "input_faculties": [
+      "Filologiya fakulteti",
+      "Fizika-matematika fakulteti",
+      "Tarix fakulteti",
+      "Chet tillari fakulteti",
+      "Harbiy ta’lim fakulteti",
+      "Jismoniy madaniyat fakulteti",
+      "Iqtisodiyot fakulteti",
+      "Pedagogika-psixologiya va san’atshunoslik fakulteti",
+      "Tabiiy fanlar fakulteti",
+      "Ingliz tili va adabiyoti fakulteti",
+      "Agrar qo‘shma fakulteti",
+      "Sport faoliyati fakulteti",
+      "Huquqshunoslik fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Filologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Fizika-matematika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tarix fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Chet tillari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Harbiy ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Jismoniy madaniyat fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Iqtisodiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Pedagogika-psixologiya va san’atshunoslik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tabiiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Ingliz tili va adabiyoti fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Agrar qo‘shma fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Sport faoliyati fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Huquqshunoslik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Farg‘ona jamoat salomatligi tibbiyot instituti",
+    "input_faculties": [
+      "Davolash fakulteti",
+      "Tibbiy-profilaktika va jamoat salomatligi fakulteti",
+      "Xalqaro fakultet",
+      "Pediatriya fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Davolash fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tibbiy-profilaktika va jamoat salomatligi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Xalqaro fakultet",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Pediatriya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Qarshi davlat universiteti",
+    "input_faculties": [
+      "Iqtisodiyot fakulteti",
+      "Kimyo-biologiya fakulteti",
+      "Matematika va kompyuter ilmlari fakulteti",
+      "Pedagogika fakulteti",
+      "San’atshunoslik fakulteti",
+      "Sport fakulteti",
+      "Tarix fakulteti",
+      "Tibbiyot fakulteti",
+      "Xorijiy tillar fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Iqtisodiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Kimyo-biologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Matematika va kompyuter ilmlari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Pedagogika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "San’atshunoslik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Sport fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tarix fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tibbiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Xorijiy tillar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Berdaq nomidagi Qoraqalpoq davlat universiteti",
+    "input_faculties": [
+      "Matematika fakulteti",
+      "Fizika fakulteti",
+      "Geografiya va tabiiy resurslar fakulteti",
+      "Yuridik fakulteti",
+      "Chimboy fakulteti",
+      "Jismoniy madaniyat fakulteti",
+      "Sanoat texnologiyasi fakulteti",
+      "Tarix fakulteti",
+      "O‘zbek filologiyasi fakulteti",
+      "Qurilish fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Matematika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Fizika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Geografiya va tabiiy resurslar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Yuridik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Chimboy fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Jismoniy madaniyat fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Sanoat texnologiyasi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tarix fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "O‘zbek filologiyasi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Qurilish fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Samarqand davlat chet tillar instituti",
+    "input_faculties": [
+      "Tarjimonlik fakulteti",
+      "Ingliz filologiyasi fakulteti",
+      "Roman-german filologiyasi fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Tarjimonlik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Ingliz filologiyasi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Roman-german filologiyasi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Denov tadbirkorlik va pedagogika instituti",
+    "input_faculties": [
+      "Aniq va tabiiy fanlar fakulteti",
+      "Filologiya fakulteti",
+      "Pedagogika fakulteti",
+      "Tadbirkorlik va boshqaruv fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Aniq va tabiiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Filologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Pedagogika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tadbirkorlik va boshqaruv fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Qoraqalpog‘iston tibbiyot instituti",
+    "input_faculties": [
+      "1-Tibbiyot fakulteti",
+      "2-Tibbiyot fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "1-Tibbiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "2-Tibbiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Jahon iqtisodiyoti va diplomatiya universiteti",
+    "input_faculties": [
+      "Xalqaro munosabatlar fakulteti",
+      "Xalqaro iqtisodiyot va menejment fakulteti",
+      "Xalqaro huquq fakulteti",
+      "Executive Education"
+    ],
+    "academic_units": [
+      {
+        "name": "Xalqaro munosabatlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Xalqaro iqtisodiyot va menejment fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Xalqaro huquq fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Executive Education",
+        "type": "program",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Abdulla Qodiriy nomidagi Jizzax davlat pedagogika universiteti",
+    "input_faculties": [
+      "Filologiya fakulteti",
+      "Tibbiyot fakulteti",
+      "Maktabgacha va boshlang‘ich ta’lim fakulteti",
+      "Pedagogika-psixologiya va inklyuziv ta’lim fakulteti",
+      "Tarix fakulteti",
+      "Tabiiy fanlar fakulteti",
+      "Jismoniy tarbiya va sport fakulteti",
+      "Aniq fanlar fakulteti",
+      "Fizika va texnologik ta’lim fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Filologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tibbiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Maktabgacha va boshlang‘ich ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Pedagogika-psixologiya va inklyuziv ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tarix fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tabiiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Jismoniy tarbiya va sport fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Aniq fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Fizika va texnologik ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Ajiniyoz nomidagi Nukus davlat pedagogika instituti",
+    "input_faculties": [
+      "Ellikqal’a fakulteti",
+      "Maktabgacha va boshlang‘ich ta’lim fakulteti",
+      "Tabiiy fanlar fakulteti",
+      "Filologiya fakulteti",
+      "Tarix fakulteti",
+      "Pedagogika-psixologiya va ijodiy ta’lim fakulteti",
+      "Aniq fanlar fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Ellikqal’a fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Maktabgacha va boshlang‘ich ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tabiiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Filologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tarix fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Pedagogika-psixologiya va ijodiy ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Aniq fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Navoiy davlat universiteti",
+    "input_faculties": [
+      "O‘zbek tili va adabiyoti fakulteti",
+      "Chet tillar fakulteti",
+      "Tarix fakulteti",
+      "Fizika va matematika fakulteti",
+      "Tabiiy fanlar fakulteti",
+      "Pedagogika fakulteti",
+      "San’atshunoslik fakulteti",
+      "Jismoniy madaniyat fakulteti",
+      "Maktabgacha va boshlang‘ich ta’lim fakulteti",
+      "Ijtimoiy-iqtisodiy fanlar fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "O‘zbek tili va adabiyoti fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Chet tillar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tarix fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Fizika va matematika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tabiiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Pedagogika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "San’atshunoslik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Jismoniy madaniyat fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Maktabgacha va boshlang‘ich ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Ijtimoiy-iqtisodiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Chirchiq davlat pedagogika universiteti",
+    "input_faculties": [
+      "Aniq fanlar fakulteti",
+      "Tabiiy fanlar fakulteti",
+      "Gumanitar fanlar fakulteti",
+      "Pedagogika fakulteti",
+      "Turizm fakulteti",
+      "San’atshunoslik fakulteti",
+      "Jismoniy madaniyat fakulteti",
+      "Maktabgacha va boshlang‘ich ta’lim fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Aniq fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tabiiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Gumanitar fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Pedagogika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Turizm fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "San’atshunoslik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Jismoniy madaniyat fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Maktabgacha va boshlang‘ich ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Nizomiy nomidagi O‘zbekiston milliy pedagogika universiteti",
+    "input_faculties": [
+      "Aniq fanlar maktabi fakulteti",
+      "Tarix fakulteti",
+      "Tabiiy fanlar fakulteti",
+      "Professional ta’lim va san’at fakulteti",
+      "Maktabgacha va boshlang‘ich ta’lim fakulteti",
+      "Filologiya fakulteti",
+      "Qo‘shma ta’lim fakulteti",
+      "Pedagogika-psixologiya va inklyuziv ta’lim fakulteti",
+      "Harbiy ta’lim fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Aniq fanlar maktabi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tarix fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tabiiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Professional ta’lim va san’at fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Maktabgacha va boshlang‘ich ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Filologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Qo‘shma ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Pedagogika-psixologiya va inklyuziv ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Harbiy ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Termiz davlat pedagogika instituti",
+    "input_faculties": [
+      "Tillar fakulteti",
+      "Tabiiy va aniq fanlar fakulteti",
+      "Pedagogika va ijtimoiy fanlar fakulteti",
+      "Maktabgacha va boshlang‘ich ta’lim fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Tillar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tabiiy va aniq fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Pedagogika va ijtimoiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Maktabgacha va boshlang‘ich ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Shahrisabz davlat pedagogika instituti",
+    "input_faculties": [
+      "Pedagogika fakulteti",
+      "Ijtimoiy fanlar fakulteti",
+      "Tillar fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Pedagogika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Ijtimoiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tillar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Toshkent davlat iqtisodiyot universiteti Samarqand filiali",
+    "input_faculties": [
+      "Iqtisodiyot fakulteti",
+      "Buxgalteriya hisobi va moliya fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Iqtisodiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Buxgalteriya hisobi va moliya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Andijon davlat tibbiyot instituti",
+    "input_faculties": [
+      "Davolash fakulteti",
+      "Pediatriya fakulteti",
+      "Stomatologiya fakulteti",
+      "Farmatsiya fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Davolash fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Pediatriya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Stomatologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Farmatsiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Abu Ali ibn Sino nomidagi Buxoro davlat tibbiyot instituti",
+    "input_faculties": [
+      "Tibbiyot fakulteti",
+      "Biotibbiyot fakulteti",
+      "Xalqaro tibbiyot fakulteti",
+      "Turkiya fakulteti",
+      "Diplomdan keyingi ta’lim fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Tibbiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Biotibbiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Xalqaro tibbiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Turkiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Diplomdan keyingi ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Samarqand davlat tibbiyot universiteti",
+    "input_faculties": [
+      "Davolash ishi fakulteti",
+      "Pediatriya fakulteti",
+      "Stomatologiya fakulteti",
+      "Pedagogika va psixologiya fakulteti",
+      "Boshqaruv va menejment fakulteti",
+      "Biotexnologiya, injinering va farmatsiya fakulteti",
+      "Xalqaro ta’lim fakulteti",
+      "Diplomdan keyingi ta’lim fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Davolash ishi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Pediatriya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Stomatologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Pedagogika va psixologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Boshqaruv va menejment fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Biotexnologiya, injinering va farmatsiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Xalqaro ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Diplomdan keyingi ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Olmaliq davlat texnika instituti",
+    "input_faculties": [
+      "Metallurgiya va kimyoviy texnologiyalar fakulteti",
+      "Konchilik ishi fakulteti",
+      "Energetika va mashinasozlik fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Metallurgiya va kimyoviy texnologiyalar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Konchilik ishi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Energetika va mashinasozlik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Toshkent davlat tibbiyot universiteti Termiz filiali",
+    "input_faculties": [
+      "1-son Davolash fakulteti",
+      "2-son Davolash fakulteti",
+      "Pediatriya fakulteti",
+      "Qo‘shma ta’lim dasturi (PIMU) fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "1-son Davolash fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "2-son Davolash fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Pediatriya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Qo‘shma ta’lim dasturi (PIMU) fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Toshkent farmatsevtika instituti",
+    "input_faculties": [
+      "Xalqaro va tibbiy fakulteti",
+      "Sanoat farmatsiyasi fakulteti",
+      "Farmatsevt kadrlar malakasini oshirish va qayta tayyorlash fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Xalqaro va tibbiy fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Sanoat farmatsiyasi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Farmatsevt kadrlar malakasini oshirish va qayta tayyorlash fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Andijon qishloq xo‘jaligi va agrotexnologiyalar instituti",
+    "input_faculties": [
+      "Agrobiologiya fakulteti",
+      "Agrobiznes va raqamli iqtisodiyot fakulteti",
+      "Agroinjeneriya va gidromelioratsiya fakulteti",
+      "Ipakchilik va tutchilik fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Agrobiologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Agrobiznes va raqamli iqtisodiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Agroinjeneriya va gidromelioratsiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Ipakchilik va tutchilik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Samarqand davlat veterinariya meditsinasi, chorvachilik va biotexnologiyalar universiteti",
+    "input_faculties": [
+      "Veterinariya profilaktikasi va davolash fakulteti",
+      "Veterinariya diagnostikasi va oziq-ovqat xavfsizligi fakulteti",
+      "Chorvachilik va texnologiyalar fakulteti",
+      "Biotexnologiya va ekologiya fakulteti",
+      "Iqtisodiyot fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Veterinariya profilaktikasi va davolash fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Veterinariya diagnostikasi va oziq-ovqat xavfsizligi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Chorvachilik va texnologiyalar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Biotexnologiya va ekologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Iqtisodiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Toshkent davlat agrar universiteti",
+    "input_faculties": [
+      "Qo‘shma ta’lim dasturlari fakulteti",
+      "Meva-sabzavotchilik va uzumchilik fakulteti",
+      "Sirtqi (masofaviy) ta’lim fakulteti",
+      "O‘simliklar himoyasi, agrokimyo va tuproqshunoslik fakulteti",
+      "O‘rmon xo‘jaligi va landshaft dizayn fakulteti",
+      "Qishloq xo‘jaligi mahsulotlarni saqlash va qayta ishlash fakulteti",
+      "Agroiqtisodiyot, logistika va xizmatlar fakulteti",
+      "Agromuhandislik va agrotexnologiya fakulteti",
+      "Zooinjeneriya fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Qo‘shma ta’lim dasturlari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Meva-sabzavotchilik va uzumchilik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Sirtqi (masofaviy) ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "O‘simliklar himoyasi, agrokimyo va tuproqshunoslik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "O‘rmon xo‘jaligi va landshaft dizayn fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Qishloq xo‘jaligi mahsulotlarni saqlash va qayta ishlash fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Agroiqtisodiyot, logistika va xizmatlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Agromuhandislik va agrotexnologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Zooinjeneriya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "“Toshkent irrigatsiya va qishloq xo‘jaligini mexanizatsiyalash muhandislari instituti” milliy tadqiqot universiteti",
+    "input_faculties": [
+      "Gidrotexnika qurilishi fakulteti",
+      "Ekologiya va huquq fakulteti",
+      "Qishloq xo‘jaligini mexanizatsiyalash fakulteti",
+      "Energetika fakulteti",
+      "Yer resurslari va kadastr fakulteti",
+      "Gidromelioratsiya fakulteti",
+      "Iqtisodiyot fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Gidrotexnika qurilishi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Ekologiya va huquq fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Qishloq xo‘jaligini mexanizatsiyalash fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Energetika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Yer resurslari va kadastr fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Gidromelioratsiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Iqtisodiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "O‘zbekiston davlat san’at va madaniyat instituti",
+    "input_faculties": [
+      "Teatr san’ati fakulteti",
+      "Kino, televideniye va radio san’ati fakulteti",
+      "Xalq ijodiyoti fakulteti",
+      "Kutubxona-axborot faoliyati fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Teatr san’ati fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Kino, televideniye va radio san’ati fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Xalq ijodiyoti fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Kutubxona-axborot faoliyati fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "O‘zbekiston davlat konservatoriyasi",
+    "input_faculties": [
+      "Estrada san’ati fakulteti",
+      "Sharqona musiqa fakulteti",
+      "Orkestr cholg‘ulari fakulteti",
+      "Akademik xonandalik va xor dirijyorligi fakulteti",
+      "Bastakorlik, musiqashunoslik va fortepiano fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Estrada san’ati fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Sharqona musiqa fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Orkestr cholg‘ulari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Akademik xonandalik va xor dirijyorligi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Bastakorlik, musiqashunoslik va fortepiano fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Muhammad al-Xorazmiy nomidagi Toshkent axborot texnologiyalari universiteti",
+    "input_faculties": [
+      "Kompyuter injiniringi fakulteti",
+      "Dasturiy injiniring fakulteti",
+      "Kiberxavfsizlik fakulteti",
+      "Telekommunikatsiya texnologiyalari fakulteti",
+      "Televizion texnologiyalar fakulteti",
+      "Radio va mobil aloqa fakulteti",
+      "AKT sohasida iqtisodiyot va menejment fakulteti",
+      "AKT sohasida kasb ta’limi fakulteti",
+      "Zarafshon fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Kompyuter injiniringi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Dasturiy injiniring fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Kiberxavfsizlik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Telekommunikatsiya texnologiyalari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Televizion texnologiyalar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Radio va mobil aloqa fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "AKT sohasida iqtisodiyot va menejment fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "AKT sohasida kasb ta’limi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Zarafshon fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "O‘zbekiston davlat jismoniy tarbiya va sport universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Samarqand davlat veterinariya meditsinasi, chorvachilik va biotexnologiyalar universitetining Toshkent filiali",
+    "input_faculties": [
+      "Veterinariya meditsinasi fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Veterinariya meditsinasi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Toshkent davlat yuridik universiteti",
+    "input_faculties": [
+      "Xususiy huquq fakulteti",
+      "Ommaviy huquq fakulteti",
+      "Jinoiy odil sudlov fakulteti",
+      "Xalqaro huquq va qiyosiy huquqshunoslik fakulteti",
+      "Magistratura va sirtqi ta’lim fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Xususiy huquq fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Ommaviy huquq fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Jinoiy odil sudlov fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Xalqaro huquq va qiyosiy huquqshunoslik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Magistratura va sirtqi ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Samarqand iqtisodiyot va servis instituti",
+    "input_faculties": [
+      "Iqtisodiyot fakulteti",
+      "Servis fakulteti",
+      "Bank-moliya xizmatlari fakulteti",
+      "Buxgalteriya hisobi va menejment fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Iqtisodiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Servis fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Bank-moliya xizmatlari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Buxgalteriya hisobi va menejment fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Qoraqalpog‘iston qishloq xo‘jaligi va agrotexnologiyalar instituti",
+    "input_faculties": [
+      "Agrotexnologiya va o‘rmonchilik fakulteti",
+      "Zootexnika fakulteti",
+      "Agronomiya fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Agrotexnologiya va o‘rmonchilik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Zootexnika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Agronomiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "A. Avloniy nomidagi pedagogik mahorat milliy instituti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Muhammad al-Xorazmiy nomidagi Toshkent axborot texnologiyalari universiteti Samarqand filiali",
+    "input_faculties": [
+      "Kompyuter injiniringi fakulteti",
+      "Telekommunikatsiya texnologiyalari va kasb ta’limi fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Kompyuter injiniringi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Telekommunikatsiya texnologiyalari va kasb ta’limi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "O‘zbekiston davlat san’at va madaniyat instituti Nukus filiali",
+    "input_faculties": [
+      "Texnogen va sanʼatshunoslik fakulteti",
+      "Teatr san’ati fakulteti",
+      "Xalq ijodiyoti fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Texnogen va sanʼatshunoslik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Teatr san’ati fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Xalq ijodiyoti fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "O‘zbekiston jurnalistika va ommaviy kommunikatsiyalar universiteti",
+    "input_faculties": [
+      "Internet jurnalistikasi va mediamenejment fakulteti",
+      "Xalqaro va audiovizual jurnalistika fakulteti",
+      "Bosma va ommaviy axborot vositalari va noshirlik ishi fakulteti",
+      "Xalqaro munosabatlar va ijtimoiy-siyosiy fanlar fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Internet jurnalistikasi va mediamenejment fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Xalqaro va audiovizual jurnalistika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Bosma va ommaviy axborot vositalari va noshirlik ishi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Xalqaro munosabatlar va ijtimoiy-siyosiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "“Ipak yo‘li” turizm va madaniy meros xalqaro universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Samarqand davlat veterinariya meditsinasi, chorvachilik va biotexnologiyalar universiteti Nukus filiali",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "O‘zbekiston davlat jismoniy tarbiya va sport universiteti Nukus filiali",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "O‘zbekiston Respublikasi Huquqni muhofaza qilish akademiyasi",
+    "input_faculties": [
+      "Bakalavriat fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Bakalavriat fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Mirzo Ulug‘bek nomidagi O‘zbekiston Milliy universiteti Jizzax filiali",
+    "input_faculties": [
+      "Amaliy matematika fakulteti",
+      "Psixologiya fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Amaliy matematika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Psixologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Toshkent kimyo-texnologiya instituti Yangiyer filiali",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Geologiya fanlari universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "O‘zbekistondagi Sharda universiteti",
+    "input_faculties": [
+      "Muhandislik fakulteti",
+      "Menejment fakulteti",
+      "Gumanitar fanlar fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Muhandislik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Menejment fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Gumanitar fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Samarqand agroinnovatsiyalar va tadqiqotlar instituti",
+    "input_faculties": [
+      "Agrobiologiya fakulteti",
+      "Iqtisodiyot va boshqaruv fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Agrobiologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Iqtisodiyot va boshqaruv fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Toshkent gumanitar fanlar universiteti",
+    "input_faculties": [
+      "Amaliy va gumanitar fanlar fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Amaliy va gumanitar fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Milliy texnologik tadqiqotlar universiteti MISiSning Olmaliq shahridagi filiali",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Astraxan davlat texnika universitetining Toshkent viloyatidagi filiali",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Latviyaning Axborot tizimlari menejmenti oliy maktabining Farg‘ona shahridagi filiali",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Qo‘qon universiteti",
+    "input_faculties": [
+      "Ta’lim fakulteti",
+      "Turizm va iqtisodiyot fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Turizm va iqtisodiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Toshkent Kimyo xalqaro universiteti Namangan filiali",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Urganch innovatsion universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Yunus Rajabiy nomidagi O‘zbek milliy musiqa sanʼati instituti",
+    "input_faculties": [
+      "O‘zbek milliy musiqa sanʼati fakulteti",
+      "Professional ta’lim fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "O‘zbek milliy musiqa sanʼati fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Professional ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Toshkent Kimyo xalqaro universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Central Asian University",
+    "input_faculties": [
+      "Muhandislik maktabi",
+      "Biznes maktabi",
+      "Tibbiyot maktabi",
+      "Stomatologiya maktabi",
+      "Arxitektura va dizayn maktabi",
+      "Mehmondo‘stlik menejmenti va turizm maktabi"
+    ],
+    "academic_units": [
+      {
+        "name": "Muhandislik maktabi",
+        "type": "school",
+        "status": "unverified"
+      },
+      {
+        "name": "Biznes maktabi",
+        "type": "school",
+        "status": "unverified"
+      },
+      {
+        "name": "Tibbiyot maktabi",
+        "type": "school",
+        "status": "unverified"
+      },
+      {
+        "name": "Stomatologiya maktabi",
+        "type": "school",
+        "status": "unverified"
+      },
+      {
+        "name": "Arxitektura va dizayn maktabi",
+        "type": "school",
+        "status": "unverified"
+      },
+      {
+        "name": "Mehmondo‘stlik menejmenti va turizm maktabi",
+        "type": "school",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "I. M. Gubkin nomidagi Rossiya davlat neft va gaz universitetining Toshkent shahridagi filiali",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "M. V. Lomonosov nomidagi Moskva davlat universitetining Toshkent shahridagi filiali",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "G. V. Plexanov nomidagi Rossiya iqtisodiyot universitetining Toshkent filiali",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Toshkent shahridagi Turin politexnika universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Toshkent xalqaro Vestminster universiteti",
+    "input_faculties": [
+      "Biznes maktabi",
+      "Huquq, texnologiya va ta’lim maktabi",
+      "Magistratura maktabi"
+    ],
+    "academic_units": [
+      {
+        "name": "Biznes maktabi",
+        "type": "school",
+        "status": "unverified"
+      },
+      {
+        "name": "Huquq, texnologiya va ta’lim maktabi",
+        "type": "school",
+        "status": "unverified"
+      },
+      {
+        "name": "Magistratura maktabi",
+        "type": "school",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Toshkent shahridagi Singapur menejmentni rivojlantirish instituti",
+    "input_faculties": [
+      "Biznes va menejment maktabi",
+      "Bank ishi va moliya maktabi",
+      "Turizm va mehmondo‘stlik maktabi",
+      "Til va kommunikatsiya maktabi",
+      "Moda va dizayn maktabi"
+    ],
+    "academic_units": [
+      {
+        "name": "Biznes va menejment maktabi",
+        "type": "school",
+        "status": "unverified"
+      },
+      {
+        "name": "Bank ishi va moliya maktabi",
+        "type": "school",
+        "status": "unverified"
+      },
+      {
+        "name": "Turizm va mehmondo‘stlik maktabi",
+        "type": "school",
+        "status": "unverified"
+      },
+      {
+        "name": "Til va kommunikatsiya maktabi",
+        "type": "school",
+        "status": "unverified"
+      },
+      {
+        "name": "Moda va dizayn maktabi",
+        "type": "school",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Toshkent shahridagi Inha universiteti",
+    "input_faculties": [
+      "Kompyuter va axborot muhandisligi maktabi",
+      "Logistika va biznes boshqaruvi maktabi"
+    ],
+    "academic_units": [
+      {
+        "name": "Kompyuter va axborot muhandisligi maktabi",
+        "type": "school",
+        "status": "unverified"
+      },
+      {
+        "name": "Logistika va biznes boshqaruvi maktabi",
+        "type": "school",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Toshkent shahridagi Puchon universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Milliy tadqiqot yadro universiteti MEPhI Toshkent filiali",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Toshkent shahridagi Adju universiteti",
+    "input_faculties": [
+      "Arxitektura fakulteti",
+      "Qurilish muhandisligi fakulteti",
+      "IT biznes fakulteti",
+      "Ingliz filologiyasi va menejment fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Arxitektura fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Qurilish muhandisligi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "IT biznes fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Ingliz filologiyasi va menejment fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Toshkent shahridagi Amiti universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Toshkent Kimyo xalqaro universiteti Samarqand filiali",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Toshkent shahridagi Vebster universitetining ta’lim dasturlarini amalga oshirish markazi",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "MEI milliy tadqiqot universitetining Toshkent filiali",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "D. I. Mendeleev nomidagi Rossiya kimyo-texnologiya universitetining Toshkent filiali",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Toshkent shahridagi Belarus-O‘zbekiston qo‘shma tarmoqlararo amaliy texnik kvalifikatsiyalar instituti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Toshkent iqtisodiyot va texnologiyalari universiteti",
+    "input_faculties": [
+      "Ijtimoiy fanlar fakulteti",
+      "Iqtisodiyot fakulteti",
+      "Moliyaviy boshqaruv va axborot texnologiyalari fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Ijtimoiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Iqtisodiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Moliyaviy boshqaruv va axborot texnologiyalari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Buxoro innovatsiyalar universiteti",
+    "input_faculties": [
+      "Innovatsion ta’lim va iqtisodiyot fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Innovatsion ta’lim va iqtisodiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Toshkent ijtimoiy innovatsiya universiteti",
+    "input_faculties": [
+      "Ijtimoiy-gumanitar va aniq fanlar fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Ijtimoiy-gumanitar va aniq fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "IT Park University",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Tashkent International University of Education xalqaro universiteti",
+    "input_faculties": [
+      "Filologiya va tillarni o‘qitish fakulteti",
+      "Ta’lim va ta’lim jarayonlarini boshqarish fakulteti",
+      "Biznes boshqaruvi fakulteti",
+      "Buxgalteriya hisobi va biznes fakulteti",
+      "Axborot texnologiyalari fakulteti",
+      "Kiberxavfsizlik fakulteti",
+      "Amaliy matematika fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Filologiya va tillarni o‘qitish fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Ta’lim va ta’lim jarayonlarini boshqarish fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Biznes boshqaruvi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Buxgalteriya hisobi va biznes fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Axborot texnologiyalari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Kiberxavfsizlik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Amaliy matematika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Buxoro xalqaro universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Farmatsevtika ta’lim va tadqiqot instituti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Profi University",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Oriental universiteti",
+    "input_faculties": [
+      "Tarix fakulteti",
+      "Pedagogika fakulteti",
+      "Iqtisodiyot va turizm fakulteti",
+      "Filologiya fakulteti",
+      "Jismoniy tarbiya fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Tarix fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Pedagogika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Iqtisodiyot va turizm fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Filologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Jismoniy tarbiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Botir Zokirov nomidagi Milliy estrada san’ati instituti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Diplomat University",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Jizzax Sambhram universiteti",
+    "input_faculties": [
+      "Axborot texnologiyalari fanlari fakulteti",
+      "Biznes boshqaruvi bakalavri fakulteti",
+      "Texnologiya bakalavri fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Axborot texnologiyalari fanlari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Biznes boshqaruvi bakalavri fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Texnologiya bakalavri fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Andijon davlat chet tillari instituti",
+    "input_faculties": [
+      "Ingliz tili va adabiyoti fakulteti",
+      "Ingliz filologiyasi, o‘qitish metodikasi va tarjimashunoslik fakulteti",
+      "Roman-german va slavyan tillari fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Ingliz tili va adabiyoti fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Ingliz filologiyasi, o‘qitish metodikasi va tarjimashunoslik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Roman-german va slavyan tillari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Buxoro innovatsion ta’lim va tibbiyot universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Pisa University in Tashkent",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Toshkent menejment va iqtisodiyot instituti",
+    "input_faculties": [
+      "Biznes va boshqaruv fakulteti",
+      "Gumanitar, ta’lim va ijtimoiy fanlar fakulteti",
+      "Muhandislik va axborot texnologiyalari fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Biznes va boshqaruv fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Gumanitar, ta’lim va ijtimoiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Muhandislik va axborot texnologiyalari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Is’hoqxon Ibrat nomidagi Namangan davlat chet tillari instituti",
+    "input_faculties": [
+      "Til va tarjima fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Til va tarjima fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Namangan davlat pedagogika instituti",
+    "input_faculties": [
+      "Pedagogika fakulteti",
+      "Aniq va tabiiy fanlar fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Pedagogika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Aniq va tabiiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Urganch davlat pedagogika instituti",
+    "input_faculties": [
+      "Filologiya fakulteti",
+      "Pedagogika fakulteti",
+      "Boshlang‘ich ta’lim fakulteti",
+      "Aniq va tabiiy fanlar fakulteti",
+      "Ijtimoiy va amaliy fanlar fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Filologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Pedagogika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Boshlang‘ich ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Aniq va tabiiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Ijtimoiy va amaliy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Guliston davlat pedagogika instituti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Jamoat xavfsizligi universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Sharof Rashidov nomidagi Samarqand davlat universitetining Urgut filiali",
+    "input_faculties": [
+      "Biznesni boshqarish va tabiiy fanlar fakulteti",
+      "Pedagogika va tillarni o‘qitish fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Biznesni boshqarish va tabiiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Pedagogika va tillarni o‘qitish fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Turan International University",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Alfraganus University",
+    "input_faculties": [
+      "Davolash ishi va pediatriya fakulteti",
+      "Filologiya fakulteti",
+      "Ijtimoiy fanlar fakulteti",
+      "Iqtisodiyot fakulteti",
+      "Jismoniy tarbiya va sport fakulteti",
+      "Raqamli texnologiyalar fakulteti",
+      "Stomatologiya va farmatsiya fakulteti",
+      "Turizm fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Davolash ishi va pediatriya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Filologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Ijtimoiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Iqtisodiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Jismoniy tarbiya va sport fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Raqamli texnologiyalar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Stomatologiya va farmatsiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Turizm fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Zarmed University",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Toshkent iqtisodiyot va pedagogika universiteti",
+    "input_faculties": [
+      "Iqtisodiyot fakulteti",
+      "Kompyuter injiniringi fakulteti",
+      "Ona tili va adabiyoti fakulteti",
+      "Xorijiy til va adabiyoti fakulteti",
+      "Pedagogika va psixologiya fakulteti",
+      "Boshlang‘ich ta’lim fakulteti",
+      "Maktabgacha ta’lim fakulteti",
+      "Tarix fakulteti",
+      "Jismoniy madaniyat fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Iqtisodiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Kompyuter injiniringi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Ona tili va adabiyoti fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Xorijiy til va adabiyoti fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Pedagogika va psixologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Boshlang‘ich ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Maktabgacha ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tarix fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Jismoniy madaniyat fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Iqtisodiyot va pedagogika universiteti",
+    "input_faculties": [
+      "Iqtisodiyot fakulteti",
+      "Pedagogika fakulteti",
+      "Menejment fakulteti",
+      "Axborot texnologiyalari fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Iqtisodiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Pedagogika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Menejment fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Axborot texnologiyalari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": [
+      "Duplicate entry found; merged faculties from duplicates."
+    ]
+  },
+  {
+    "name": "TMC Institute",
+    "input_faculties": [
+      "Axborot texnologiyalari fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Axborot texnologiyalari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Navoiy innovatsiyalar universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "University of Management and Future Technologies",
+    "input_faculties": [
+      "IT muhandislik fakulteti",
+      "Iqtisodiyot va biznes boshqaruv fakulteti",
+      "Pedagogika va filologiya fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "IT muhandislik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Iqtisodiyot va biznes boshqaruv fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Pedagogika va filologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Ma’mun universiteti",
+    "input_faculties": [
+      "Filologiya fakulteti",
+      "Psixologiya va umumkasbiy fanlar fakulteti",
+      "Tibbiyot fakulteti",
+      "Ijtimoiy-gumanitar va aniq fanlar fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Filologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Psixologiya va umumkasbiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tibbiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Ijtimoiy-gumanitar va aniq fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Toshkent shahridagi S. A. Gerasimov nomidagi Butunrossiya davlat kinematografiya universitetining birinchi xorijiy filiali",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Qarshi xalqaro universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Osiyo xalqaro universiteti",
+    "input_faculties": [
+      "Pedagogika va ta’lim fakulteti",
+      "Tibbiyot fakulteti",
+      "Filologiya va tillarni o‘qitish fakulteti",
+      "Iqtisodiyot va menejment fakulteti",
+      "Tarix va siyosat fakulteti",
+      "Madaniyat va sport fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Pedagogika va ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tibbiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Filologiya va tillarni o‘qitish fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Iqtisodiyot va menejment fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tarix va siyosat fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Madaniyat va sport fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Jizzax shahridagi Qozon federal universiteti filiali",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Yangi Asr universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Biznes va tadbirkorlik oliy maktabi",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "University of Science and Technologies",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Impuls tibbiyot instituti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Termiz iqtisodiyot va servis universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Renessans ta’lim universiteti",
+    "input_faculties": [
+      "Pedagogika fakulteti",
+      "Filologiya va tarix fakulteti",
+      "Matematika va iqtisodiyot fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Pedagogika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Filologiya va tarix fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Matematika va iqtisodiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Perfect University",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Samarqand xalqaro texnologiya universiteti",
+    "input_faculties": [
+      "Muhandislik maktabi"
+    ],
+    "academic_units": [
+      {
+        "name": "Muhandislik maktabi",
+        "type": "school",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Axborot texnologiyalari va menejment universiteti",
+    "input_faculties": [
+      "Ijtimoiy fanlar fakulteti",
+      "Raqamli texnologiyalar fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Ijtimoiy fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Raqamli texnologiyalar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Xalqaro innovatsion universitet",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Ipak yo‘li innovatsiyalar universiteti",
+    "input_faculties": [
+      "Pedagogika fakulteti",
+      "Boshlang‘ich ta’lim fakulteti",
+      "Iqtisodiyot fakulteti",
+      "Psixologiya fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Pedagogika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Boshlang‘ich ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Iqtisodiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Psixologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "University of Innovation Technologies",
+    "input_faculties": [
+      "Innovatsion texnologiyalar va biznes fakulteti",
+      "Innovatsion pedagogika fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Innovatsion texnologiyalar va biznes fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Innovatsion pedagogika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "International Digital University",
+    "input_faculties": [
+      "Biznes fakulteti",
+      "IT fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Biznes fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "IT fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Osiyo texnologiyalar universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Aniq va ijtimoiy fanlar universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Urganch RANCH texnologiya universiteti",
+    "input_faculties": [
+      "Iqtisodiyot fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Iqtisodiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Turon universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Mehnat va ijtimoiy munosabatlar akademiyasi",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "STARS International University",
+    "input_faculties": [
+      "Global biznes texnologiyalari va moliya fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Global biznes texnologiyalari va moliya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "British Management University in Tashkent",
+    "input_faculties": [
+      "Umumiy ta’lim fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Umumiy ta’lim fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Central Asian Medical University",
+    "input_faculties": [
+      "Muhandislik maktabi",
+      "Biznes maktabi",
+      "Tibbiyot maktabi",
+      "Stomatologiya maktabi",
+      "Mehmondo‘stlik va turizm maktabi"
+    ],
+    "academic_units": [
+      {
+        "name": "Muhandislik maktabi",
+        "type": "school",
+        "status": "unverified"
+      },
+      {
+        "name": "Biznes maktabi",
+        "type": "school",
+        "status": "unverified"
+      },
+      {
+        "name": "Tibbiyot maktabi",
+        "type": "school",
+        "status": "unverified"
+      },
+      {
+        "name": "Stomatologiya maktabi",
+        "type": "school",
+        "status": "unverified"
+      },
+      {
+        "name": "Mehmondo‘stlik va turizm maktabi",
+        "type": "school",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Xalqaro Nordik universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Angren universiteti",
+    "input_faculties": [
+      "Iqtisodiyot va huquq fakulteti",
+      "Pedagogika va tillar fakulteti",
+      "Davolash ishi fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Iqtisodiyot va huquq fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Pedagogika va tillar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Davolash ishi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Farg‘ona shahridagi Koreya xalqaro universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Toshkent shahridagi Turkiyaning iqtisodiyot va texnologiyalar universiteti filiali",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Xalqaro qishloq xo‘jaligi universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Japan Digital University",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Ijtimoiy va siyosiy fanlar instituti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Raqamli iqtisodiyot va agrotexnologiyalar universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Toshkent amaliy fanlar universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "PDP University",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "TEAM University",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Profi University Navoiy filiali",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "ISFT instituti",
+    "input_faculties": [
+      "Iqtisodiyot va axborot texnologiyalari fakulteti",
+      "Xalqaro iqtisodiyot va moliya fakulteti",
+      "Ijtimoiy-gumanitar fanlar va tillar fakulteti",
+      "Davlat moliyaviy nazorati va audit fakulteti",
+      "Gumanitar dasturlar fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Iqtisodiyot va axborot texnologiyalari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Xalqaro iqtisodiyot va moliya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Ijtimoiy-gumanitar fanlar va tillar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Davlat moliyaviy nazorati va audit fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Gumanitar dasturlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Oziq-ovqat texnologiyasi va muhandisligi xalqaro instituti",
+    "input_faculties": [
+      "Oziq-ovqat texnologiyasi va boshqaruv fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Oziq-ovqat texnologiyasi va boshqaruv fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "University of Business and Science",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "O‘zbekiston davlat sport akademiyasi",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Millat umidi universiteti",
+    "input_faculties": [
+      "Ingliz tilini o‘qitish fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Ingliz tilini o‘qitish fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Yangi O‘zbekiston universiteti",
+    "input_faculties": [
+      "Kompyuter fanlari maktabi",
+      "Muhandislik maktabi",
+      "Gumanitar, tabiiy va ijtimoiy fanlar maktabi",
+      "Menejment maktabi"
+    ],
+    "academic_units": [
+      {
+        "name": "Kompyuter fanlari maktabi",
+        "type": "school",
+        "status": "unverified"
+      },
+      {
+        "name": "Muhandislik maktabi",
+        "type": "school",
+        "status": "unverified"
+      },
+      {
+        "name": "Gumanitar, tabiiy va ijtimoiy fanlar maktabi",
+        "type": "school",
+        "status": "unverified"
+      },
+      {
+        "name": "Menejment maktabi",
+        "type": "school",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Jismoniy tarbiya va sport ilmiy tadqiqotlar instituti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Toshkent xalqaro moliyaviy boshqaruv va texnologiyalar universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Tashkent International University",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Sankt-Peterburg davlat universitetining Toshkent shahridagi filiali",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Qo‘qon universiteti Andijon filiali",
+    "input_faculties": [
+      "Tibbiyot fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Tibbiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Imom Buxoriy nomidagi Toshkent islom instituti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Toshkent tibbiyot akademiyasi Chirchiq filiali",
+    "input_faculties": [
+      "Davolash va pediatriya ishi fakulteti",
+      "Farmatsiya, psixologiya va xalqaro aloqalar fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Davolash va pediatriya ishi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Farmatsiya, psixologiya va xalqaro aloqalar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "O‘zbekiston Respublikasi Bank-moliya akademiyasi",
+    "input_faculties": [
+      "Boshqaruv kadrlarini tayyorlash fakulteti",
+      "Qayta tayyorlash va malaka oshirish fakulteti",
+      "Biznes va menejment fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Boshqaruv kadrlarini tayyorlash fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Qayta tayyorlash va malaka oshirish fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Biznes va menejment fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Jahon iqtisodiyoti va diplomatiya universiteti huzuridagi Diplomatik akademiya",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Oxus University",
+    "input_faculties": [
+      "Huquq va davlat boshqaruvi fakulteti",
+      "Iqtisodiyot va biznes fakulteti",
+      "Xorijiy mamlakatlar iqtisodiyoti va mamlakatshunoslik fakulteti",
+      "Axborot texnologiyalari fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Huquq va davlat boshqaruvi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Iqtisodiyot va biznes fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Xorijiy mamlakatlar iqtisodiyoti va mamlakatshunoslik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Axborot texnologiyalari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Markaziy Osiyo atrof-muhit va iqlim o‘zgarishini o‘rganish universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Acharya universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Zarmed University Samarqand kampusi",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Termiz davlat muhandislik va agrotexnologiyalar universiteti",
+    "input_faculties": [
+      "Energetika va sanoat muhandisligi fakulteti",
+      "Agrobiologiya fakulteti",
+      "Mexanika va konchilik ishi fakulteti",
+      "Qurilish va irrigatsiya fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Energetika va sanoat muhandisligi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Agrobiologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Mexanika va konchilik ishi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Qurilish va irrigatsiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Rossiya Federatsiyasi Tashqi ishlar vazirligining Moskva davlat xalqaro munosabatlar instituti Toshkent filiali",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Tashkent Metropolitan University",
+    "input_faculties": [
+      "Biznes maktabi",
+      "Huquq maktabi",
+      "San’at va gumanitar fanlar maktabi",
+      "Muhandislik maktabi"
+    ],
+    "academic_units": [
+      {
+        "name": "Biznes maktabi",
+        "type": "school",
+        "status": "unverified"
+      },
+      {
+        "name": "Huquq maktabi",
+        "type": "school",
+        "status": "unverified"
+      },
+      {
+        "name": "San’at va gumanitar fanlar maktabi",
+        "type": "school",
+        "status": "unverified"
+      },
+      {
+        "name": "Muhandislik maktabi",
+        "type": "school",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Iqtisodiyot va pedagogika universiteti Samarqand kampusi",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Sarbon universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Turon universiteti Andijon filiali",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Amerika texnologiyalar universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Abu Rayhon Beruniy universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Andijon davlat texnika instituti",
+    "input_faculties": [
+      "Avtomobilsozlik va transport fakulteti",
+      "Elektr va energetika fakulteti",
+      "Mashinasozlik texnologiyasi fakulteti",
+      "Muhandislik iqtisodiyoti va boshqaruv fakulteti",
+      "Intellektual boshqaruv va kompyuter tizimlari fakulteti",
+      "Yengil sanoat va kimyo muhandisligi fakulteti",
+      "Qurilish muhandisligi va arxitektura fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Avtomobilsozlik va transport fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Elektr va energetika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Mashinasozlik texnologiyasi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Muhandislik iqtisodiyoti va boshqaruv fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Intellektual boshqaruv va kompyuter tizimlari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Yengil sanoat va kimyo muhandisligi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Qurilish muhandisligi va arxitektura fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Qarshi davlat texnika universiteti",
+    "input_faculties": [
+      "Neft-gaz va geologiya fakulteti",
+      "Iqtisodiyot va boshqaruv fakulteti",
+      "Energetika muhandisligi fakulteti",
+      "Transport va qurilish muhandisligi fakulteti",
+      "Raqamli texnologiyalar va sun’iy intellekt fakulteti",
+      "Shahrisabz oziq-ovqat muhandisligi fakulteti",
+      "Irrigatsiya muhandisligi fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Neft-gaz va geologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Iqtisodiyot va boshqaruv fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Energetika muhandisligi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Transport va qurilish muhandisligi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Raqamli texnologiyalar va sun’iy intellekt fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Shahrisabz oziq-ovqat muhandisligi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Irrigatsiya muhandisligi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Buxoro davlat texnika universiteti",
+    "input_faculties": [
+      "Kimyoviy va oziq-ovqat texnologiyasi fakulteti",
+      "Neft-gaz texnologiyasi fakulteti",
+      "Paxta va yengil sanoat texnologiyalari fakulteti",
+      "To‘qimachilik va charm sanoat fakulteti",
+      "Arxitektura-qurilish fakulteti",
+      "Energetika fakulteti",
+      "Texnologik jarayonlarni boshqaruv tizimlari fakulteti",
+      "Yer usti transporti tizimlari fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Kimyoviy va oziq-ovqat texnologiyasi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Neft-gaz texnologiyasi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Paxta va yengil sanoat texnologiyalari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "To‘qimachilik va charm sanoat fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Arxitektura-qurilish fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Energetika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Texnologik jarayonlarni boshqaruv tizimlari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Yer usti transporti tizimlari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Nukus davlat texnika universiteti",
+    "input_faculties": [
+      "Kompyuter ilmlari fakulteti",
+      "Iqtisodiyot va telekommunikatsiya injiniringi fakulteti",
+      "Konchilik ishi va energetika fakulteti",
+      "Muhandislik texnologiyalari va iqtisodiyoti fakulteti",
+      "Sun’iy intellekt fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Kompyuter ilmlari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Iqtisodiyot va telekommunikatsiya injiniringi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Konchilik ishi va energetika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Muhandislik texnologiyalari va iqtisodiyoti fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Sun’iy intellekt fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Namangan davlat texnika universiteti",
+    "input_faculties": [
+      "Biznesni boshqarish fakulteti",
+      "Energetika fakulteti",
+      "Iqtisodiyot fakulteti",
+      "Mexanika fakulteti",
+      "Muhandislik-axborot texnologiyalari fakulteti",
+      "Qurilish fakulteti",
+      "Texnologiya fakulteti",
+      "To‘qimachilik sanoati injiniringi fakulteti",
+      "Transport fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Biznesni boshqarish fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Energetika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Iqtisodiyot fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Mexanika fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Muhandislik-axborot texnologiyalari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Qurilish fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Texnologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "To‘qimachilik sanoati injiniringi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Transport fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Qo‘qon davlat universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Farg‘ona davlat texnika universiteti",
+    "input_faculties": [
+      "Mexanika-mashinasozlik fakulteti",
+      "Energetika muhandisligi fakulteti",
+      "Kimyo texnologiya fakulteti",
+      "Arxitektura va qurilish fakulteti",
+      "Ishlab chiqarishda boshqaruv fakulteti",
+      "Yengil sanoat va to‘qimachilik fakulteti",
+      "Axborot texnologiyalari va telekommunikatsiya fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Mexanika-mashinasozlik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Energetika muhandisligi fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Kimyo texnologiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Arxitektura va qurilish fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Ishlab chiqarishda boshqaruv fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Yengil sanoat va to‘qimachilik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Axborot texnologiyalari va telekommunikatsiya fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Farmatsevtika texnik universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Sharq University",
+    "input_faculties": [
+      "Iqtisodiyot va axborot texnologiyalari fakulteti",
+      "Ijtimoiy-gumanitar fanlar fakulteti"
+    ],
+    "academic_units": [
+      {
+        "name": "Iqtisodiyot va axborot texnologiyalari fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Ijtimoiy-gumanitar fanlar fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Cyber University of Uzbekistan",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Toshkent davlat tibbiyot universiteti",
+    "input_faculties": [
+      "1-son Davolash fakulteti",
+      "2-son Davolash fakulteti",
+      "Pediatriya, stomatologiya, xalq tabobati, tibbiy pedagogika va surdotarjimonlik fakulteti",
+      "Tibbiy profilaktika va jamoat salomatligi, ekologiya va atrof muhit muhofazasi va kimyo fakulteti",
+      "Farmatsiya, menejment, tibbiy biologiya, biotibbiyot muhandisligi va oliy ma’lumotli hamshira fakulteti",
+      "Malaka oshirish fakulteti",
+      "Xalqaro fakultet"
+    ],
+    "academic_units": [
+      {
+        "name": "1-son Davolash fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "2-son Davolash fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Pediatriya, stomatologiya, xalq tabobati, tibbiy pedagogika va surdotarjimonlik fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Tibbiy profilaktika va jamoat salomatligi, ekologiya va atrof muhit muhofazasi va kimyo fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Farmatsiya, menejment, tibbiy biologiya, biotibbiyot muhandisligi va oliy ma’lumotli hamshira fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Malaka oshirish fakulteti",
+        "type": "faculty",
+        "status": "unverified"
+      },
+      {
+        "name": "Xalqaro fakultet",
+        "type": "faculty",
+        "status": "unverified"
+      }
+    ],
+    "needs_research": true,
+    "cleaning_notes": []
+  },
+  {
+    "name": "Impuls tibbiyot instituti Chirchiq kampusi",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Navoiy innovatsiyalar universiteti Surxondaryo kampusi",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Imom Termiziy nomidagi islom instituti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Hadis ilmi maktabi",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Mir Arab oliy madrasasi",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Chirchiq shahridagi M. Auezov nomidagi Janubiy Qozog‘iston universiteti filiali",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "Al-Xorazmiy Universiteti",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  },
+  {
+    "name": "O‘zbekiston Respublikasi Prezidenti huzuridagi Davlat siyosati va boshqaruvi akademiyasi",
+    "input_faculties": [],
+    "academic_units": [],
+    "needs_research": true,
+    "cleaning_notes": [
+      "No faculties listed."
+    ]
+  }
+]

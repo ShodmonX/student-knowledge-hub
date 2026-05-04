@@ -75,6 +75,9 @@ class AdminService:
                 await self._ensure_not_last_active_admin(user)
         for field, value in payload.items():
             setattr(user, field, value)
+        if payload.get("university_id"):
+            user.pending_university_name = None
+            user.university_status = "selected"
         await self.audit.log("user_updated", "user", None, user.id)
         await self.session.commit()
         await self._invalidate_dashboard_cache()

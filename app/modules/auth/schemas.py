@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, model_validator
 
 from app.modules.users.enums import UserRole
 
@@ -9,7 +9,18 @@ class RegisterRequest(BaseModel):
     full_name: str = Field(min_length=2, max_length=255)
     email: EmailStr
     password: str = Field(min_length=8, max_length=128)
-    university_id: str
+    university_id: str | None = None
+    proposed_university_name: str | None = Field(default=None, min_length=2, max_length=255)
+
+    @model_validator(mode="after")
+    def validate_university_choice(self) -> "RegisterRequest":
+        has_existing = bool(self.university_id)
+        has_proposal = bool(self.proposed_university_name and self.proposed_university_name.strip())
+        if has_existing == has_proposal:
+            raise ValueError("Provide exactly one of university_id or proposed_university_name")
+        if self.proposed_university_name:
+            self.proposed_university_name = self.proposed_university_name.strip()
+        return self
 
 
 class LoginRequest(BaseModel):

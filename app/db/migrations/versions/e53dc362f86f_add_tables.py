@@ -1,8 +1,8 @@
 """add tables
 
-Revision ID: f788188214fb
+Revision ID: e53dc362f86f
 Revises: 
-Create Date: 2026-05-03 02:56:08.419862
+Create Date: 2026-05-04 04:05:16.548345
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'f788188214fb'
+revision: str = 'e53dc362f86f'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -76,8 +76,10 @@ def upgrade() -> None:
     sa.Column('avatar_url', sa.String(length=512), nullable=True),
     sa.Column('hashed_password', sa.String(length=255), nullable=False),
     sa.Column('role', sa.Enum('STUDENT', 'MODERATOR', 'ADMIN', name='userrole'), nullable=False),
-    sa.Column('university_id', sa.String(length=36), nullable=False),
+    sa.Column('university_id', sa.String(length=36), nullable=True),
     sa.Column('university_changed_at', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('pending_university_name', sa.String(length=255), nullable=True),
+    sa.Column('university_status', sa.String(length=32), nullable=False),
     sa.Column('is_active', sa.Boolean(), nullable=False),
     sa.Column('is_verified', sa.Boolean(), nullable=False),
     sa.Column('id', sa.String(length=36), nullable=False),

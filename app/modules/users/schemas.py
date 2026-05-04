@@ -18,7 +18,9 @@ class UserRead(ORMModel):
     email: EmailStr
     avatar_url: str | None
     role: UserRole
-    university_id: str
+    university_id: str | None
+    pending_university_name: str | None = None
+    university_status: str = "selected"
     is_active: bool
     is_verified: bool
 

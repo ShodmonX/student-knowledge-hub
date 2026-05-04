@@ -5,18 +5,25 @@ from fastapi import UploadFile
 from sqlalchemy import func, select
 
 from app.core.config import get_settings
-from app.core.exceptions import ConflictError
+from app.core.exceptions import ConflictError, ResourceNotFound
 from app.core.security import create_access_token, hash_password
 from app.modules.catalog.models import Faculty, Subject, University
 from app.modules.community.models import MaterialRating
 from app.modules.materials.enums import MaterialStatus, MaterialType
 from app.modules.users.enums import UserRole
 from app.modules.users.models import User
+from app.modules.catalog_proposals.models import UniversityProposal
+from app.modules.catalog_proposals.schemas import ProposalApproveRequest, ProposalRejectRequest
+from app.modules.catalog_proposals.service import CatalogProposalService
+from app.modules.catalog_proposals.enums import ProposalStatus
+from app.modules.auth.schemas import RegisterRequest
+from app.modules.auth.service import AuthService
 from app.modules.catalog.schemas import FacultyCreate, SubjectCreate, UniversityCreate
 from app.modules.materials.schemas import MaterialCreate
-from app.bootstrap.seed_service import seed
+from app.bootstrap.seed_service import load_catalog_seed_entries, seed
 from app.modules.catalog.service import CatalogService
 from app.modules.materials.service import MaterialService
+from app.modules.tags.models import MaterialTag, Tag
 from app.utils.slug import slugify
 
 
@@ -100,6 +107,129 @@ async def test_register_and_login(client, session):
     )
     assert login_response.status_code == 200
     assert "access_token" in login_response.json()
+
+
+@pytest.mark.asyncio
+async def test_register_with_proposed_university_creates_proposal_and_admin_decision_updates_user(client, session):
+    admin_university = await _seed_university(session)
+    admin = await _seed_user(session, admin_university.id, "proposal-admin@example.com", UserRole.ADMIN)
+
+    register_response = await client.post(
+        "/api/v1/auth/register",
+        json={
+            "full_name": "Pending Student",
+            "email": "pending-student@example.com",
+            "password": "password123",
+            "proposed_university_name": "Future Registration University",
+        },
+    )
+    assert register_response.status_code == 201
+    assert register_response.json()["university_id"] is None
+    assert register_response.json()["university_status"] == "pending"
+    assert register_response.json()["pending_university_name"] == "Future Registration University"
+
+    user = (await session.execute(select(User).where(User.email == "pending-student@example.com"))).scalar_one()
+    proposal = (
+        await session.execute(
+            select(UniversityProposal).where(UniversityProposal.created_by == user.id)
+        )
+    ).scalar_one()
+
+    approved = await CatalogProposalService(session).approve_university(
+        proposal.id,
+        admin,
+        ProposalApproveRequest(),
+    )
+    await session.refresh(user)
+    assert approved.status == ProposalStatus.APPROVED
+    assert user.university_id == approved.approved_university_id
+    assert user.university_status == "selected"
+    assert user.pending_university_name is None
+
+    rejected_register = await client.post(
+        "/api/v1/auth/register",
+        json={
+            "full_name": "Rejected Student",
+            "email": "rejected-student@example.com",
+            "password": "password123",
+            "proposed_university_name": "Rejected Registration University",
+        },
+    )
+    assert rejected_register.status_code == 201
+    rejected_user = (
+        await session.execute(select(User).where(User.email == "rejected-student@example.com"))
+    ).scalar_one()
+    rejected_proposal = (
+        await session.execute(
+            select(UniversityProposal).where(UniversityProposal.created_by == rejected_user.id)
+        )
+    ).scalar_one()
+
+    rejected = await CatalogProposalService(session).reject_university(
+        rejected_proposal.id,
+        admin,
+        ProposalRejectRequest(reason="duplicate", note="Not enough evidence"),
+    )
+    await session.refresh(rejected_user)
+    assert rejected.status == ProposalStatus.REJECTED
+    assert rejected_user.university_id is None
+    assert rejected_user.university_status == "rejected"
+    assert rejected_user.pending_university_name == "Rejected Registration University"
+
+
+@pytest.mark.asyncio
+async def test_register_university_choice_conflict_paths(session):
+    university = await _seed_university(session)
+    await _seed_user(session, university.id, "duplicate-register@example.com")
+    service = AuthService(session)
+
+    with pytest.raises(ConflictError):
+        await service.register(
+            RegisterRequest(
+                full_name="Duplicate User",
+                email="duplicate-register@example.com",
+                password="password123",
+                university_id=university.id,
+            )
+        )
+
+    with pytest.raises(ResourceNotFound):
+        await service.register(
+            RegisterRequest(
+                full_name="Missing University",
+                email="missing-university-register@example.com",
+                password="password123",
+                university_id="missing-university-id",
+            )
+        )
+
+    with pytest.raises(ConflictError):
+        await service.register(
+            RegisterRequest(
+                full_name="Existing University Proposal",
+                email="existing-university-proposal@example.com",
+                password="password123",
+                proposed_university_name=university.name,
+            )
+        )
+
+    pending_proposal = UniversityProposal(
+        proposed_name="Already Pending University",
+        proposed_slug="already-pending-university",
+        created_by=(await _seed_user(session, university.id, "proposal-owner@example.com")).id,
+    )
+    session.add(pending_proposal)
+    await session.commit()
+
+    with pytest.raises(ConflictError):
+        await service.register(
+            RegisterRequest(
+                full_name="Pending University Proposal",
+                email="pending-university-proposal@example.com",
+                password="password123",
+                proposed_university_name="Already Pending University",
+            )
+        )
 
 
 @pytest.mark.asyncio
@@ -340,6 +470,10 @@ async def test_material_search_matches_description_and_rating_desc_sort(client, 
             MaterialRating(material_id=low_rated.id, user_id=user.id, value=2),
         ]
     )
+    tag = Tag(name="Calculus Tag", slug="calculus-tag")
+    session.add(tag)
+    await session.flush()
+    await session.execute(MaterialTag.insert().values(material_id=high_rated.id, tag_id=tag.id))
     await session.commit()
 
     response = await client.get(
@@ -347,12 +481,24 @@ async def test_material_search_matches_description_and_rating_desc_sort(client, 
         params={"q": "matematika", "sort": "rating_desc"},
     )
     wildcard_response = await client.get("/api/v1/materials/search", params={"q": "%"})
+    tag_response = await client.get("/api/v1/materials/search", params={"q": "calculus"})
+    subject_response = await client.get("/api/v1/materials/search", params={"q": "analysis"})
+    faculty_response = await client.get("/api/v1/materials/search", params={"q": "mathematics"})
+    university_response = await client.get("/api/v1/materials/search", params={"q": "test university"})
 
     assert response.status_code == 200
     assert [item["id"] for item in response.json()["items"][:2]] == [high_rated.id, low_rated.id]
     assert response.json()["items"][0]["average_rating"] == 5.0
     assert wildcard_response.status_code == 200
     assert wildcard_response.json()["total"] == 0
+    assert tag_response.status_code == 200
+    assert tag_response.json()["items"][0]["id"] == high_rated.id
+    assert subject_response.status_code == 200
+    assert subject_response.json()["total"] == 2
+    assert faculty_response.status_code == 200
+    assert faculty_response.json()["total"] == 2
+    assert university_response.status_code == 200
+    assert university_response.json()["total"] == 2
 
 
 @pytest.mark.asyncio
@@ -609,6 +755,14 @@ async def test_material_file_lifecycle_operations(session):
 
 @pytest.mark.asyncio
 async def test_seed_only_runs_when_database_has_no_universities(session):
+    catalog_entries = load_catalog_seed_entries()
+    expected_university_count = len(catalog_entries)
+    expected_faculty_count = sum(
+        len([unit for unit in entry.get("academic_units", []) if unit.get("type") == "faculty"])
+        or len(entry.get("input_faculties", []))
+        for entry in catalog_entries
+    )
+
     await seed()
     await session.rollback()
 
@@ -617,9 +771,9 @@ async def test_seed_only_runs_when_database_has_no_universities(session):
     subject_count = await session.scalar(select(func.count(Subject.id)))
     user_count = await session.scalar(select(func.count(User.id)))
 
-    assert university_count == 1
-    assert faculty_count == 3
-    assert subject_count == 9
+    assert university_count == expected_university_count
+    assert faculty_count == expected_faculty_count
+    assert subject_count == 0
     assert user_count == 1
 
     await seed()
@@ -630,7 +784,7 @@ async def test_seed_only_runs_when_database_has_no_universities(session):
     subject_count_after = await session.scalar(select(func.count(Subject.id)))
     user_count_after = await session.scalar(select(func.count(User.id)))
 
-    assert university_count_after == 1
-    assert faculty_count_after == 3
-    assert subject_count_after == 9
+    assert university_count_after == expected_university_count
+    assert faculty_count_after == expected_faculty_count
+    assert subject_count_after == 0
     assert user_count_after == 1

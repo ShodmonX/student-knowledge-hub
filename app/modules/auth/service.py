@@ -2,7 +2,7 @@ from datetime import UTC, datetime, timedelta
 from html import escape
 from uuid import uuid4
 
-from sqlalchemy import select, update
+from sqlalchemy import or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings, get_settings
@@ -31,11 +31,15 @@ from app.modules.auth.schemas import (
     VerifyEmailRequest,
 )
 from app.modules.catalog.repositories import UniversityRepository
+from app.modules.catalog.models import University
+from app.modules.catalog_proposals.enums import ProposalEntityType, ProposalStatus
+from app.modules.catalog_proposals.models import CatalogProposalLog, UniversityProposal
 from app.modules.telegram.enums import TelegramEventType
 from app.modules.telegram.event_service import TelegramEventService
 from app.modules.users.models import User
 from app.modules.users.repository import UserRepository
 from app.utils.hashing import sha256_text
+from app.utils.slug import slugify
 
 
 class AuthService:
@@ -50,22 +54,82 @@ class AuthService:
     async def register(self, payload: RegisterRequest) -> User:
         if await self.users.get_by_email(payload.email):
             raise ConflictError("User with this email already exists")
-        if not await self.universities.get(payload.university_id):
-            raise ResourceNotFound("University not found")
+        university_id = payload.university_id
+        pending_university_name: str | None = None
+        if university_id:
+            if not await self.universities.get(university_id):
+                raise ResourceNotFound("University not found")
+            university_status = "selected"
+        else:
+            pending_university_name = payload.proposed_university_name or ""
+            await self._ensure_university_proposal_available(pending_university_name)
+            university_status = "pending"
 
         user = User(
             full_name=payload.full_name,
             email=payload.email,
             hashed_password=hash_password(payload.password),
-            university_id=payload.university_id,
+            university_id=university_id,
+            pending_university_name=pending_university_name,
+            university_status=university_status,
         )
         await self.users.create(user)
+        if pending_university_name:
+            await self._create_registration_university_proposal(user, pending_university_name)
         await self.audit.log("user_registered", "user", user, user.id)
         verification_token = await self._create_email_verification_token(user)
         await self._queue_verification_email(user, verification_token)
         await TelegramEventService(self.session).enqueue_user_registered_events(user)
         await self.session.commit()
         return user
+
+    async def _ensure_university_proposal_available(self, proposed_name: str) -> None:
+        proposed_slug = slugify(proposed_name)
+        existing_university = await self.session.execute(
+            select(University).where(
+                or_(
+                    University.name.ilike(proposed_name),
+                    University.slug == proposed_slug,
+                )
+            )
+        )
+        if existing_university.scalar_one_or_none():
+            raise ConflictError("University already exists")
+        pending_proposal = await self.session.execute(
+            select(UniversityProposal).where(
+                UniversityProposal.status == ProposalStatus.PENDING,
+                or_(
+                    UniversityProposal.proposed_name.ilike(proposed_name),
+                    UniversityProposal.proposed_slug == proposed_slug,
+                ),
+            )
+        )
+        if pending_proposal.scalar_one_or_none():
+            raise ConflictError("University proposal already exists")
+
+    async def _create_registration_university_proposal(
+        self,
+        user: User,
+        proposed_name: str,
+    ) -> UniversityProposal:
+        proposal = UniversityProposal(
+            proposed_name=proposed_name,
+            proposed_slug=slugify(proposed_name),
+            proposed_description="Submitted during registration",
+            created_by=user.id,
+        )
+        self.session.add(proposal)
+        await self.session.flush()
+        self.session.add(
+            CatalogProposalLog(
+                entity_type=ProposalEntityType.UNIVERSITY,
+                entity_id=proposal.id,
+                action="submitted_during_registration",
+                actor_id=user.id,
+            )
+        )
+        await TelegramEventService(self.session).enqueue_proposal_created_events(proposal, "university")
+        return proposal
 
     async def login(self, payload: LoginRequest) -> TokenResponse:
         user = await self.users.get_by_email(payload.email)

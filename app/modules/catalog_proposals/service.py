@@ -46,6 +46,17 @@ class CatalogProposalService:
         )
         if duplicate.scalar_one_or_none():
             raise ConflictError("University already exists")
+        pending_duplicate = await self.session.execute(
+            select(UniversityProposal).where(
+                UniversityProposal.status == ProposalStatus.PENDING,
+                or_(
+                    UniversityProposal.proposed_name.ilike(proposed_name),
+                    UniversityProposal.proposed_slug == slugify(proposed_name),
+                ),
+            )
+        )
+        if pending_duplicate.scalar_one_or_none():
+            raise ConflictError("University proposal already exists")
         proposal = UniversityProposal(
             proposed_name=proposed_name,
             proposed_slug=slugify(proposed_name),
@@ -148,6 +159,8 @@ class CatalogProposalService:
             )
         user.university_id = payload.university_id
         user.university_changed_at = now
+        user.pending_university_name = None
+        user.university_status = "selected"
         await self.session.commit()
         return {
             "message": "Asosiy universitet yangilandi",
@@ -184,6 +197,7 @@ class CatalogProposalService:
         proposal.reviewed_at = datetime.now(UTC)
         proposal.review_note = payload.note
         proposal.approved_university_id = university.id
+        await self._apply_approved_university_to_registration_user(proposal, university.id)
         await self._log(ProposalEntityType.UNIVERSITY, proposal.id, "approved", actor.id, payload.note)
         await self.session.commit()
         return proposal
@@ -203,6 +217,7 @@ class CatalogProposalService:
         proposal.reviewed_at = datetime.now(UTC)
         proposal.review_note = note
         proposal.approved_university_id = target_id
+        await self._apply_approved_university_to_registration_user(proposal, target_id)
         await self._log(ProposalEntityType.UNIVERSITY, proposal.id, "mapped_to_existing", actor.id, note)
         await self.session.commit()
         return proposal
@@ -304,9 +319,32 @@ class CatalogProposalService:
         proposal.reviewed_by = actor.id
         proposal.reviewed_at = datetime.now(UTC)
         proposal.review_note = note or reason
+        if entity_type == ProposalEntityType.UNIVERSITY:
+            await self._mark_registration_university_rejected(proposal)
         await self._log(entity_type, proposal.id, "rejected", actor.id, note or reason)
         await self.session.commit()
         return proposal
+
+    async def _apply_approved_university_to_registration_user(
+        self,
+        proposal: UniversityProposal,
+        university_id: str,
+    ) -> None:
+        user = await self.session.get(User, proposal.created_by)
+        if not user or user.university_id:
+            return
+        if user.university_status not in {"pending", "rejected"}:
+            return
+        user.university_id = university_id
+        user.pending_university_name = None
+        user.university_status = "selected"
+        user.university_changed_at = datetime.now(UTC)
+
+    async def _mark_registration_university_rejected(self, proposal: UniversityProposal) -> None:
+        user = await self.session.get(User, proposal.created_by)
+        if not user or user.university_id or user.university_status != "pending":
+            return
+        user.university_status = "rejected"
 
     async def _get_proposal(self, model, proposal_id: str):
         proposal = await self.session.get(model, proposal_id)

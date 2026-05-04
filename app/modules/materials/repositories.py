@@ -8,6 +8,7 @@ from app.modules.materials.enums import MaterialStatus
 from app.modules.catalog.models import Faculty, Subject, University
 from app.modules.materials.models import Material, MaterialFile, MaterialReviewLog
 from app.modules.community.models import MaterialRating
+from app.modules.tags.models import Tag
 from app.modules.users.models import User
 
 
@@ -124,13 +125,20 @@ class MaterialRepository:
     @staticmethod
     def apply_filters(statement: Select[tuple[Material]], query, include_text: bool = True):
         if include_text and query.q:
-            search_pattern = f"%{escape_like(query.q)}%"
-            statement = statement.where(
-                or_(
-                    Material.title.ilike(search_pattern, escape="\\"),
-                    Material.description.ilike(search_pattern, escape="\\"),
+            search_text = query.q.strip()
+            if search_text:
+                search_pattern = f"%{escape_like(search_text)}%"
+                statement = statement.where(
+                    or_(
+                        Material.title.ilike(search_pattern, escape="\\"),
+                        Material.description.ilike(search_pattern, escape="\\"),
+                        Subject.name.ilike(search_pattern, escape="\\"),
+                        Faculty.name.ilike(search_pattern, escape="\\"),
+                        University.name.ilike(search_pattern, escape="\\"),
+                        Material.tags.any(Tag.name.ilike(search_pattern, escape="\\")),
+                        Material.tags.any(Tag.slug.ilike(search_pattern, escape="\\")),
+                    )
                 )
-            )
         if query.subject_id:
             statement = statement.where(Material.subject_id == query.subject_id)
         if query.faculty_id:

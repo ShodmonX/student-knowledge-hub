@@ -43,6 +43,7 @@ async def test_catalog_public_endpoints_cover_list_and_detail_routes(client, ses
     )
 
     universities_response = await client.get("/api/v1/universities")
+    university_tree_response = await client.get("/api/v1/universities/tree")
     university_response = await client.get(f"/api/v1/universities/{university.id}")
     faculties_response = await client.get(f"/api/v1/universities/{university.id}/faculties")
     faculty_response = await client.get(f"/api/v1/faculties/{faculty.id}")
@@ -52,6 +53,12 @@ async def test_catalog_public_endpoints_cover_list_and_detail_routes(client, ses
 
     assert universities_response.status_code == 200
     assert any(item["id"] == university.id for item in universities_response.json())
+    assert university_tree_response.status_code == 200
+    tree_university = next(
+        item for item in university_tree_response.json() if item["id"] == university.id
+    )
+    assert tree_university["faculties"][0]["id"] == faculty.id
+    assert tree_university["faculties"][0]["subjects"][0]["id"] == subject.id
     assert university_response.status_code == 200
     assert university_response.json()["id"] == university.id
     assert faculties_response.status_code == 200

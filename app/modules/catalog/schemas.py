@@ -64,3 +64,28 @@ class SubjectRead(ORMModel):
     code: str | None
     semester: int
     description: str | None
+
+
+class SubjectTreeRead(BaseModel):
+    id: str
+    faculty_id: str
+    name: str
+    slug: str
+    code: str | None
+    semester: int
+    description: str | None
+
+
+class FacultyTreeRead(BaseModel):
+    id: str
+    university_id: str
+    name: str
+    slug: str
+    subjects: list[SubjectTreeRead]
+
+
+class UniversityTreeRead(BaseModel):
+    id: str
+    name: str
+    slug: str
+    faculties: list[FacultyTreeRead]

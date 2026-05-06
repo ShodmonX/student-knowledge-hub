@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db_session
-from app.modules.catalog.schemas import FacultyRead, UniversityRead
+from app.modules.catalog.schemas import FacultyRead, UniversityRead, UniversityTreeRead
 from app.modules.catalog.service import CatalogService
 
 router = APIRouter()
@@ -16,6 +16,14 @@ async def list_universities(
 ) -> list[UniversityRead]:
     items = await CatalogService(session).list_universities()
     return [UniversityRead.model_validate(item) for item in items]
+
+
+@router.get("/tree", response_model=list[UniversityTreeRead])
+async def list_university_tree(
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> list[UniversityTreeRead]:
+    items = await CatalogService(session).list_university_tree()
+    return [UniversityTreeRead.model_validate(item) for item in items]
 
 
 @router.get("/{university_id}", response_model=UniversityRead)

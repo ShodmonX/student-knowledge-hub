@@ -26,6 +26,53 @@ class CatalogService:
     async def list_universities(self) -> list[University]:
         return await self.universities.list_all()
 
+    async def list_university_tree(self) -> list[dict]:
+        universities = (
+            await self.session.execute(select(University).order_by(University.name.asc()))
+        ).scalars().all()
+        faculties = (
+            await self.session.execute(select(Faculty).order_by(Faculty.name.asc()))
+        ).scalars().all()
+        subjects = (
+            await self.session.execute(select(Subject).order_by(Subject.semester.asc(), Subject.name.asc()))
+        ).scalars().all()
+
+        subjects_by_faculty: dict[str, list[dict]] = {}
+        for subject in subjects:
+            subjects_by_faculty.setdefault(subject.faculty_id, []).append(
+                {
+                    "id": subject.id,
+                    "faculty_id": subject.faculty_id,
+                    "name": subject.name,
+                    "slug": subject.slug,
+                    "code": subject.code,
+                    "semester": subject.semester,
+                    "description": subject.description,
+                }
+            )
+
+        faculties_by_university: dict[str, list[dict]] = {}
+        for faculty in faculties:
+            faculties_by_university.setdefault(faculty.university_id, []).append(
+                {
+                    "id": faculty.id,
+                    "university_id": faculty.university_id,
+                    "name": faculty.name,
+                    "slug": faculty.slug,
+                    "subjects": subjects_by_faculty.get(faculty.id, []),
+                }
+            )
+
+        return [
+            {
+                "id": university.id,
+                "name": university.name,
+                "slug": university.slug,
+                "faculties": faculties_by_university.get(university.id, []),
+            }
+            for university in universities
+        ]
+
     async def get_university(self, university_id: str) -> University:
         university = await self.universities.get(university_id)
         if not university:

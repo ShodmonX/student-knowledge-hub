@@ -27,6 +27,7 @@ from app.modules.catalog_proposals.schemas import (
     SubjectProposalCreate,
     UniversityProposalCreate,
 )
+from app.modules.telegram.enums import TelegramEventType
 from app.modules.telegram.event_service import TelegramEventService
 from app.utils.slug import slugify
 
@@ -199,6 +200,13 @@ class CatalogProposalService:
         proposal.approved_university_id = university.id
         await self._apply_approved_university_to_registration_user(proposal, university.id)
         await self._log(ProposalEntityType.UNIVERSITY, proposal.id, "approved", actor.id, payload.note)
+        await TelegramEventService(self.session).enqueue_proposal_owner_event(
+            event_type=TelegramEventType.PROPOSAL_APPROVED,
+            proposal=proposal,
+            proposal_type="university",
+            actor=actor,
+            note=payload.note,
+        )
         await self.session.commit()
         return proposal
 
@@ -210,6 +218,8 @@ class CatalogProposalService:
     async def map_existing_university(self, proposal_id: str, actor: User, target_id: str, note: str | None) -> UniversityProposal:
         self._require_admin(actor)
         proposal = await self._get_proposal(UniversityProposal, proposal_id)
+        if proposal.status != ProposalStatus.PENDING:
+            raise ConflictError("Proposal is not pending")
         if not await self.session.get(University, target_id):
             raise ResourceNotFound("University not found")
         proposal.status = ProposalStatus.APPROVED
@@ -219,11 +229,20 @@ class CatalogProposalService:
         proposal.approved_university_id = target_id
         await self._apply_approved_university_to_registration_user(proposal, target_id)
         await self._log(ProposalEntityType.UNIVERSITY, proposal.id, "mapped_to_existing", actor.id, note)
+        await TelegramEventService(self.session).enqueue_proposal_owner_event(
+            event_type=TelegramEventType.PROPOSAL_APPROVED,
+            proposal=proposal,
+            proposal_type="university",
+            actor=actor,
+            note=note,
+        )
         await self.session.commit()
         return proposal
 
     async def approve_faculty(self, proposal_id: str, actor: User, payload) -> FacultyProposal:
         proposal = await self._get_proposal(FacultyProposal, proposal_id)
+        if proposal.status != ProposalStatus.PENDING:
+            raise ConflictError("Proposal is not pending")
         await self._assert_faculty_proposal_scope(actor, proposal)
         canonical_name = payload.canonical_name or proposal.proposed_name
         canonical_slug = payload.canonical_slug or proposal.proposed_slug or slugify(proposal.proposed_name)
@@ -242,6 +261,13 @@ class CatalogProposalService:
         proposal.review_note = payload.note
         proposal.approved_faculty_id = faculty.id
         await self._log(ProposalEntityType.FACULTY, proposal.id, "approved", actor.id, payload.note)
+        await TelegramEventService(self.session).enqueue_proposal_owner_event(
+            event_type=TelegramEventType.PROPOSAL_APPROVED,
+            proposal=proposal,
+            proposal_type="faculty",
+            actor=actor,
+            note=payload.note,
+        )
         await self.session.commit()
         return proposal
 
@@ -252,6 +278,8 @@ class CatalogProposalService:
 
     async def map_existing_faculty(self, proposal_id: str, actor: User, target_id: str, note: str | None) -> FacultyProposal:
         proposal = await self._get_proposal(FacultyProposal, proposal_id)
+        if proposal.status != ProposalStatus.PENDING:
+            raise ConflictError("Proposal is not pending")
         await self._assert_faculty_proposal_scope(actor, proposal)
         faculty = await self.session.get(Faculty, target_id)
         if not faculty:
@@ -262,11 +290,20 @@ class CatalogProposalService:
         proposal.review_note = note
         proposal.approved_faculty_id = faculty.id
         await self._log(ProposalEntityType.FACULTY, proposal.id, "mapped_to_existing", actor.id, note)
+        await TelegramEventService(self.session).enqueue_proposal_owner_event(
+            event_type=TelegramEventType.PROPOSAL_APPROVED,
+            proposal=proposal,
+            proposal_type="faculty",
+            actor=actor,
+            note=note,
+        )
         await self.session.commit()
         return proposal
 
     async def approve_subject(self, proposal_id: str, actor: User, payload) -> SubjectProposal:
         proposal = await self._get_proposal(SubjectProposal, proposal_id)
+        if proposal.status != ProposalStatus.PENDING:
+            raise ConflictError("Proposal is not pending")
         await self._assert_subject_proposal_scope(actor, proposal)
         canonical_name = payload.canonical_name or proposal.proposed_name
         canonical_slug = payload.canonical_slug or proposal.proposed_slug or slugify(proposal.proposed_name)
@@ -289,6 +326,13 @@ class CatalogProposalService:
         proposal.review_note = payload.note
         proposal.approved_subject_id = subject.id
         await self._log(ProposalEntityType.SUBJECT, proposal.id, "approved", actor.id, payload.note)
+        await TelegramEventService(self.session).enqueue_proposal_owner_event(
+            event_type=TelegramEventType.PROPOSAL_APPROVED,
+            proposal=proposal,
+            proposal_type="subject",
+            actor=actor,
+            note=payload.note,
+        )
         await self.session.commit()
         return proposal
 
@@ -299,6 +343,8 @@ class CatalogProposalService:
 
     async def map_existing_subject(self, proposal_id: str, actor: User, target_id: str, note: str | None) -> SubjectProposal:
         proposal = await self._get_proposal(SubjectProposal, proposal_id)
+        if proposal.status != ProposalStatus.PENDING:
+            raise ConflictError("Proposal is not pending")
         await self._assert_subject_proposal_scope(actor, proposal)
         subject = await self.session.get(Subject, target_id)
         if not subject:
@@ -309,6 +355,13 @@ class CatalogProposalService:
         proposal.review_note = note
         proposal.approved_subject_id = subject.id
         await self._log(ProposalEntityType.SUBJECT, proposal.id, "mapped_to_existing", actor.id, note)
+        await TelegramEventService(self.session).enqueue_proposal_owner_event(
+            event_type=TelegramEventType.PROPOSAL_APPROVED,
+            proposal=proposal,
+            proposal_type="subject",
+            actor=actor,
+            note=note,
+        )
         await self.session.commit()
         return proposal
 
@@ -322,6 +375,13 @@ class CatalogProposalService:
         if entity_type == ProposalEntityType.UNIVERSITY:
             await self._mark_registration_university_rejected(proposal)
         await self._log(entity_type, proposal.id, "rejected", actor.id, note or reason)
+        await TelegramEventService(self.session).enqueue_proposal_owner_event(
+            event_type=TelegramEventType.PROPOSAL_REJECTED,
+            proposal=proposal,
+            proposal_type=entity_type.value,
+            actor=actor,
+            note=note or reason,
+        )
         await self.session.commit()
         return proposal
 

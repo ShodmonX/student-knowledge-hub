@@ -21,7 +21,7 @@ class Faculty(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     __tablename__ = "faculties"
     __table_args__ = (UniqueConstraint("university_id", "slug", name="uq_faculty_university_slug"),)
 
-    university_id: Mapped[str] = mapped_column(ForeignKey("universities.id"), nullable=False, index=True)
+    university_id: Mapped[str] = mapped_column(ForeignKey("universities.id", ondelete="CASCADE"), nullable=False, index=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     slug: Mapped[str] = mapped_column(String(255), nullable=False)
 
@@ -33,7 +33,7 @@ class Subject(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     __tablename__ = "subjects"
     __table_args__ = (UniqueConstraint("faculty_id", "slug", "semester", name="uq_subject_faculty_slug_semester"),)
 
-    faculty_id: Mapped[str] = mapped_column(ForeignKey("faculties.id"), nullable=False, index=True)
+    faculty_id: Mapped[str] = mapped_column(ForeignKey("faculties.id", ondelete="CASCADE"), nullable=False, index=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     slug: Mapped[str] = mapped_column(String(255), nullable=False)
     code: Mapped[str | None] = mapped_column(String(64), nullable=True)

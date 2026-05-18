@@ -235,6 +235,37 @@ class TelegramEventService:
             events.append(event)
         return events
 
+    async def enqueue_proposal_owner_event(
+        self,
+        *,
+        event_type: TelegramEventType,
+        proposal: UniversityProposal | FacultyProposal | SubjectProposal,
+        proposal_type: str,
+        actor: User,
+        note: str | None = None,
+    ) -> list[TelegramEventOutbox]:
+        owner = await self.session.get(User, proposal.created_by)
+        if not owner or not owner.is_active:
+            return []
+        event = await self.create_event(
+            event_type=event_type,
+            entity_type="proposal",
+            entity_id=proposal.id,
+            recipient=owner,
+            payload={
+                "proposal_id": proposal.id,
+                "proposal_type": proposal_type,
+                "proposed_name": proposal.proposed_name,
+                "reviewed_by": {
+                    "user_id": actor.id,
+                    "display_name": actor.full_name,
+                    "role": actor.role.value,
+                },
+                "note": note,
+            },
+        )
+        return [event]
+
     async def _list_admin_recipients(self) -> list[User]:
         result = await self.session.execute(
             select(User).where(User.role == UserRole.ADMIN, User.is_active.is_(True)).order_by(User.created_at.asc())

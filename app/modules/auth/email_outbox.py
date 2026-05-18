@@ -2,12 +2,15 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 
+import logging
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings, get_settings
 from app.core.email import EmailDeliveryError, EmailService
 from app.modules.auth.models import EmailOutbox
+
+logger = logging.getLogger(__name__)
 
 EMAIL_STATUS_PENDING = "pending"
 EMAIL_STATUS_RETRY = "retry"
@@ -87,16 +90,27 @@ class EmailOutboxService:
                 text_body=message.text_body,
                 html_body=message.html_body,
             )
+            logger.info(
+                f"Email successfully sent to {message.recipient_email} (subject: {message.subject})"
+            )
         except Exception as exc:
             message.last_error = str(exc)
             if message.attempt_count >= message.max_attempts:
                 message.status = EMAIL_STATUS_FAILED
+                logger.error(
+                    f"Email failed permanently to {message.recipient_email} "
+                    f"after {message.attempt_count} attempts. Error: {exc}"
+                )
             else:
                 message.status = EMAIL_STATUS_RETRY
                 delay = self.settings.email_outbox_retry_base_seconds * (
                     2 ** max(message.attempt_count - 1, 0)
                 )
                 message.next_attempt_at = datetime.now(UTC) + timedelta(seconds=delay)
+                logger.warning(
+                    f"Email failed to {message.recipient_email}, retrying in {delay}s. "
+                    f"Attempt {message.attempt_count}/{message.max_attempts}. Error: {exc}"
+                )
             raise EmailDeliveryError("Email jo'natishda kutilmagan xatolik yuz berdi") from exc
         message.status = EMAIL_STATUS_SENT
         message.sent_at = datetime.now(UTC)

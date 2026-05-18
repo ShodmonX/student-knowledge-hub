@@ -20,7 +20,7 @@ class UniversityProposal(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     status: Mapped[ProposalStatus] = mapped_column(Enum(ProposalStatus), default=ProposalStatus.PENDING)
     reviewed_by: Mapped[str | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     review_note: Mapped[str | None] = mapped_column(Text, nullable=True)
-    approved_university_id: Mapped[str | None] = mapped_column(ForeignKey("universities.id"), nullable=True)
+    approved_university_id: Mapped[str | None] = mapped_column(ForeignKey("universities.id", ondelete="SET NULL"), nullable=True)
     reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     creator = relationship("User", foreign_keys=[created_by])
@@ -29,7 +29,7 @@ class UniversityProposal(UUIDPrimaryKeyMixin, TimestampMixin, Base):
 class FacultyProposal(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     __tablename__ = "faculty_proposals"
 
-    university_id: Mapped[str] = mapped_column(ForeignKey("universities.id"), nullable=False, index=True)
+    university_id: Mapped[str] = mapped_column(ForeignKey("universities.id", ondelete="CASCADE"), nullable=False, index=True)
     proposed_name: Mapped[str] = mapped_column(String(255), nullable=False)
     proposed_slug: Mapped[str | None] = mapped_column(String(255), nullable=True)
     proposed_description: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -37,7 +37,7 @@ class FacultyProposal(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     status: Mapped[ProposalStatus] = mapped_column(Enum(ProposalStatus), default=ProposalStatus.PENDING)
     reviewed_by: Mapped[str | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     review_note: Mapped[str | None] = mapped_column(Text, nullable=True)
-    approved_faculty_id: Mapped[str | None] = mapped_column(ForeignKey("faculties.id"), nullable=True)
+    approved_faculty_id: Mapped[str | None] = mapped_column(ForeignKey("faculties.id", ondelete="SET NULL"), nullable=True)
     reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     creator = relationship("User", foreign_keys=[created_by])
@@ -46,7 +46,7 @@ class FacultyProposal(UUIDPrimaryKeyMixin, TimestampMixin, Base):
 class SubjectProposal(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     __tablename__ = "subject_proposals"
 
-    faculty_id: Mapped[str] = mapped_column(ForeignKey("faculties.id"), nullable=False, index=True)
+    faculty_id: Mapped[str] = mapped_column(ForeignKey("faculties.id", ondelete="CASCADE"), nullable=False, index=True)
     proposed_name: Mapped[str] = mapped_column(String(255), nullable=False)
     proposed_slug: Mapped[str | None] = mapped_column(String(255), nullable=True)
     proposed_code: Mapped[str | None] = mapped_column(String(64), nullable=True)
@@ -56,7 +56,7 @@ class SubjectProposal(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     status: Mapped[ProposalStatus] = mapped_column(Enum(ProposalStatus), default=ProposalStatus.PENDING)
     reviewed_by: Mapped[str | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     review_note: Mapped[str | None] = mapped_column(Text, nullable=True)
-    approved_subject_id: Mapped[str | None] = mapped_column(ForeignKey("subjects.id"), nullable=True)
+    approved_subject_id: Mapped[str | None] = mapped_column(ForeignKey("subjects.id", ondelete="SET NULL"), nullable=True)
     reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     creator = relationship("User", foreign_keys=[created_by])

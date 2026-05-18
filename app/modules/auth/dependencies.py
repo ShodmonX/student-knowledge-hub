@@ -32,6 +32,8 @@ async def get_current_user(
     user = await UserRepository(session).get_by_id(payload["sub"])
     if not user:
         raise AuthenticationError("User not found")
+    if not user.is_active:
+        raise AuthenticationError("Hisobingiz bloklangan yoki nofaol. Iltimos, administrator bilan bog'laning.")
     return user
 
 
@@ -45,7 +47,10 @@ async def get_optional_user(
     if payload.get("type") != "access":
         raise AuthenticationError("Invalid access token")
     await AccessTokenRevocationStore().ensure_not_revoked(payload)
-    return await UserRepository(session).get_by_id(payload["sub"])
+    user = await UserRepository(session).get_by_id(payload["sub"])
+    if user and not user.is_active:
+        raise AuthenticationError("Hisobingiz bloklangan yoki nofaol. Iltimos, administrator bilan bog'laning.")
+    return user
 
 
 def require_roles(*roles: UserRole):

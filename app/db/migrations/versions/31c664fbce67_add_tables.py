@@ -1,8 +1,8 @@
 """add tables
 
-Revision ID: e53dc362f86f
+Revision ID: 31c664fbce67
 Revises: 
-Create Date: 2026-05-04 04:05:16.548345
+Create Date: 2026-05-18 13:16:36.258484
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'e53dc362f86f'
+revision: str = '31c664fbce67'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -65,7 +65,7 @@ def upgrade() -> None:
     sa.Column('id', sa.String(length=36), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['university_id'], ['universities.id'], ),
+    sa.ForeignKeyConstraint(['university_id'], ['universities.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('university_id', 'slug', name='uq_faculty_university_slug')
     )
@@ -85,7 +85,7 @@ def upgrade() -> None:
     sa.Column('id', sa.String(length=36), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['university_id'], ['universities.id'], ),
+    sa.ForeignKeyConstraint(['university_id'], ['universities.id'], ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=True)
@@ -148,10 +148,10 @@ def upgrade() -> None:
     sa.Column('id', sa.String(length=36), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['approved_faculty_id'], ['faculties.id'], ),
+    sa.ForeignKeyConstraint(['approved_faculty_id'], ['faculties.id'], ondelete='SET NULL'),
     sa.ForeignKeyConstraint(['created_by'], ['users.id'], ),
     sa.ForeignKeyConstraint(['reviewed_by'], ['users.id'], ),
-    sa.ForeignKeyConstraint(['university_id'], ['universities.id'], ),
+    sa.ForeignKeyConstraint(['university_id'], ['universities.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_faculty_proposals_created_by'), 'faculty_proposals', ['created_by'], unique=False)
@@ -162,7 +162,7 @@ def upgrade() -> None:
     sa.Column('id', sa.String(length=36), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['faculty_id'], ['faculties.id'], ),
+    sa.ForeignKeyConstraint(['faculty_id'], ['faculties.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('user_id', 'faculty_id', name='uq_mod_fac_scope')
@@ -175,7 +175,7 @@ def upgrade() -> None:
     sa.Column('id', sa.String(length=36), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['university_id'], ['universities.id'], ),
+    sa.ForeignKeyConstraint(['university_id'], ['universities.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('user_id', 'university_id', name='uq_mod_uni_scope')
@@ -234,13 +234,13 @@ def upgrade() -> None:
     sa.Column('id', sa.String(length=36), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['faculty_id'], ['faculties.id'], ),
+    sa.ForeignKeyConstraint(['faculty_id'], ['faculties.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('faculty_id', 'slug', 'semester', name='uq_subject_faculty_slug_semester')
     )
     op.create_index(op.f('ix_subjects_faculty_id'), 'subjects', ['faculty_id'], unique=False)
     op.create_table('telegram_event_outbox',
-    sa.Column('event_type', sa.Enum('EMAIL_VERIFIED', 'MATERIAL_APPROVED', 'MATERIAL_REJECTED', 'MATERIAL_REVISION_REQUESTED', 'MATERIAL_SUBMITTED_FOR_REVIEW', 'PASSWORD_CHANGED', 'PASSWORD_RESET_REQUESTED', 'PROPOSAL_CREATED', 'USER_REGISTERED', name='telegrameventtype'), nullable=False),
+    sa.Column('event_type', sa.Enum('EMAIL_VERIFIED', 'EMAIL_VERIFICATION_RESENT', 'MATERIAL_APPROVED', 'MATERIAL_REJECTED', 'MATERIAL_REVISION_REQUESTED', 'MATERIAL_SUBMITTED_FOR_REVIEW', 'PASSWORD_CHANGED', 'PASSWORD_RESET_REQUESTED', 'PROPOSAL_CREATED', 'PROPOSAL_APPROVED', 'PROPOSAL_REJECTED', 'USER_REGISTERED', name='telegrameventtype'), nullable=False),
     sa.Column('entity_type', sa.String(length=64), nullable=True),
     sa.Column('entity_id', sa.String(length=36), nullable=True),
     sa.Column('recipient_user_id', sa.String(length=36), nullable=False),
@@ -312,7 +312,7 @@ def upgrade() -> None:
     sa.Column('id', sa.String(length=36), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['approved_university_id'], ['universities.id'], ),
+    sa.ForeignKeyConstraint(['approved_university_id'], ['universities.id'], ondelete='SET NULL'),
     sa.ForeignKeyConstraint(['created_by'], ['users.id'], ),
     sa.ForeignKeyConstraint(['reviewed_by'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -371,7 +371,7 @@ def upgrade() -> None:
     sa.Column('id', sa.String(length=36), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['subject_id'], ['subjects.id'], ),
+    sa.ForeignKeyConstraint(['subject_id'], ['subjects.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('user_id', 'subject_id', name='uq_mod_sub_scope')
@@ -394,9 +394,9 @@ def upgrade() -> None:
     sa.Column('id', sa.String(length=36), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['approved_subject_id'], ['subjects.id'], ),
+    sa.ForeignKeyConstraint(['approved_subject_id'], ['subjects.id'], ondelete='SET NULL'),
     sa.ForeignKeyConstraint(['created_by'], ['users.id'], ),
-    sa.ForeignKeyConstraint(['faculty_id'], ['faculties.id'], ),
+    sa.ForeignKeyConstraint(['faculty_id'], ['faculties.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['reviewed_by'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )

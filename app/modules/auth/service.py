@@ -135,6 +135,8 @@ class AuthService:
         user = await self.users.get_by_email(payload.email)
         if not user or not verify_password(payload.password, user.hashed_password):
             raise AuthenticationError("Invalid credentials")
+        if not user.is_active:
+            raise AuthenticationError("Hisobingiz bloklangan yoki nofaol. Iltimos, administrator bilan bog'laning.")
         tokens = await self._issue_token_pair(user)
         await self.session.commit()
         return TokenResponse(**tokens, role=user.role)
@@ -146,6 +148,8 @@ class AuthService:
         user = await self.users.get_by_id(claims["sub"])
         if not user:
             raise AuthenticationError("User not found")
+        if not user.is_active:
+            raise AuthenticationError("Hisobingiz bloklangan yoki nofaol. Iltimos, administrator bilan bog'laning.")
         token_session = await self._get_refresh_session(claims["jti"], payload.refresh_token)
         if token_session.user_id != user.id:
             await self._revoke_all_refresh_tokens(user.id)
@@ -266,6 +270,11 @@ class AuthService:
         verification_token = await self._create_email_verification_token(user)
         await self._queue_verification_email(user, verification_token)
         await self.audit.log("email_verification_requested", "user", user, user.id)
+        await TelegramEventService(self.session).enqueue_user_security_events(
+            event_type=TelegramEventType.EMAIL_VERIFICATION_RESENT,
+            user=user,
+            entity_id=user.id,
+        )
         await self.session.commit()
         return {"message": "Agar akkaunt mavjud bo'lsa, email yuborish navbatga qo'yildi."}
 

@@ -18,7 +18,7 @@ class User(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     avatar_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     role: Mapped[UserRole] = mapped_column(Enum(UserRole), default=UserRole.STUDENT, nullable=False)
-    university_id: Mapped[str | None] = mapped_column(ForeignKey("universities.id"), nullable=True, index=True)
+    university_id: Mapped[str | None] = mapped_column(ForeignKey("universities.id", ondelete="SET NULL"), nullable=True, index=True)
     university_changed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     pending_university_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     university_status: Mapped[str] = mapped_column(String(32), default="selected", nullable=False)

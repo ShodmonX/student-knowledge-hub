@@ -139,6 +139,48 @@ class TelegramEventService:
             events.append(event)
         return events
 
+    async def enqueue_telegram_account_linked_events(self, user: User, link: TelegramLink) -> list[TelegramEventOutbox]:
+        recipients = await self._list_admin_recipients()
+        events: list[TelegramEventOutbox] = []
+        payload = {
+            "telegram_username": link.telegram_username,
+            "telegram_name": f"{link.telegram_first_name or ''} {link.telegram_last_name or ''}".strip(),
+            "email": user.email,
+            "full_name": user.full_name,
+            "user_id": user.id,
+        }
+        for recipient in recipients:
+            event = await self.create_event(
+                event_type=TelegramEventType.TELEGRAM_ACCOUNT_LINKED,
+                entity_type="telegram_link",
+                entity_id=link.id,
+                recipient=recipient,
+                payload=payload,
+            )
+            events.append(event)
+        return events
+
+    async def enqueue_telegram_account_unlinked_events(self, user: User, link: TelegramLink) -> list[TelegramEventOutbox]:
+        recipients = await self._list_admin_recipients()
+        events: list[TelegramEventOutbox] = []
+        payload = {
+            "telegram_username": link.telegram_username,
+            "telegram_name": f"{link.telegram_first_name or ''} {link.telegram_last_name or ''}".strip(),
+            "email": user.email,
+            "full_name": user.full_name,
+            "user_id": user.id,
+        }
+        for recipient in recipients:
+            event = await self.create_event(
+                event_type=TelegramEventType.TELEGRAM_ACCOUNT_UNLINKED,
+                entity_type="telegram_link",
+                entity_id=link.id,
+                recipient=recipient,
+                payload=payload,
+            )
+            events.append(event)
+        return events
+
     async def enqueue_user_security_events(
         self,
         *,

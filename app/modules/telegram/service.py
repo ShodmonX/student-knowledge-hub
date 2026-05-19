@@ -16,6 +16,7 @@ from app.modules.catalog_proposals.service import CatalogProposalService
 from app.modules.materials.models import Material
 from app.modules.moderation.schemas import RejectRequest
 from app.modules.moderation.service import ModerationService
+from app.modules.telegram.event_service import TelegramEventService
 from app.modules.telegram.models import TelegramLink, TelegramLinkSession
 from app.modules.telegram.schemas import (
     TelegramIdentityLookupResponse,
@@ -46,6 +47,7 @@ class TelegramService:
         self.audit = AuditService(session)
         self.catalog_proposals = CatalogProposalService(session)
         self.moderation = ModerationService(session)
+        self.event_service = TelegramEventService(session)
 
     async def create_link_session(self, user: User) -> TelegramLinkSessionRead:
         await self.session.execute(
@@ -96,6 +98,7 @@ class TelegramService:
         link.is_active = False
         link.unlinked_at = datetime.now(UTC)
         await self.audit.log("telegram_unlinked", "telegram_link", user, link.id)
+        await self.event_service.enqueue_telegram_account_unlinked_events(user, link)
         await self.session.commit()
         return {"status": "unlinked"}
 
@@ -114,6 +117,7 @@ class TelegramService:
             link.id,
             str(telegram_user_id),
         )
+        await self.event_service.enqueue_telegram_account_unlinked_events(user, link)
         await self.session.commit()
         return TelegramInternalLinkResponse(
             status="unlinked",
@@ -386,6 +390,7 @@ class TelegramService:
         db_session.used_at = now
         db_session.is_active = False
         await self.audit.log("telegram_linked", "telegram_link", user, link.id, str(telegram_user.telegram_user_id))
+        await self.event_service.enqueue_telegram_account_linked_events(user, link)
         await self.session.commit()
         return TelegramInternalLinkResponse(
             status="linked_successfully",

@@ -1,8 +1,8 @@
 """add tables
 
-Revision ID: 31c664fbce67
+Revision ID: 94604aa85943
 Revises: 
-Create Date: 2026-05-18 13:16:36.258484
+Create Date: 2026-05-19 03:51:38.778454
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '31c664fbce67'
+revision: str = '94604aa85943'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -240,7 +240,7 @@ def upgrade() -> None:
     )
     op.create_index(op.f('ix_subjects_faculty_id'), 'subjects', ['faculty_id'], unique=False)
     op.create_table('telegram_event_outbox',
-    sa.Column('event_type', sa.Enum('EMAIL_VERIFIED', 'EMAIL_VERIFICATION_RESENT', 'MATERIAL_APPROVED', 'MATERIAL_REJECTED', 'MATERIAL_REVISION_REQUESTED', 'MATERIAL_SUBMITTED_FOR_REVIEW', 'PASSWORD_CHANGED', 'PASSWORD_RESET_REQUESTED', 'PROPOSAL_CREATED', 'PROPOSAL_APPROVED', 'PROPOSAL_REJECTED', 'USER_REGISTERED', name='telegrameventtype'), nullable=False),
+    sa.Column('event_type', sa.Enum('EMAIL_VERIFIED', 'EMAIL_VERIFICATION_RESENT', 'MATERIAL_APPROVED', 'MATERIAL_REJECTED', 'MATERIAL_REVISION_REQUESTED', 'MATERIAL_SUBMITTED_FOR_REVIEW', 'PASSWORD_CHANGED', 'PASSWORD_RESET_REQUESTED', 'PROPOSAL_CREATED', 'PROPOSAL_APPROVED', 'PROPOSAL_REJECTED', 'TELEGRAM_ACCOUNT_LINKED', 'TELEGRAM_ACCOUNT_UNLINKED', 'USER_REGISTERED', name='telegrameventtype'), nullable=False),
     sa.Column('entity_type', sa.String(length=64), nullable=True),
     sa.Column('entity_id', sa.String(length=36), nullable=True),
     sa.Column('recipient_user_id', sa.String(length=36), nullable=False),

@@ -13,6 +13,8 @@ class TelegramEventType(StrEnum):
     PROPOSAL_CREATED = "proposal_created"
     PROPOSAL_APPROVED = "proposal_approved"
     PROPOSAL_REJECTED = "proposal_rejected"
+    TELEGRAM_ACCOUNT_LINKED = "telegram_account_linked"
+    TELEGRAM_ACCOUNT_UNLINKED = "telegram_account_unlinked"
     USER_REGISTERED = "user_registered"
 
 

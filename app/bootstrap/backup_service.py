@@ -11,22 +11,12 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+import boto3
+from botocore.exceptions import BotoCoreError, ClientError
 from sqlalchemy.engine.url import make_url
 
 from app.core.config import Settings, get_settings
 from app.core.exceptions import ResourceNotFound
-
-try:
-    import boto3
-    from botocore.exceptions import BotoCoreError, ClientError
-except ImportError:  # pragma: no cover - optional in local env until dependency install
-    boto3 = None
-
-    class BotoCoreError(Exception):
-        pass
-
-    class ClientError(Exception):
-        pass
 
 
 class BackupError(RuntimeError):
@@ -312,8 +302,6 @@ class BackupService:
     def _build_backup_s3_client(self):
         if not self._offsite_enabled():
             raise BackupError("S3 backup storage is disabled when STORAGE_BACKEND is local")
-        if boto3 is None:
-            raise BackupError("boto3 is not installed")
 
         required = {
             "s3_bucket": self.settings.s3_bucket,

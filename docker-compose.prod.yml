@@ -34,6 +34,9 @@ services:
       timeout: 10s
       retries: 5
       start_period: 20s
+    networks:
+      - default
+      - web
 
   backup:
     build: .
@@ -96,7 +99,9 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-
+    networks:
+      - default
+      - web
   postgres:
     image: postgres:16-alpine
     environment:
@@ -127,3 +132,8 @@ volumes:
   redis_data:
   storage_data:
   backups_data:
+
+networks:
+  web:
+    external: true
+

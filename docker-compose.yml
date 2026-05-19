@@ -13,7 +13,7 @@ services:
     volumes:
       - .:/app
       - ./storage:/home/appuser/storage
-      - backups_data:/home/appuser/backups
+      - ./backups:/home/appuser/backups
     depends_on:
       postgres:
         condition: service_healthy
@@ -47,7 +47,7 @@ services:
       BACKUP_LOCAL_ROOT: /home/appuser/backups
     volumes:
       - .:/app
-      - backups_data:/home/appuser/backups
+      - ./backups:/home/appuser/backups
     depends_on:
       api:
         condition: service_healthy
@@ -127,7 +127,6 @@ services:
 volumes:
   postgres_data:
   redis_data:
-  backups_data:
 
 networks:
   web:

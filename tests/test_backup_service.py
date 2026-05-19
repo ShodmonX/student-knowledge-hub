@@ -169,23 +169,6 @@ def test_backup_service_local_backend_rejects_remote_restore_and_s3_client(tmp_p
         service._prepare_restore_dump(record)
 
 
-def test_backup_service_s3_client_requires_boto3(monkeypatch, tmp_path):
-    settings = build_settings(
-        tmp_path,
-        storage_backend="s3",
-        s3_bucket="backup-bucket",
-        s3_region="fra1",
-        s3_endpoint_url="https://example.invalid",
-        s3_access_key_id="key",
-        s3_secret_access_key="secret",
-    )
-    service = BackupService(settings)
-    monkeypatch.setattr("app.bootstrap.backup_service.boto3", None)
-
-    with pytest.raises(BackupError, match="boto3 is not installed"):
-        service._build_backup_s3_client()
-
-
 def test_backup_service_skips_restore_verification_when_disabled(monkeypatch, tmp_path):
     settings = build_settings(tmp_path, backup_verify_restore=False)
     service = BackupService(settings)

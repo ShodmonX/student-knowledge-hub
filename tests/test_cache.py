@@ -68,15 +68,6 @@ async def test_redis_cache_backend_roundtrip_and_prefix_invalidation(monkeypatch
 
 
 @pytest.mark.asyncio
-async def test_redis_cache_backend_handles_missing_package(monkeypatch):
-    monkeypatch.setattr(cache, "Redis", None)
-    backend = RedisCacheBackend("redis://unit-test")
-
-    with pytest.raises(RuntimeError, match="redis package is not installed"):
-        await backend.connect()
-
-
-@pytest.mark.asyncio
 async def test_cache_service_disables_redis_when_connect_fails(monkeypatch):
     monkeypatch.setattr(cache, "Redis", BrokenRedis)
     service = CacheService()

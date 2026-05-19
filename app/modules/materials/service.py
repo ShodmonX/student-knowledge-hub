@@ -5,6 +5,7 @@ from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 from fastapi import UploadFile
+from pypdf import PdfReader, PdfWriter
 from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -563,11 +564,6 @@ class MaterialService:
         ]
 
     async def _build_pdf_preview(self, material_id: str, storage_key: str) -> tuple[str, int]:
-        try:
-            from pypdf import PdfReader, PdfWriter
-        except ImportError as exc:  # pragma: no cover - dependency declared at project level
-            raise ValidationAppError("PDF preview generation dependency is missing") from exc
-
         source_bytes = await self.storage.read_bytes(storage_key)
         reader = PdfReader(io.BytesIO(source_bytes))
         page_count = min(len(reader.pages), PDF_PREVIEW_PAGE_LIMIT)

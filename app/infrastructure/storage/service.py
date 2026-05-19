@@ -9,24 +9,14 @@ from functools import partial
 from pathlib import Path
 from uuid import uuid4
 
+import boto3
+from botocore.exceptions import BotoCoreError, ClientError
 from fastapi import UploadFile
 
 from app.core.config import get_settings
 from app.core.exceptions import ResourceNotFound, ValidationAppError
 from app.modules.materials.enums import FileKind
 from app.utils.files import get_extension, validate_file_signature
-
-try:
-    import boto3
-    from botocore.exceptions import BotoCoreError, ClientError
-except ImportError:  # pragma: no cover - optional in local env until dependency install
-    boto3 = None
-
-    class BotoCoreError(Exception):
-        pass
-
-    class ClientError(Exception):
-        pass
 
 
 READ_CHUNK_SIZE = 1024 * 1024
@@ -166,8 +156,6 @@ class SpacesStorageProvider(BaseStorageProvider):
         secret_access_key: str,
         presigned_expiry_seconds: int,
     ) -> None:
-        if boto3 is None:
-            raise RuntimeError("boto3 is not installed")
         self.bucket = bucket
         self.presigned_expiry_seconds = presigned_expiry_seconds
         self.client = boto3.client(

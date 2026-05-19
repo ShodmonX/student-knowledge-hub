@@ -5,14 +5,8 @@ import logging
 from functools import lru_cache
 from typing import Any
 
-try:
-    from redis.asyncio import Redis
-    from redis.exceptions import RedisError
-except ImportError:  # pragma: no cover - optional dependency in local test env
-    Redis = None
-
-    class RedisError(Exception):
-        pass
+from redis.asyncio import Redis
+from redis.exceptions import RedisError
 
 
 logger = logging.getLogger(__name__)
@@ -38,8 +32,6 @@ class RedisCacheBackend:
         self.client: Redis | None = None
 
     async def connect(self) -> None:
-        if Redis is None:
-            raise RuntimeError("redis package is not installed")
         self.client = Redis.from_url(self.redis_url, decode_responses=True)
         await self.client.ping()
 

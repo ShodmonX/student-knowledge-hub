@@ -231,8 +231,19 @@ async def test_catalog_proposal_service_covers_validation_pending_scope_and_revi
             admin,
             ProposalRejectRequest(reason="duplicate", note="already approved"),
         )
-    with pytest.raises(ResourceNotFound):
+    with pytest.raises(ConflictError):
         await service.map_existing_university(university_proposal.id, admin, "missing", None)
+    missing_target_university_proposal = await service.create_university_proposal(
+        UniversityProposalCreate(name="Missing Target University"),
+        student,
+    )
+    with pytest.raises(ResourceNotFound):
+        await service.map_existing_university(
+            missing_target_university_proposal.id,
+            admin,
+            "missing",
+            None,
+        )
 
     approved_faculty = await service.approve_faculty(
         faculty_proposal.id,
@@ -273,8 +284,19 @@ async def test_catalog_proposal_service_covers_validation_pending_scope_and_revi
             subject_scope_user,
             ProposalRejectRequest(reason="duplicate", note="already approved"),
         )
-    with pytest.raises(ResourceNotFound):
+    with pytest.raises(ConflictError):
         await service.map_existing_subject(subject_proposal.id, admin, "missing-subject", None)
+    missing_target_subject_proposal = await service.create_subject_proposal(
+        SubjectProposalCreate(faculty_id=other_faculty.id, name="Missing Target Subject", semester=5),
+        student,
+    )
+    with pytest.raises(ResourceNotFound):
+        await service.map_existing_subject(
+            missing_target_subject_proposal.id,
+            admin,
+            "missing-subject",
+            None,
+        )
 
     faculty_scope_user = await seed_user(
         session,

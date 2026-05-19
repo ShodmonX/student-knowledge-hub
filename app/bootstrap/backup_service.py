@@ -118,12 +118,12 @@ class BackupService:
             trigger=trigger,
             local_dump_path=str(dump_path),
             local_manifest_path=str(manifest_path),
-            offsite_enabled=self.settings.backup_offsite_enabled,
+            offsite_enabled=self._offsite_enabled(),
         )
         manifest_path.write_text(manifest.to_json() + "\n", encoding="utf-8")
 
         offsite_deleted: list[str] = []
-        if self.settings.backup_offsite_enabled:
+        if self._offsite_enabled():
             offsite_deleted = self._upload_and_prune_offsite(manifest, dump_path, manifest_path)
             manifest_path.write_text(manifest.to_json() + "\n", encoding="utf-8")
 
@@ -144,10 +144,10 @@ class BackupService:
             records[manifest.backup_id] = BackupRecord(
                 manifest=manifest,
                 available_local=Path(manifest.local_dump_path).exists(),
-                available_offsite=bool(manifest.offsite_dump_key),
+                available_offsite=self._offsite_enabled() and bool(manifest.offsite_dump_key),
             )
 
-        if self.settings.backup_offsite_enabled:
+        if self._offsite_enabled():
             try:
                 client = self._build_backup_s3_client()
                 for manifest in self._list_offsite_manifests(client):
@@ -306,7 +306,12 @@ class BackupService:
 
         return self._prune_offsite_backups(client)
 
+    def _offsite_enabled(self) -> bool:
+        return getattr(self.settings, "storage_backend", "local") == "s3"
+
     def _build_backup_s3_client(self):
+        if not self._offsite_enabled():
+            raise BackupError("S3 backup storage is disabled when STORAGE_BACKEND is local")
         if boto3 is None:
             raise BackupError("boto3 is not installed")
 
@@ -401,7 +406,11 @@ class BackupService:
             self._validate_restore_dump_path(local_dump_path)
             return local_dump_path, []
 
-        if not record.available_offsite or not record.manifest.offsite_dump_key:
+        if (
+            not self._offsite_enabled()
+            or not record.available_offsite
+            or not record.manifest.offsite_dump_key
+        ):
             raise BackupError("Backup dump is not available for restore")
 
         self._validate_offsite_dump_key(record.manifest.offsite_dump_key)

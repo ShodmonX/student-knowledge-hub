@@ -43,6 +43,7 @@ def build_settings(tmp_path: Path, **overrides) -> Settings:
         "backup_verify_restore": True,
         "backup_retention_local": 2,
         "backup_offsite_enabled": False,
+        "storage_backend": "local",
         "backup_retention_offsite": 2,
         "backup_s3_prefix": "production/postgres",
         "backup_max_restore_size_bytes": 5 * 1024 * 1024,
@@ -54,6 +55,8 @@ def build_settings(tmp_path: Path, **overrides) -> Settings:
         "s3_secret_access_key": None,
     }
     values.update(overrides)
+    if values["backup_offsite_enabled"] and "storage_backend" not in overrides:
+        values["storage_backend"] = "s3"
     return Settings.model_construct(**values)
 
 
@@ -88,6 +91,99 @@ def test_backup_service_creates_local_dump_manifest_and_verifies(monkeypatch, tm
     assert loaded["checksum_sha256"] == manifest.checksum_sha256
     assert loaded["size_bytes"] == len(b"backup-bytes")
     assert loaded["trigger"] == "manual"
+
+
+def test_backup_service_storage_backend_local_disables_s3_upload(monkeypatch, tmp_path):
+    settings = build_settings(
+        tmp_path,
+        backup_verify_restore=False,
+        backup_offsite_enabled=True,
+        storage_backend="local",
+        s3_bucket="backup-bucket",
+        s3_region="fra1",
+        s3_endpoint_url="https://example.invalid",
+        s3_access_key_id="key",
+        s3_secret_access_key="secret",
+    )
+    service = BackupService(settings)
+    commands: list[list[str]] = []
+
+    def fake_run(command, env, check, capture_output, text, timeout):
+        commands.append(command)
+        dump_arg = next(item for item in command if item.startswith("--file="))
+        Path(dump_arg.split("=", 1)[1]).write_bytes(b"backup-bytes")
+        return FakeCompletedProcess(stdout="ok")
+
+    class UnexpectedS3Client:
+        def upload_file(self, *args, **kwargs):
+            raise AssertionError("S3 upload must not be called for local storage backend")
+
+    monkeypatch.setattr("app.bootstrap.backup_service.subprocess.run", fake_run)
+    monkeypatch.setattr(
+        "app.bootstrap.backup_service.boto3",
+        type("FakeBoto3", (), {"client": lambda *a, **k: UnexpectedS3Client()})(),
+    )
+
+    result = service.run_backup(now=datetime(2026, 4, 1, 2, 0, tzinfo=UTC))
+
+    assert [command[0] for command in commands] == ["pg_dump"]
+    assert result.manifest.offsite_enabled is False
+    assert result.manifest.offsite_dump_key is None
+    assert result.offsite_deleted == []
+
+
+def test_backup_service_local_backend_rejects_remote_restore_and_s3_client(tmp_path):
+    settings = build_settings(
+        tmp_path,
+        storage_backend="local",
+        backup_verify_restore=False,
+        s3_bucket="backup-bucket",
+        s3_region="fra1",
+        s3_endpoint_url="https://example.invalid",
+        s3_access_key_id="key",
+        s3_secret_access_key="secret",
+    )
+    service = BackupService(settings)
+    local_root = Path(settings.backup_local_root) / "daily"
+    manifest = BackupManifest(
+        backup_id="remote-only",
+        created_at=datetime(2026, 4, 1, 2, 0, tzinfo=UTC).isoformat(),
+        database_name="student_knowledge_hub",
+        dump_format="custom",
+        checksum_sha256="abc",
+        size_bytes=12,
+        verified=False,
+        trigger="manual",
+        local_dump_path=str(local_root / "remote-only.dump"),
+        local_manifest_path=str(local_root / "remote-only.manifest.json"),
+        offsite_enabled=True,
+        offsite_bucket="backup-bucket",
+        offsite_dump_key="production/postgres/remote-only.dump",
+        offsite_manifest_key="production/postgres/remote-only.manifest.json",
+    )
+    record = BackupRecord(manifest=manifest, available_local=False, available_offsite=True)
+
+    with pytest.raises(BackupError, match="S3 backup storage is disabled"):
+        service._build_backup_s3_client()
+    with pytest.raises(BackupError, match="Backup dump is not available"):
+        service._prepare_restore_dump(record)
+
+
+def test_backup_service_s3_client_requires_boto3(monkeypatch, tmp_path):
+    settings = build_settings(
+        tmp_path,
+        storage_backend="s3",
+        s3_bucket="backup-bucket",
+        s3_region="fra1",
+        s3_endpoint_url="https://example.invalid",
+        s3_access_key_id="key",
+        s3_secret_access_key="secret",
+    )
+    service = BackupService(settings)
+    monkeypatch.setattr("app.bootstrap.backup_service.boto3", None)
+
+    with pytest.raises(BackupError, match="boto3 is not installed"):
+        service._build_backup_s3_client()
 
 
 def test_backup_service_skips_restore_verification_when_disabled(monkeypatch, tmp_path):
@@ -233,6 +329,14 @@ def test_backup_service_raises_for_invalid_database_url(tmp_path):
 
     with pytest.raises(BackupError):
         service.run_backup(now=datetime(2026, 4, 1, 2, 0, tzinfo=UTC))
+
+
+def test_backup_service_raises_for_incomplete_database_url(tmp_path):
+    settings = build_settings(tmp_path, db_url="postgresql+asyncpg:///student_knowledge_hub")
+    service = BackupService(settings)
+
+    with pytest.raises(BackupError, match="must include database, username, and host"):
+        service._build_connection_info()
 
 
 def test_backup_service_raises_when_commands_fail(monkeypatch, tmp_path):
@@ -594,6 +698,13 @@ def test_backup_service_list_backups_ignores_offsite_listing_errors(monkeypatch,
         "app.bootstrap.backup_service.boto3",
         type("FakeBoto3", (), {"client": lambda *a, **k: FakeS3Client()})(),
     )
+
+    assert service.list_backups() == []
+
+
+def test_backup_service_list_backups_ignores_s3_client_configuration_errors(tmp_path):
+    settings = build_settings(tmp_path, storage_backend="s3")
+    service = BackupService(settings)
 
     assert service.list_backups() == []
 

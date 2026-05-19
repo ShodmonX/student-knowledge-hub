@@ -1,8 +1,8 @@
 ub:
-	docker compose -f docker-compose.yml -f docker-compose.net.yml up --build
+	docker compose -f docker-compose.yml up --build
 
 u:
-	docker compose -f docker-compose.yml -f docker-compose.net.yml up
+	docker compose -f docker-compose.yml up
 
 d:
 	docker compose down

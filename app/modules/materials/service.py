@@ -17,7 +17,7 @@ from app.infrastructure.storage.service import StorageDownload, StorageService
 from app.modules.catalog.repositories import SubjectRepository
 from app.modules.community.models import MaterialRating
 from app.modules.materials.enums import FileKind, MaterialStatus, ReportStatus, ReviewAction
-from app.modules.materials.models import Material, MaterialFile, MaterialReport, MaterialReviewLog
+from app.modules.materials.models import Material, MaterialFile, MaterialReport, MaterialReviewLog, MaterialDownload
 from app.modules.materials.repositories import MaterialFileRepository, MaterialRepository, MaterialReviewLogRepository
 from app.modules.materials.schemas import MaterialCreate, MaterialListQuery, MaterialReportCreate, MaterialUpdate
 from app.modules.tags.models import Tag
@@ -359,11 +359,31 @@ class MaterialService:
             raise ResourceNotFound("Material file not found")
         if not await self.storage.exists(file_entry.storage_key):
             raise ResourceNotFound("Stored file not found")
-        await self.session.execute(
-            update(Material)
-            .where(Material.id == material.id)
-            .values(download_count=Material.download_count + 1)
-        )
+
+        should_increment = True
+        if user is not None:
+            existing_download = await self.session.scalar(
+                select(MaterialDownload).where(
+                    MaterialDownload.user_id == user.id,
+                    MaterialDownload.material_id == material.id
+                ).limit(1)
+            )
+            if existing_download:
+                should_increment = False
+            else:
+                download_record = MaterialDownload(
+                    user_id=user.id,
+                    material_id=material.id,
+                )
+                self.session.add(download_record)
+
+        if should_increment:
+            await self.session.execute(
+                update(Material)
+                .where(Material.id == material.id)
+                .values(download_count=Material.download_count + 1)
+            )
+
         await self.session.commit()
         await self.cache.invalidate("materials:stats_summary")
         await self.cache.invalidate("materials:trending_ids")

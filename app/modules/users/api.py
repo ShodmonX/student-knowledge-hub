@@ -187,6 +187,25 @@ async def list_saved_materials(
     ]
 
 
+@router.get("/me/downloaded-materials", response_model=list[MaterialRead])
+async def list_downloaded_materials(
+    user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> list[MaterialRead]:
+    service = UserService(session)
+    material_service = MaterialService(session)
+    items = await service.list_downloaded_materials(user)
+    ratings = await material_service.get_rating_snapshot([item.id for item in items])
+    return [
+        build_material_read(
+            item,
+            average_rating=ratings.get(item.id, (0.0, 0))[0],
+            rating_count=ratings.get(item.id, (0.0, 0))[1],
+        )
+        for item in items
+    ]
+
+
 @router.post("/me/saved-materials/{material_id}", response_model=MessageResponse)
 async def save_material(
     material_id: str,

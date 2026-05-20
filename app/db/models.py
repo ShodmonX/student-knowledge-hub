@@ -18,7 +18,7 @@ from app.modules.catalog_proposals.models import (
     UniversityProposal,
 )
 from app.modules.community.models import Comment, MaterialRating
-from app.modules.materials.models import Material, MaterialFile, MaterialReport, MaterialReviewLog
+from app.modules.materials.models import Material, MaterialFile, MaterialReport, MaterialReviewLog, MaterialDownload
 from app.modules.notifications.models import Notification
 from app.modules.tags.models import MaterialTag, Tag
 from app.modules.telegram.models import TelegramEventOutbox, TelegramLink, TelegramLinkSession
@@ -32,6 +32,7 @@ __all__ = [
     "FacultyProposal",
     "Material",
     "MaterialFile",
+    "MaterialDownload",
     "MaterialRating",
     "MaterialReport",
     "MaterialReviewLog",

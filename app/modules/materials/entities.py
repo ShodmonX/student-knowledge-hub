@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String, Text
+from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -72,3 +72,18 @@ class MaterialFile(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     preview_page_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     material = relationship("Material", back_populates="files", foreign_keys=[material_id])
+
+
+class MaterialDownload(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    __tablename__ = "material_downloads"
+
+    user_id: Mapped[str | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
+    material_id: Mapped[str] = mapped_column(ForeignKey("materials.id", ondelete="CASCADE"), nullable=False, index=True)
+    ip_address: Mapped[str | None] = mapped_column(String(45), nullable=True)
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "material_id", name="uq_user_material_download"),
+    )
+
+    material = relationship("Material", foreign_keys=[material_id])
+    user = relationship("User", foreign_keys=[user_id])

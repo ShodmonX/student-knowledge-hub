@@ -7,7 +7,7 @@ from sqlalchemy.orm import selectinload
 from app.core.exceptions import ConflictError, ResourceNotFound
 from app.core.security import hash_password, verify_password
 from app.modules.catalog.models import Faculty, Subject
-from app.modules.materials.models import Material
+from app.modules.materials.models import Material, MaterialDownload
 from app.modules.auth.models import RefreshTokenSession
 from app.modules.auth.schemas import ChangePasswordRequest
 from app.modules.notifications.models import Notification
@@ -94,6 +94,21 @@ class UserService:
                 selectinload(Material.uploader).selectinload(User.university),
             )
             .order_by(SavedMaterial.created_at.desc())
+        )
+        return list(result.scalars().all())
+
+    async def list_downloaded_materials(self, user: User) -> list[Material]:
+        result = await self.session.execute(
+            select(Material)
+            .join(MaterialDownload, MaterialDownload.material_id == Material.id)
+            .where(MaterialDownload.user_id == user.id, Material.deleted_at.is_(None))
+            .options(
+                selectinload(Material.files),
+                selectinload(Material.tags),
+                selectinload(Material.subject).selectinload(Subject.faculty).selectinload(Faculty.university),
+                selectinload(Material.uploader).selectinload(User.university),
+            )
+            .order_by(MaterialDownload.created_at.desc())
         )
         return list(result.scalars().all())
 

@@ -573,7 +573,7 @@ async def test_material_service_direct_covers_submission_tags_reporting_and_coll
     await session.commit()
     session.expire_all()
 
-    preview_download = await service.prepare_preview(second_id, pdf_file_id)
+    preview_download, preview_type = await service.prepare_preview(second_id, pdf_file_id)
     assert preview_download.local_path is not None
     assert preview_download.local_path.exists()
 

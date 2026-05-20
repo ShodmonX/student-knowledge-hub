@@ -1,13 +1,13 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
 from app.db.session import get_db_session
 from app.modules.materials.enums import MaterialType
-from app.modules.materials.schemas import AcceptedFileFormatsResponse, MaterialRead, MaterialStatsSummary
+from app.modules.materials.schemas import AcceptedFileFormatsResponse, MaterialPreviewResponse, MaterialRead, MaterialStatsSummary
 from app.modules.materials.search_service import SearchService
 from app.modules.materials.service import MaterialService
 from app.utils.files import ALLOWED_EXTENSIONS, DOCUMENT_EXTENSIONS, IMAGE_EXTENSIONS
@@ -233,25 +233,65 @@ async def download_material_file_by_slug(
     return storage_download_response(download)
 
 
-@router.get("/{material_id}/files/{file_id}/preview")
+@router.get("/{material_id}/files/{file_id}/preview", response_model=MaterialPreviewResponse)
 async def preview_material_file(
+    material_id: str,
+    file_id: str,
+    request: Request,
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+    user: OptionalUser,
+):
+    download, preview_type = await MaterialService(session).prepare_preview(material_id, file_id, user, "id")
+    if getattr(download, "local_path", None):
+        preview_url = f"/api/v1/materials/{material_id}/files/{file_id}/preview/file"
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header[7:]
+            preview_url = f"{preview_url}?token={token}"
+    else:
+        preview_url = download.redirect_url
+    return {"preview_url": preview_url, "preview_type": preview_type}
+
+
+@router.get("/slug/{slug}/files/{file_id}/preview", response_model=MaterialPreviewResponse)
+async def preview_material_file_by_slug(
+    slug: str,
+    file_id: str,
+    request: Request,
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+    user: OptionalUser,
+):
+    download, preview_type = await MaterialService(session).prepare_preview(slug, file_id, user, "slug")
+    if getattr(download, "local_path", None):
+        preview_url = f"/api/v1/materials/slug/{slug}/files/{file_id}/preview/file"
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header[7:]
+            preview_url = f"{preview_url}?token={token}"
+    else:
+        preview_url = download.redirect_url
+    return {"preview_url": preview_url, "preview_type": preview_type}
+
+
+@router.get("/{material_id}/files/{file_id}/preview/file")
+async def preview_material_file_bytes(
     material_id: str,
     file_id: str,
     session: Annotated[AsyncSession, Depends(get_db_session)],
     user: OptionalUser,
 ):
-    download = await MaterialService(session).prepare_preview(material_id, file_id, user, "id")
+    download, preview_type = await MaterialService(session).prepare_preview(material_id, file_id, user, "id")
     return storage_download_response(download)
 
 
-@router.get("/slug/{slug}/files/{file_id}/preview")
-async def preview_material_file_by_slug(
+@router.get("/slug/{slug}/files/{file_id}/preview/file")
+async def preview_material_file_bytes_by_slug(
     slug: str,
     file_id: str,
     session: Annotated[AsyncSession, Depends(get_db_session)],
     user: OptionalUser,
 ):
-    download = await MaterialService(session).prepare_preview(slug, file_id, user, "slug")
+    download, preview_type = await MaterialService(session).prepare_preview(slug, file_id, user, "slug")
     return storage_download_response(download)
 
 

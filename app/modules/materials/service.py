@@ -375,7 +375,7 @@ class MaterialService:
         file_id: str,
         user: User | None = None,
         lookup_field: str = "id",
-    ) -> StorageDownload:
+    ) -> tuple[StorageDownload, str]:
         material = await self.get_material_for_view(identifier, user, lookup_field)
         file_entry = await self.files.get(file_id)
         if not file_entry or file_entry.material_id != material.id:
@@ -384,7 +384,7 @@ class MaterialService:
             raise PermissionDenied("File is not previewable")
         if material.status == MaterialStatus.APPROVED and user is None:
             if file_entry.file_kind == FileKind.IMAGE:
-                return await self.storage.resolve_for_download(file_entry.storage_key)
+                return await self.storage.resolve_for_download(file_entry.storage_key), "full"
             if file_entry.file_ext == "pdf":
                 if not file_entry.preview_storage_key:
                     preview_storage_key, preview_page_count = await self._build_pdf_preview(
@@ -394,9 +394,9 @@ class MaterialService:
                     file_entry.preview_storage_key = preview_storage_key
                     file_entry.preview_page_count = preview_page_count
                     await self.session.commit()
-                return await self.storage.resolve_for_download(file_entry.preview_storage_key)
+                return await self.storage.resolve_for_download(file_entry.preview_storage_key), "limited"
             raise AuthenticationError("Authentication is required to preview this file")
-        return await self.storage.resolve_for_download(file_entry.storage_key)
+        return await self.storage.resolve_for_download(file_entry.storage_key), "full"
 
     async def list_related(self, material_id: str) -> list[Material]:
         material = await self.materials.get(material_id)

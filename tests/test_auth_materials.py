@@ -288,9 +288,15 @@ async def test_material_routes_cover_lifecycle_public_access_and_discovery(clien
     preview_by_id = await client.get(f"/api/v1/materials/{material_id}/files/{file_id}/preview")
     preview_by_slug = await client.get(f"/api/v1/materials/slug/{material_slug}/files/{file_id}/preview")
     assert preview_by_id.status_code == 200
-    assert preview_by_id.content.startswith(b"\x89PNG\r\n\x1a\n")
+    assert "preview_url" in preview_by_id.json()
     assert preview_by_slug.status_code == 200
-    assert preview_by_slug.content.startswith(b"\x89PNG\r\n\x1a\n")
+    assert "preview_url" in preview_by_slug.json()
+
+    # Now verify the URL actually works
+    preview_url = preview_by_id.json()["preview_url"]
+    file_request = await client.get(preview_url)
+    assert file_request.status_code == 200
+    assert file_request.content.startswith(b"\x89PNG\r\n\x1a\n")
 
     unauth_download = await client.get(f"/api/v1/materials/{material_id}/download")
     unauth_file_download = await client.get(f"/api/v1/materials/{material_id}/files/{file_id}/download")

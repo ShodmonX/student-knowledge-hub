@@ -38,9 +38,16 @@ async def get_current_user(
 
 
 async def get_optional_user(
-    token: Annotated[str | None, Depends(optional_oauth2_scheme)],
+    request: Request,
     session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> User | None:
+    token = None
+    auth_header = request.headers.get("Authorization")
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header[7:]
+    else:
+        token = request.query_params.get("token")
+
     if not token:
         return None
     payload = decode_token(token)

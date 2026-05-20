@@ -93,6 +93,11 @@ class MaterialReportCreate(BaseModel):
     details: str | None = None
 
 
+class MaterialPreviewResponse(BaseModel):
+    preview_url: str | None
+    preview_type: str
+
+
 class MaterialRead(ORMModel):
     id: str
     slug: str

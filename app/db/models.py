@@ -13,6 +13,7 @@ from app.modules.auth.models import (
 from app.modules.catalog.models import Faculty, Subject, University
 from app.modules.catalog_proposals.models import (
     CatalogProposalLog,
+    CatalogReport,
     FacultyProposal,
     SubjectProposal,
     UniversityProposal,
@@ -27,6 +28,7 @@ from app.modules.users.models import SavedMaterial, User, UserPreference
 __all__ = [
     "AuditLog",
     "CatalogProposalLog",
+    "CatalogReport",
     "Comment",
     "Faculty",
     "FacultyProposal",

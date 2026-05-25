@@ -31,13 +31,12 @@ class Faculty(UUIDPrimaryKeyMixin, TimestampMixin, Base):
 
 class Subject(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     __tablename__ = "subjects"
-    __table_args__ = (UniqueConstraint("faculty_id", "slug", "semester", name="uq_subject_faculty_slug_semester"),)
+    __table_args__ = (UniqueConstraint("faculty_id", "slug", name="uq_subject_faculty_slug"),)
 
     faculty_id: Mapped[str] = mapped_column(ForeignKey("faculties.id", ondelete="CASCADE"), nullable=False, index=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     slug: Mapped[str] = mapped_column(String(255), nullable=False)
     code: Mapped[str | None] = mapped_column(String(64), nullable=True)
-    semester: Mapped[int] = mapped_column(Integer, nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     faculty = relationship("Faculty", back_populates="subjects")

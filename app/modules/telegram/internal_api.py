@@ -1,7 +1,13 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query, Request
+from datetime import datetime
+import mimetypes
+from fastapi import APIRouter, Depends, File, Query, Request, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.exceptions import ResourceNotFound, ValidationAppError
+from app.infrastructure.storage.service import StorageService
+from app.modules.users.schemas import UserRead
+from app.modules.users.service import UserService
 
 from app.core.security_controls import AuthRateLimiter
 from app.db.session import get_db_session
@@ -161,6 +167,48 @@ async def list_pending_events(
     limit: int = Query(default=100, ge=1, le=500),
 ) -> TelegramOutboxEventListResponse:
     return await TelegramEventService(session).list_pending_event_items(limit)
+
+
+@router.post("/users/{telegram_user_id}/avatar", response_model=UserRead)
+async def upload_telegram_avatar(
+    telegram_user_id: int,
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+    file: UploadFile = File(...),
+) -> UserRead:
+    identity = await TelegramService(session).get_identity_by_telegram_user_id(telegram_user_id)
+    if not identity.is_linked or not identity.platform_user:
+        raise ResourceNotFound("Telegramga bog'langan foydalanuvchi topilmadi")
+        
+    user_id = identity.platform_user.id
+    user = await UserService(session).get_user(user_id)
+    if not user:
+        raise ResourceNotFound("Foydalanuvchi topilmadi")
+
+    filename = file.filename or ""
+    ext = filename.split(".")[-1].lower() if "." in filename else ""
+    if ext not in ["jpg", "jpeg", "png"]:
+        raise ValidationAppError("Faqat rasm formatidagi fayllar ruxsat etiladi (.jpg, .jpeg, .png)")
+
+    content = await file.read()
+    if len(content) > 5 * 1024 * 1024:
+        raise ValidationAppError("Rasm hajmi 5MB dan oshmasligi kerak")
+    
+    storage = StorageService()
+    
+    for old_ext in ["jpg", "jpeg", "png"]:
+        old_key = f"avatars/{user.id}/avatar.{old_ext}"
+        if await storage.exists(old_key):
+            await storage.delete(old_key)
+
+    storage_key = f"avatars/{user.id}/avatar.{ext}"
+    content_type = file.content_type or mimetypes.guess_type(filename)[0] or "image/jpeg"
+    await storage.save_bytes(content, storage_key, content_type)
+
+    user.avatar_url = f"/api/v1/users/{user.id}/avatar?v={int(datetime.now().timestamp())}"
+    await session.commit()
+    await session.refresh(user)
+
+    return UserRead.model_validate(user)
 
 
 __all__ = ["router"]

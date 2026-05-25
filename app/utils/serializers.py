@@ -76,7 +76,6 @@ def build_material_read(
             id=subject.id,
             name=subject.name,
             slug=subject.slug,
-            semester=subject.semester,
             faculty_id=subject.faculty_id,
         )
         if subject
@@ -100,6 +99,7 @@ def build_material_read(
         material_type=material.material_type,
         status=material.status,
         subject_id=material.subject_id,
+        semesters=material.semesters or [],
         uploaded_by=material.uploaded_by,
         approved_by=material.approved_by,
         last_reviewed_by=material.last_reviewed_by,

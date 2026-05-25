@@ -56,6 +56,7 @@ class MaterialCreate(BaseModel):
     description: str | None = None
     material_type: MaterialType
     subject_id: str
+    semesters: list[int] = Field(default_factory=list)
     cover_file_id: str | None = None
     primary_file_id: str | None = None
 
@@ -65,6 +66,7 @@ class MaterialUpdate(BaseModel):
     description: str | None = None
     material_type: MaterialType | None = None
     subject_id: str | None = None
+    semesters: list[int] | None = None
     cover_file_id: str | None = None
     primary_file_id: str | None = None
 
@@ -75,10 +77,10 @@ class MaterialListQuery(BaseModel):
     faculty_id: str | None = None
     university_id: str | None = None
     material_type: MaterialType | None = None
-    semester: int | None = Field(default=None, ge=1, le=12)
+    semester: int | None = Field(default=None, ge=1, le=14)
     status: MaterialStatus | None = None
     file_format: str | None = None
-    course: int | None = Field(default=None, ge=1, le=12)
+    course: int | None = Field(default=None, ge=1, le=14)
     is_public: bool | None = None
     only_approved: bool | None = None
     uploaded_by: str | None = None
@@ -106,6 +108,7 @@ class MaterialRead(ORMModel):
     material_type: MaterialType
     status: MaterialStatus
     subject_id: str
+    semesters: list[int]
     uploaded_by: str
     approved_by: str | None
     last_reviewed_by: str | None

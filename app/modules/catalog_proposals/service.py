@@ -17,16 +17,19 @@ from app.modules.catalog.models import Faculty, Subject, University
 from app.modules.users.models import User
 from app.modules.catalog_proposals.models import (
     CatalogProposalLog,
+    CatalogReport,
     FacultyProposal,
     SubjectProposal,
     UniversityProposal,
 )
 from app.modules.catalog_proposals.schemas import (
+    CatalogReportCreate,
     FacultyProposalCreate,
     HomeUniversityUpdateRequest,
     SubjectProposalCreate,
     UniversityProposalCreate,
 )
+from app.modules.materials.enums import ReportStatus
 from app.modules.telegram.enums import TelegramEventType
 from app.modules.telegram.event_service import TelegramEventService
 from app.utils.slug import slugify
@@ -105,13 +108,11 @@ class CatalogProposalService:
         if not faculty:
             raise ResourceNotFound("Faculty not found")
         proposed_name = payload.name.strip()
-        target_semester = payload.semester or 1
-        await self._ensure_subject_name_available(payload.faculty_id, proposed_name, target_semester)
-        await self._ensure_pending_subject_proposal_name_available(payload.faculty_id, proposed_name, target_semester)
+        await self._ensure_subject_name_available(payload.faculty_id, proposed_name)
+        await self._ensure_pending_subject_proposal_name_available(payload.faculty_id, proposed_name)
         duplicate = await self.session.execute(
             select(Subject).where(
                 Subject.faculty_id == payload.faculty_id,
-                Subject.semester == target_semester,
                 or_(Subject.name.ilike(proposed_name), Subject.slug == slugify(proposed_name)),
             )
         )
@@ -122,7 +123,7 @@ class CatalogProposalService:
             proposed_name=proposed_name,
             proposed_slug=slugify(proposed_name),
             proposed_code=payload.code,
-            proposed_semester=payload.semester,
+            proposed_semester=None,
             proposed_description=payload.description,
             created_by=user.id,
         )
@@ -307,15 +308,13 @@ class CatalogProposalService:
         await self._assert_subject_proposal_scope(actor, proposal)
         canonical_name = payload.canonical_name or proposal.proposed_name
         canonical_slug = payload.canonical_slug or proposal.proposed_slug or slugify(proposal.proposed_name)
-        canonical_semester = payload.canonical_semester or proposal.proposed_semester or 1
-        await self._ensure_subject_name_available(proposal.faculty_id, canonical_name, canonical_semester)
-        await self._ensure_subject_slug_available(proposal.faculty_id, canonical_slug, canonical_semester)
+        await self._ensure_subject_name_available(proposal.faculty_id, canonical_name)
+        await self._ensure_subject_slug_available(proposal.faculty_id, canonical_slug)
         subject = Subject(
             faculty_id=proposal.faculty_id,
             name=canonical_name,
             slug=canonical_slug,
             code=payload.canonical_code or proposal.proposed_code,
-            semester=canonical_semester,
             description=payload.canonical_description or proposal.proposed_description,
         )
         self.session.add(subject)
@@ -567,27 +566,25 @@ class CatalogProposalService:
         if result.scalar_one_or_none():
             raise ConflictError("Faculty already exists in this university")
 
-    async def _ensure_subject_name_available(self, faculty_id: str, name: str, semester: int) -> None:
+    async def _ensure_subject_name_available(self, faculty_id: str, name: str) -> None:
         result = await self.session.execute(
             select(Subject.id).where(
                 Subject.faculty_id == faculty_id,
-                Subject.semester == semester,
                 func.lower(func.trim(Subject.name)) == self._normalize_name(name),
             )
         )
         if result.scalar_one_or_none():
-            raise ConflictError("Subject already exists in this faculty and semester")
+            raise ConflictError("Subject already exists in this faculty")
 
-    async def _ensure_subject_slug_available(self, faculty_id: str, slug: str, semester: int) -> None:
+    async def _ensure_subject_slug_available(self, faculty_id: str, slug: str) -> None:
         result = await self.session.execute(
             select(Subject.id).where(
                 Subject.faculty_id == faculty_id,
                 Subject.slug == slug,
-                Subject.semester == semester,
             )
         )
         if result.scalar_one_or_none():
-            raise ConflictError("Subject already exists in this faculty and semester")
+            raise ConflictError("Subject already exists in this faculty")
 
     async def _ensure_pending_faculty_proposal_name_available(self, university_id: str, name: str) -> None:
         result = await self.session.execute(
@@ -604,19 +601,116 @@ class CatalogProposalService:
         self,
         faculty_id: str,
         name: str,
-        semester: int,
     ) -> None:
         result = await self.session.execute(
             select(SubjectProposal.id).where(
                 SubjectProposal.faculty_id == faculty_id,
                 SubjectProposal.status == ProposalStatus.PENDING,
-                SubjectProposal.proposed_semester == semester,
                 func.lower(func.trim(SubjectProposal.proposed_name)) == self._normalize_name(name),
             )
         )
         if result.scalar_one_or_none():
-            raise ConflictError("Subject proposal with this name is already pending in the faculty and semester")
+            raise ConflictError("Subject proposal with this name is already pending in the faculty")
 
     @staticmethod
     def _normalize_name(name: str) -> str:
         return name.strip().lower()
+
+    async def create_catalog_report(self, payload: CatalogReportCreate, user: User) -> CatalogReport:
+        entity_name = ""
+        if payload.entity_type == "university":
+            res = await self.session.execute(select(University).where(University.id == payload.entity_id))
+            obj = res.scalar_one_or_none()
+            if not obj:
+                raise ResourceNotFound("University not found")
+            entity_name = obj.name
+        elif payload.entity_type == "faculty":
+            res = await self.session.execute(select(Faculty).where(Faculty.id == payload.entity_id))
+            obj = res.scalar_one_or_none()
+            if not obj:
+                raise ResourceNotFound("Faculty not found")
+            entity_name = obj.name
+        elif payload.entity_type == "subject":
+            res = await self.session.execute(select(Subject).where(Subject.id == payload.entity_id))
+            obj = res.scalar_one_or_none()
+            if not obj:
+                raise ResourceNotFound("Subject not found")
+            entity_name = obj.name
+        else:
+            raise ValidationAppError("Invalid entity type")
+
+        report = CatalogReport(
+            entity_type=payload.entity_type,
+            entity_id=payload.entity_id,
+            entity_name=entity_name,
+            reporter_id=user.id,
+            reason=payload.reason,
+            details=payload.details,
+            status=ReportStatus.OPEN,
+        )
+        self.session.add(report)
+        await self.session.commit()
+        await self.session.refresh(report)
+        return report
+
+    async def list_catalog_reports(
+        self,
+        page: int = 1,
+        page_size: int = 20,
+        status: ReportStatus | None = None,
+        entity_type: str | None = None,
+    ) -> tuple[Sequence[CatalogReport], int]:
+        stmt = select(CatalogReport).options(
+            selectinload(CatalogReport.reporter).selectinload(User.university),
+            selectinload(CatalogReport.reviewer)
+        ).order_by(CatalogReport.created_at.desc())
+
+        if status:
+            stmt = stmt.where(CatalogReport.status == status)
+        if entity_type:
+            stmt = stmt.where(CatalogReport.entity_type == entity_type)
+
+        count_stmt = select(func.count()).select_from(stmt.subquery())
+        total_res = await self.session.execute(count_stmt)
+        total = total_res.scalar_one()
+
+        stmt = stmt.offset((page - 1) * page_size).limit(page_size)
+        res = await self.session.execute(stmt)
+        reports = res.scalars().all()
+
+        return reports, total
+
+    async def get_catalog_report(self, report_id: str) -> CatalogReport:
+        res = await self.session.execute(
+            select(CatalogReport)
+            .where(CatalogReport.id == report_id)
+            .options(
+                selectinload(CatalogReport.reporter).selectinload(User.university),
+                selectinload(CatalogReport.reviewer)
+            )
+        )
+        report = res.scalar_one_or_none()
+        if not report:
+            raise ResourceNotFound("Report not found")
+        return report
+
+    async def resolve_catalog_report(self, report_id: str, reviewer: User, resolution_note: str | None = None) -> CatalogReport:
+        report = await self.get_catalog_report(report_id)
+        report.status = ReportStatus.RESOLVED
+        report.reviewer_id = reviewer.id
+        report.resolution_note = resolution_note
+        report.reviewed_at = datetime.now(UTC)
+        await self.session.commit()
+        await self.session.refresh(report)
+        return report
+
+    async def dismiss_catalog_report(self, report_id: str, reviewer: User, resolution_note: str | None = None) -> CatalogReport:
+        report = await self.get_catalog_report(report_id)
+        report.status = ReportStatus.DISMISSED
+        report.reviewer_id = reviewer.id
+        report.resolution_note = resolution_note
+        report.reviewed_at = datetime.now(UTC)
+        await self.session.commit()
+        await self.session.refresh(report)
+        return report
+

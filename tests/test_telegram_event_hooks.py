@@ -164,7 +164,7 @@ async def test_material_submit_creates_events_for_admins_and_scoped_moderators(s
     await add_subject_scope(session, subject_moderator.id, subject.id)
     await add_subject_scope(session, foreign_moderator.id, other_subject.id)
 
-    material = await seed_material(session, owner, subject.id, "Reviewable Material")
+    material = await seed_material(session, owner, subject.id, "Reviewable Material", semesters=[2])
     material.file_count = 1
     await session.commit()
 
@@ -209,7 +209,7 @@ async def test_material_submit_creates_events_for_admins_and_scoped_moderators(s
             "id": subject.id,
             "name": subject.name,
             "slug": subject.slug,
-            "semester": subject.semester,
+            "semesters": [2],
             "faculty_id": faculty.id,
         }
 

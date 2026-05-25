@@ -48,7 +48,6 @@ async def _seed_subject(session, faculty_id: str, name: str = "Algorithms", seme
         faculty_id=faculty_id,
         name=name,
         slug=slugify(name),
-        semester=semester,
         description=None,
         code=None,
     )
@@ -301,10 +300,10 @@ async def test_duplicate_faculty_name_in_same_university_returns_conflict(sessio
 
 
 @pytest.mark.asyncio
-async def test_duplicate_subject_name_in_same_semester_returns_conflict(session):
+async def test_duplicate_subject_name_in_same_faculty_returns_conflict(session):
     university = await _seed_university(session)
     faculty = await _seed_faculty(session, university.id, "Engineering")
-    await _seed_subject(session, faculty.id, "Algorithms", 3)
+    await _seed_subject(session, faculty.id, "Algorithms")
 
     with pytest.raises(ConflictError):
         await CatalogService(session).create_subject(
@@ -312,7 +311,6 @@ async def test_duplicate_subject_name_in_same_semester_returns_conflict(session)
                 faculty_id=faculty.id,
                 name="algorithms",
                 slug="algorithms-alt",
-                semester=3,
                 code=None,
                 description=None,
             )
@@ -320,22 +318,22 @@ async def test_duplicate_subject_name_in_same_semester_returns_conflict(session)
 
 
 @pytest.mark.asyncio
-async def test_same_subject_name_in_different_semester_is_allowed(session):
+async def test_same_subject_name_in_different_faculty_is_allowed(session):
     university = await _seed_university(session)
     faculty = await _seed_faculty(session, university.id, "Engineering")
-    await _seed_subject(session, faculty.id, "Algorithms", 3)
+    other_faculty = await _seed_faculty(session, university.id, "Science")
+    await _seed_subject(session, faculty.id, "Algorithms")
 
     subject = await CatalogService(session).create_subject(
         SubjectCreate(
-            faculty_id=faculty.id,
+            faculty_id=other_faculty.id,
             name="Algorithms",
-            slug="algorithms-semester-4",
-            semester=4,
+            slug="algorithms-science",
             code=None,
             description=None,
         )
     )
-    assert subject.semester == 4
+    assert subject.name == "Algorithms"
 
 
 @pytest.mark.asyncio
@@ -352,6 +350,7 @@ async def test_material_slugs_are_unique_on_create(session):
             description=None,
             material_type=MaterialType.NOTES,
             subject_id=subject.id,
+            semester=3,
             cover_file_id=None,
             primary_file_id=None,
         ),
@@ -363,6 +362,7 @@ async def test_material_slugs_are_unique_on_create(session):
             description=None,
             material_type=MaterialType.NOTES,
             subject_id=subject.id,
+            semester=3,
             cover_file_id=None,
             primary_file_id=None,
         ),
@@ -386,6 +386,7 @@ async def test_material_sitemap_uses_material_slug(session):
             description=None,
             material_type=MaterialType.NOTES,
             subject_id=subject.id,
+            semester=3,
             cover_file_id=None,
             primary_file_id=None,
         ),
@@ -411,6 +412,7 @@ async def test_public_material_list_and_search_force_approved_only(client, sessi
             description=None,
             material_type=MaterialType.NOTES,
             subject_id=subject.id,
+            semester=3,
             cover_file_id=None,
             primary_file_id=None,
         ),
@@ -444,6 +446,7 @@ async def test_material_search_matches_description_and_rating_desc_sort(client, 
             description="Matematika asoslari va limitlar",
             material_type=MaterialType.NOTES,
             subject_id=subject.id,
+            semester=2,
             cover_file_id=None,
             primary_file_id=None,
         ),
@@ -455,6 +458,7 @@ async def test_material_search_matches_description_and_rating_desc_sort(client, 
             description="Matematika masalalari",
             material_type=MaterialType.NOTES,
             subject_id=subject.id,
+            semester=2,
             cover_file_id=None,
             primary_file_id=None,
         ),
@@ -526,6 +530,7 @@ async def test_nonapproved_material_access_context_is_restricted_for_unauthentic
             description=None,
             material_type=MaterialType.NOTES,
             subject_id=subject.id,
+            semester=3,
             cover_file_id=None,
             primary_file_id=None,
         ),
@@ -687,6 +692,7 @@ async def test_tag_endpoints_create_and_attach_to_material(client, session):
             description=None,
             material_type=MaterialType.NOTES,
             subject_id=subject.id,
+            semester=3,
             cover_file_id=None,
             primary_file_id=None,
         ),
@@ -726,6 +732,7 @@ async def test_material_file_lifecycle_operations(session):
             description=None,
             material_type=MaterialType.NOTES,
             subject_id=subject.id,
+            semester=3,
             cover_file_id=None,
             primary_file_id=None,
         ),

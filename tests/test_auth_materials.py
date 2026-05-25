@@ -180,6 +180,7 @@ async def test_material_routes_cover_lifecycle_public_access_and_discovery(clien
             "description": "Lifecycle material",
             "material_type": MaterialType.NOTES.value,
             "subject_id": subject.id,
+            "semesters": [2],
         },
     )
     assert create_material.status_code == 200

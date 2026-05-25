@@ -20,7 +20,6 @@ class SubjectSummary(BaseModel):
     id: str
     name: str
     slug: str
-    semester: int
     faculty_id: str
 
 

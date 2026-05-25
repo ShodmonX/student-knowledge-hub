@@ -410,7 +410,7 @@ class TelegramEventService:
                     "id": subject.id,
                     "name": subject.name,
                     "slug": subject.slug,
-                    "semester": subject.semester,
+                    "semesters": material.semesters or [],
                     "faculty_id": subject.faculty_id,
                 }
                 if subject

@@ -50,7 +50,6 @@ async def seed_subject(
         faculty_id=faculty_id,
         name=name,
         slug=slugify(name),
-        semester=semester,
         description=None,
         code=None,
     )
@@ -143,6 +142,7 @@ async def seed_material(
     title: str,
     status: MaterialStatus = MaterialStatus.DRAFT,
     material_type: MaterialType = MaterialType.NOTES,
+    semesters: list[int] | None = None,
 ):
     material = await MaterialService(session).create_draft(
         MaterialCreate(
@@ -150,6 +150,7 @@ async def seed_material(
             description=None,
             material_type=material_type,
             subject_id=subject_id,
+            semesters=semesters or [1],
             cover_file_id=None,
             primary_file_id=None,
         ),

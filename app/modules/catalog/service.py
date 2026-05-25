@@ -34,7 +34,7 @@ class CatalogService:
             await self.session.execute(select(Faculty).order_by(Faculty.name.asc()))
         ).scalars().all()
         subjects = (
-            await self.session.execute(select(Subject).order_by(Subject.semester.asc(), Subject.name.asc()))
+            await self.session.execute(select(Subject).order_by(Subject.name.asc()))
         ).scalars().all()
 
         subjects_by_faculty: dict[str, list[dict]] = {}
@@ -46,7 +46,6 @@ class CatalogService:
                     "name": subject.name,
                     "slug": subject.slug,
                     "code": subject.code,
-                    "semester": subject.semester,
                     "description": subject.description,
                 }
             )
@@ -137,14 +136,13 @@ class CatalogService:
         if not await self.faculties.get(payload.faculty_id):
             raise ResourceNotFound("Faculty not found")
         slug = payload.slug or slugify(payload.name)
-        await self._ensure_subject_name_available(payload.faculty_id, payload.name, payload.semester)
-        await self._ensure_subject_slug_available(payload.faculty_id, slug, payload.semester)
+        await self._ensure_subject_name_available(payload.faculty_id, payload.name)
+        await self._ensure_subject_slug_available(payload.faculty_id, slug)
         subject = Subject(
             faculty_id=payload.faculty_id,
             name=payload.name,
             slug=slug,
             code=payload.code,
-            semester=payload.semester,
             description=payload.description,
         )
         try:
@@ -152,7 +150,7 @@ class CatalogService:
             await self.session.commit()
         except IntegrityError as exc:
             await self.session.rollback()
-            raise ConflictError("Subject with this slug already exists in the faculty and semester") from exc
+            raise ConflictError("Subject with this slug already exists in the faculty") from exc
         return subject
 
     async def update_university(self, university_id: str, payload: UniversityUpdate) -> University:
@@ -218,12 +216,10 @@ class CatalogService:
     async def update_subject(self, subject_id: str, payload: SubjectUpdate) -> Subject:
         subject = await self.get_subject(subject_id)
         target_faculty_id = payload.faculty_id or subject.faculty_id
-        target_semester = payload.semester or subject.semester
         target_name = payload.name or subject.name
         await self._ensure_subject_name_available(
             target_faculty_id,
             target_name,
-            target_semester,
             exclude_id=subject.id,
         )
         for field, value in payload.model_dump(exclude_unset=True).items():
@@ -235,7 +231,6 @@ class CatalogService:
             await self._ensure_subject_slug_available(
                 target_faculty_id,
                 new_slug,
-                target_semester,
                 exclude_id=subject.id,
             )
             subject.slug = new_slug
@@ -243,14 +238,13 @@ class CatalogService:
             await self._ensure_subject_slug_available(
                 target_faculty_id,
                 payload.slug,
-                target_semester,
                 exclude_id=subject.id,
             )
         try:
             await self.session.commit()
         except IntegrityError as exc:
             await self.session.rollback()
-            raise ConflictError("Subject with this slug already exists in the faculty and semester") from exc
+            raise ConflictError("Subject with this slug already exists in the faculty") from exc
         return subject
 
     async def delete_subject(self, subject_id: str) -> None:
@@ -312,37 +306,33 @@ class CatalogService:
         self,
         faculty_id: str,
         slug: str,
-        semester: int,
         exclude_id: str | None = None,
     ) -> None:
         statement = select(Subject.id).where(
             Subject.faculty_id == faculty_id,
             Subject.slug == slug,
-            Subject.semester == semester,
         )
         if exclude_id:
             statement = statement.where(Subject.id != exclude_id)
         result = await self.session.execute(statement)
         if result.scalar_one_or_none():
-            raise ConflictError("Subject with this slug already exists in the faculty and semester")
+            raise ConflictError("Subject with this slug already exists in the faculty")
 
     async def _ensure_subject_name_available(
         self,
         faculty_id: str,
         name: str,
-        semester: int,
         exclude_id: str | None = None,
     ) -> None:
         statement = select(Subject.id).where(
             Subject.faculty_id == faculty_id,
-            Subject.semester == semester,
             func.lower(func.trim(Subject.name)) == self._normalize_name(name),
         )
         if exclude_id:
             statement = statement.where(Subject.id != exclude_id)
         result = await self.session.execute(statement)
         if result.scalar_one_or_none():
-            raise ConflictError("Subject with this name already exists in the faculty and semester")
+            raise ConflictError("Subject with this name already exists in the faculty")
 
     @staticmethod
     def _normalize_name(name: str) -> str:

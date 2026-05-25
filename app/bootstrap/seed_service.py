@@ -100,17 +100,20 @@ async def seed_catalog(session, entries: list[dict[str, Any]]) -> list[Universit
             session.add(faculty)
             await session.flush()
 
+            seen_subject_slugs: set[str] = set()
             for subject_entry in faculty_entry.get("subjects", []):
                 subject_name = _clean_name(subject_entry.get("name"))
-                semester = subject_entry.get("semester")
-                if not subject_name or not isinstance(semester, int):
+                if not subject_name:
                     continue
+                sub_slug = slugify(subject_name)
+                if sub_slug in seen_subject_slugs:
+                    continue
+                seen_subject_slugs.add(sub_slug)
                 session.add(
                     Subject(
                         faculty_id=faculty.id,
                         name=subject_name,
-                        slug=slugify(subject_name),
-                        semester=semester,
+                        slug=sub_slug,
                     )
                 )
 

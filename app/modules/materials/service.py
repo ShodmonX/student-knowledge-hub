@@ -49,6 +49,7 @@ class MaterialService:
             description=payload.description,
             material_type=payload.material_type,
             subject_id=payload.subject_id,
+            semesters=payload.semesters,
             uploaded_by=user.id,
             cover_file_id=payload.cover_file_id,
             primary_file_id=payload.primary_file_id,

@@ -175,7 +175,6 @@ async def test_catalog_service_crud_and_conflict_paths(session):
         SubjectCreate(
             faculty_id=created_faculty.id,
             name="Service Subject",
-            semester=1,
             code="SVC101",
             description="Initial subject",
         )
@@ -189,7 +188,6 @@ async def test_catalog_service_crud_and_conflict_paths(session):
             SubjectCreate(
                 faculty_id=created_faculty.id,
                 name="service subject",
-                semester=1,
                 code=None,
                 description=None,
             )
@@ -214,14 +212,12 @@ async def test_catalog_service_crud_and_conflict_paths(session):
         SubjectUpdate(
             faculty_id=other_faculty.id,
             name="Renamed Subject",
-            semester=2,
             code="NEW202",
             description="Updated subject",
         ),
     )
     assert updated_subject.name == "Renamed Subject"
     assert updated_subject.faculty_id == other_faculty.id
-    assert updated_subject.semester == 2
 
     with pytest.raises(ResourceNotFound):
         await service.get_university("missing-id")

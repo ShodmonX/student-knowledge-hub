@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import ARRAY, DateTime, Enum, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -19,6 +19,7 @@ class Material(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     material_type: Mapped[MaterialType] = mapped_column(Enum(MaterialType), nullable=False)
     status: Mapped[MaterialStatus] = mapped_column(Enum(MaterialStatus), default=MaterialStatus.DRAFT, index=True)
     subject_id: Mapped[str] = mapped_column(ForeignKey("subjects.id"), nullable=False, index=True)
+    semesters: Mapped[list[int]] = mapped_column(ARRAY(Integer), nullable=False, default=list)
     uploaded_by: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
     approved_by: Mapped[str | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     last_reviewed_by: Mapped[str | None] = mapped_column(ForeignKey("users.id"), nullable=True)

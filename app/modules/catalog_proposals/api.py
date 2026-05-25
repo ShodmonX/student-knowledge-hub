@@ -6,7 +6,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db_session
 from app.modules.auth.dependencies import get_current_user
 from app.modules.catalog_proposals.schemas import (
+    CatalogReportCreate,
+    FacultyProposalBulkCreate,
     FacultyProposalCreate,
+    SubjectProposalBulkCreate,
     SubjectProposalCreate,
     UniversityProposalCreate,
 )
@@ -44,6 +47,29 @@ async def create_faculty_proposal(
     }
 
 
+@router.post("/faculties/bulk", response_model=dict, status_code=status.HTTP_201_CREATED)
+async def create_faculty_proposals_bulk(
+    payload: FacultyProposalBulkCreate,
+    user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> dict:
+    service = CatalogProposalService(session)
+    results = []
+    errors = []
+    for item in payload.faculties:
+        try:
+            proposal = await service.create_faculty_proposal(item, user)
+            results.append({"name": item.name, "id": proposal.id, "status": proposal.status.value})
+        except Exception as exc:
+            errors.append({"name": item.name, "error": str(exc)})
+    return {
+        "created": len(results),
+        "failed": len(errors),
+        "results": results,
+        "errors": errors,
+    }
+
+
 @router.post("/subjects", response_model=dict, status_code=status.HTTP_201_CREATED)
 async def create_subject_proposal(
     payload: SubjectProposalCreate,
@@ -56,3 +82,41 @@ async def create_subject_proposal(
         "status": proposal.status.value,
         "message": "Fan taklifi yuborildi",
     }
+
+
+@router.post("/subjects/bulk", response_model=dict, status_code=status.HTTP_201_CREATED)
+async def create_subject_proposals_bulk(
+    payload: SubjectProposalBulkCreate,
+    user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> dict:
+    service = CatalogProposalService(session)
+    results = []
+    errors = []
+    for item in payload.subjects:
+        try:
+            proposal = await service.create_subject_proposal(item, user)
+            results.append({"name": item.name, "id": proposal.id, "status": proposal.status.value})
+        except Exception as exc:
+            errors.append({"name": item.name, "error": str(exc)})
+    return {
+        "created": len(results),
+        "failed": len(errors),
+        "results": results,
+        "errors": errors,
+    }
+
+
+@router.post("/reports", response_model=dict, status_code=status.HTTP_201_CREATED)
+async def create_catalog_report(
+    payload: CatalogReportCreate,
+    user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> dict:
+    report = await CatalogProposalService(session).create_catalog_report(payload, user)
+    return {
+        "id": report.id,
+        "status": str(report.status),
+        "message": "Shikoyat muvaffaqiyatli qabul qilindi",
+    }
+

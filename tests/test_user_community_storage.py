@@ -252,3 +252,48 @@ async def test_user_service_save_and_unrate_error_paths(session):
 
     with pytest.raises(ConflictError):
         await CommunityService(session).unrate(material.id, user)
+
+
+@pytest.mark.asyncio
+async def test_user_avatar_upload_and_delete(client, session, tmp_path, monkeypatch):
+    monkeypatch.setenv("STORAGE_BACKEND", "local")
+    monkeypatch.setenv("STORAGE_ROOT", str(tmp_path))
+    get_settings.cache_clear()
+    
+    university = await seed_university(session, "Avatar University")
+    user = await seed_user(session, university.id, "avatar-user@example.com")
+    headers = access_headers(user)
+    
+    # 1. Initially avatar_url is None
+    assert user.avatar_url is None
+    
+    # 2. Upload avatar
+    import io
+    avatar_file = ("avatar.png", io.BytesIO(b"fake image data"))
+    response = await client.post(
+        "/api/v1/users/avatar",
+        headers=headers,
+        files={"file": avatar_file}
+    )
+    assert response.status_code == 200
+    assert response.json()["avatar_url"] is not None
+    
+    # 3. Retrieve avatar
+    avatar_url = response.json()["avatar_url"]
+    clean_url = avatar_url.split("?")[0]
+    get_avatar_response = await client.get(clean_url)
+    assert get_avatar_response.status_code == 200
+    
+    # 4. Delete avatar
+    delete_response = await client.delete(
+        "/api/v1/users/avatar",
+        headers=headers
+    )
+    assert delete_response.status_code == 200
+    assert delete_response.json()["avatar_url"] is None
+    
+    # 5. Retrieve after delete (should return 404)
+    get_avatar_after = await client.get(clean_url)
+    assert get_avatar_after.status_code == 404
+    
+    get_settings.cache_clear()

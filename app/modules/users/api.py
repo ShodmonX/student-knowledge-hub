@@ -1,7 +1,12 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from datetime import datetime
+from fastapi import APIRouter, Depends, File, UploadFile
+from fastapi.responses import FileResponse, RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.exceptions import ResourceNotFound, ValidationAppError
+from app.infrastructure.storage.service import StorageService
+import mimetypes
 
 from app.db.session import get_db_session
 from app.modules.auth.dependencies import get_current_user
@@ -233,3 +238,81 @@ async def clear_saved_materials(
 ) -> MessageResponse:
     await UserService(session).clear_saved_materials(user)
     return MessageResponse(message="Saqlangan materiallar tozalandi")
+
+
+@router.post("/avatar", response_model=UserRead)
+async def upload_avatar(
+    user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+    file: UploadFile = File(...),
+) -> UserRead:
+    filename = file.filename or ""
+    ext = filename.split(".")[-1].lower() if "." in filename else ""
+    if ext not in ["jpg", "jpeg", "png"]:
+        raise ValidationAppError("Faqat rasm formatidagi fayllar ruxsat etiladi (.jpg, .jpeg, .png)")
+
+    content = await file.read()
+    if len(content) > 5 * 1024 * 1024:
+        raise ValidationAppError("Rasm hajmi 5MB dan oshmasligi kerak")
+    
+    storage = StorageService()
+    
+    for old_ext in ["jpg", "jpeg", "png"]:
+        old_key = f"avatars/{user.id}/avatar.{old_ext}"
+        if await storage.exists(old_key):
+            await storage.delete(old_key)
+
+    storage_key = f"avatars/{user.id}/avatar.{ext}"
+    content_type = file.content_type or mimetypes.guess_type(filename)[0] or "image/jpeg"
+    await storage.save_bytes(content, storage_key, content_type)
+
+    user.avatar_url = f"/api/v1/users/{user.id}/avatar?v={int(datetime.now().timestamp())}"
+    await session.commit()
+    await session.refresh(user)
+
+    return UserRead.model_validate(user)
+
+
+@router.delete("/avatar", response_model=UserRead)
+async def delete_avatar(
+    user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> UserRead:
+    storage = StorageService()
+    
+    for old_ext in ["jpg", "jpeg", "png"]:
+        old_key = f"avatars/{user.id}/avatar.{old_ext}"
+        if await storage.exists(old_key):
+            await storage.delete(old_key)
+
+    user.avatar_url = None
+    await session.commit()
+    await session.refresh(user)
+
+    return UserRead.model_validate(user)
+
+
+@router.get("/{user_id}/avatar")
+async def get_avatar(
+    user_id: str,
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+):
+    storage = StorageService()
+    storage_key = None
+    content_type = None
+    for ext in ["png", "jpg", "jpeg"]:
+        key = f"avatars/{user_id}/avatar.{ext}"
+        if await storage.exists(key):
+            storage_key = key
+            content_type = f"image/{'png' if ext == 'png' else 'jpeg'}"
+            break
+            
+    if not storage_key:
+        raise ResourceNotFound("Avatar topilmadi")
+        
+    download = await storage.resolve_for_download(storage_key)
+    if download.redirect_url:
+        return RedirectResponse(download.redirect_url, status_code=307)
+    if download.local_path:
+        return FileResponse(download.local_path, media_type=content_type)
+    raise ResourceNotFound("Avatar yuklab olish imkoni bo'lmadi")

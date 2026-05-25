@@ -43,7 +43,6 @@ class SubjectCreate(BaseModel):
     name: str = Field(min_length=2, max_length=255)
     slug: str | None = None
     code: str | None = Field(default=None, max_length=64)
-    semester: int = Field(ge=1, le=12)
     description: str | None = None
 
 
@@ -52,7 +51,6 @@ class SubjectUpdate(BaseModel):
     name: str | None = Field(default=None, min_length=2, max_length=255)
     slug: str | None = None
     code: str | None = Field(default=None, max_length=64)
-    semester: int | None = Field(default=None, ge=1, le=12)
     description: str | None = None
 
 
@@ -62,7 +60,6 @@ class SubjectRead(ORMModel):
     name: str
     slug: str
     code: str | None
-    semester: int
     description: str | None
 
 
@@ -72,7 +69,6 @@ class SubjectTreeRead(BaseModel):
     name: str
     slug: str
     code: str | None
-    semester: int
     description: str | None
 
 

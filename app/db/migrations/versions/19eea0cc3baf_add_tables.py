@@ -1,8 +1,8 @@
 """add tables
 
-Revision ID: 94604aa85943
+Revision ID: 19eea0cc3baf
 Revises: 
-Create Date: 2026-05-19 03:51:38.778454
+Create Date: 2026-05-25 07:57:24.458180
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '94604aa85943'
+revision: str = '19eea0cc3baf'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -121,6 +121,27 @@ def upgrade() -> None:
     op.create_index(op.f('ix_catalog_proposal_logs_actor_id'), 'catalog_proposal_logs', ['actor_id'], unique=False)
     op.create_index(op.f('ix_catalog_proposal_logs_entity_id'), 'catalog_proposal_logs', ['entity_id'], unique=False)
     op.create_index(op.f('ix_catalog_proposal_logs_entity_type'), 'catalog_proposal_logs', ['entity_type'], unique=False)
+    op.create_table('catalog_reports',
+    sa.Column('entity_type', sa.String(length=50), nullable=False),
+    sa.Column('entity_id', sa.String(length=36), nullable=False),
+    sa.Column('entity_name', sa.String(length=255), nullable=False),
+    sa.Column('reporter_id', sa.String(length=36), nullable=False),
+    sa.Column('reviewer_id', sa.String(length=36), nullable=True),
+    sa.Column('reason', sa.String(length=128), nullable=False),
+    sa.Column('details', sa.Text(), nullable=True),
+    sa.Column('status', sa.String(length=32), nullable=False),
+    sa.Column('resolution_note', sa.Text(), nullable=True),
+    sa.Column('reviewed_at', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('id', sa.String(length=36), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.ForeignKeyConstraint(['reporter_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['reviewer_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_catalog_reports_entity_id'), 'catalog_reports', ['entity_id'], unique=False)
+    op.create_index(op.f('ix_catalog_reports_reporter_id'), 'catalog_reports', ['reporter_id'], unique=False)
+    op.create_index(op.f('ix_catalog_reports_reviewer_id'), 'catalog_reports', ['reviewer_id'], unique=False)
     op.create_table('email_verification_tokens',
     sa.Column('user_id', sa.String(length=36), nullable=False),
     sa.Column('token', sa.String(length=128), nullable=False),
@@ -229,14 +250,13 @@ def upgrade() -> None:
     sa.Column('name', sa.String(length=255), nullable=False),
     sa.Column('slug', sa.String(length=255), nullable=False),
     sa.Column('code', sa.String(length=64), nullable=True),
-    sa.Column('semester', sa.Integer(), nullable=False),
     sa.Column('description', sa.Text(), nullable=True),
     sa.Column('id', sa.String(length=36), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['faculty_id'], ['faculties.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('faculty_id', 'slug', 'semester', name='uq_subject_faculty_slug_semester')
+    sa.UniqueConstraint('faculty_id', 'slug', name='uq_subject_faculty_slug')
     )
     op.create_index(op.f('ix_subjects_faculty_id'), 'subjects', ['faculty_id'], unique=False)
     op.create_table('telegram_event_outbox',
@@ -338,6 +358,7 @@ def upgrade() -> None:
     sa.Column('material_type', sa.Enum('BOOK', 'NOTES', 'SLIDES', 'EXAM', 'ASSIGNMENT', 'LAB', 'CHEATSHEET', 'OTHER', name='materialtype'), nullable=False),
     sa.Column('status', sa.Enum('DRAFT', 'PENDING_REVIEW', 'APPROVED', 'REJECTED', name='materialstatus'), nullable=False),
     sa.Column('subject_id', sa.String(length=36), nullable=False),
+    sa.Column('semesters', sa.ARRAY(sa.Integer()), nullable=False),
     sa.Column('uploaded_by', sa.String(length=36), nullable=False),
     sa.Column('approved_by', sa.String(length=36), nullable=True),
     sa.Column('last_reviewed_by', sa.String(length=36), nullable=True),
@@ -415,6 +436,20 @@ def upgrade() -> None:
     )
     op.create_index(op.f('ix_comments_material_id'), 'comments', ['material_id'], unique=False)
     op.create_index(op.f('ix_comments_user_id'), 'comments', ['user_id'], unique=False)
+    op.create_table('material_downloads',
+    sa.Column('user_id', sa.String(length=36), nullable=True),
+    sa.Column('material_id', sa.String(length=36), nullable=False),
+    sa.Column('ip_address', sa.String(length=45), nullable=True),
+    sa.Column('id', sa.String(length=36), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.ForeignKeyConstraint(['material_id'], ['materials.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='SET NULL'),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('user_id', 'material_id', name='uq_user_material_download')
+    )
+    op.create_index(op.f('ix_material_downloads_material_id'), 'material_downloads', ['material_id'], unique=False)
+    op.create_index(op.f('ix_material_downloads_user_id'), 'material_downloads', ['user_id'], unique=False)
     op.create_table('material_files',
     sa.Column('material_id', sa.String(length=36), nullable=False),
     sa.Column('storage_key', sa.String(length=512), nullable=False),
@@ -532,6 +567,9 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_material_files_file_kind'), table_name='material_files')
     op.drop_index(op.f('ix_material_files_checksum_hash'), table_name='material_files')
     op.drop_table('material_files')
+    op.drop_index(op.f('ix_material_downloads_user_id'), table_name='material_downloads')
+    op.drop_index(op.f('ix_material_downloads_material_id'), table_name='material_downloads')
+    op.drop_table('material_downloads')
     op.drop_index(op.f('ix_comments_user_id'), table_name='comments')
     op.drop_index(op.f('ix_comments_material_id'), table_name='comments')
     op.drop_table('comments')
@@ -587,6 +625,10 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_email_verification_tokens_user_id'), table_name='email_verification_tokens')
     op.drop_index(op.f('ix_email_verification_tokens_token'), table_name='email_verification_tokens')
     op.drop_table('email_verification_tokens')
+    op.drop_index(op.f('ix_catalog_reports_reviewer_id'), table_name='catalog_reports')
+    op.drop_index(op.f('ix_catalog_reports_reporter_id'), table_name='catalog_reports')
+    op.drop_index(op.f('ix_catalog_reports_entity_id'), table_name='catalog_reports')
+    op.drop_table('catalog_reports')
     op.drop_index(op.f('ix_catalog_proposal_logs_entity_type'), table_name='catalog_proposal_logs')
     op.drop_index(op.f('ix_catalog_proposal_logs_entity_id'), table_name='catalog_proposal_logs')
     op.drop_index(op.f('ix_catalog_proposal_logs_actor_id'), table_name='catalog_proposal_logs')

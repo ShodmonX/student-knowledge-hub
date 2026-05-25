@@ -148,9 +148,9 @@ class MaterialRepository:
         if query.material_type:
             statement = statement.where(Material.material_type == query.material_type)
         if query.semester:
-            statement = statement.where(Subject.semester == query.semester)
+            statement = statement.where(Material.semesters.any(query.semester))
         if getattr(query, "course", None):
-            statement = statement.where(Subject.semester == query.course)
+            statement = statement.where(Material.semesters.any(query.course))
         if query.status:
             statement = statement.where(Material.status == query.status)
         if getattr(query, "only_approved", None):

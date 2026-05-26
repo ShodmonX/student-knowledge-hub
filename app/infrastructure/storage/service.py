@@ -243,7 +243,11 @@ class SpacesStorageProvider(BaseStorageProvider):
                 partial(
                     self.client.generate_presigned_url,
                     "get_object",
-                    Params={"Bucket": self.bucket, "Key": storage_key},
+                    Params={
+                        "Bucket": self.bucket,
+                        "Key": storage_key,
+                        "ResponseContentDisposition": "attachment",
+                    },
                     ExpiresIn=self.presigned_expiry_seconds,
                 )
             )

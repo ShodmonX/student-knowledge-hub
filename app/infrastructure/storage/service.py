@@ -38,6 +38,7 @@ class StorageDownload:
     local_path: Path | None = None
     redirect_url: str | None = None
     filename: str | None = None
+    disposition: str = "attachment"
 
 
 class BaseStorageProvider(ABC):
@@ -54,7 +55,7 @@ class BaseStorageProvider(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def resolve_for_download(self, storage_key: str, filename: str | None = None) -> StorageDownload:
+    async def resolve_for_download(self, storage_key: str, filename: str | None = None, disposition: str = "attachment") -> StorageDownload:
         raise NotImplementedError
 
     @abstractmethod
@@ -131,11 +132,11 @@ class LocalStorageProvider(BaseStorageProvider):
         if target.exists():
             target.unlink()
 
-    async def resolve_for_download(self, storage_key: str, filename: str | None = None) -> StorageDownload:
+    async def resolve_for_download(self, storage_key: str, filename: str | None = None, disposition: str = "attachment") -> StorageDownload:
         target = self.root / storage_key
         if not target.exists():
             raise ResourceNotFound("File not found in storage")
-        return StorageDownload(local_path=target, filename=filename)
+        return StorageDownload(local_path=target, filename=filename, disposition=disposition)
 
     async def exists(self, storage_key: str) -> bool:
         return (self.root / storage_key).exists()
@@ -238,7 +239,7 @@ class SpacesStorageProvider(BaseStorageProvider):
     async def delete(self, storage_key: str) -> None:
         await asyncio.to_thread(partial(self.client.delete_object, Bucket=self.bucket, Key=storage_key))
 
-    async def resolve_for_download(self, storage_key: str, filename: str | None = None) -> StorageDownload:
+    async def resolve_for_download(self, storage_key: str, filename: str | None = None, disposition: str = "attachment") -> StorageDownload:
         try:
             params = {
                 "Bucket": self.bucket,
@@ -247,9 +248,9 @@ class SpacesStorageProvider(BaseStorageProvider):
             if filename:
                 import urllib.parse
                 safe_filename = urllib.parse.quote(filename)
-                params["ResponseContentDisposition"] = f"attachment; filename*=UTF-8''{safe_filename}"
+                params["ResponseContentDisposition"] = f"{disposition}; filename*=UTF-8''{safe_filename}"
             else:
-                params["ResponseContentDisposition"] = "attachment"
+                params["ResponseContentDisposition"] = disposition
 
             url = await asyncio.to_thread(
                 partial(
@@ -261,7 +262,7 @@ class SpacesStorageProvider(BaseStorageProvider):
             )
         except (ClientError, BotoCoreError) as exc:
             raise ResourceNotFound("File not found in storage") from exc
-        return StorageDownload(redirect_url=url, filename=filename)
+        return StorageDownload(redirect_url=url, filename=filename, disposition=disposition)
 
     async def exists(self, storage_key: str) -> bool:
         try:
@@ -321,8 +322,8 @@ class StorageService:
         for key in keys:
             await self.delete(key)
 
-    async def resolve_for_download(self, storage_key: str, filename: str | None = None) -> StorageDownload:
-        return await self.provider.resolve_for_download(storage_key, filename)
+    async def resolve_for_download(self, storage_key: str, filename: str | None = None, disposition: str = "attachment") -> StorageDownload:
+        return await self.provider.resolve_for_download(storage_key, filename, disposition)
 
     async def exists(self, storage_key: str) -> bool:
         return await self.provider.exists(storage_key)

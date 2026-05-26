@@ -37,6 +37,7 @@ class StoredFile:
 class StorageDownload:
     local_path: Path | None = None
     redirect_url: str | None = None
+    filename: str | None = None
 
 
 class BaseStorageProvider(ABC):
@@ -53,7 +54,7 @@ class BaseStorageProvider(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def resolve_for_download(self, storage_key: str) -> StorageDownload:
+    async def resolve_for_download(self, storage_key: str, filename: str | None = None) -> StorageDownload:
         raise NotImplementedError
 
     @abstractmethod
@@ -130,11 +131,11 @@ class LocalStorageProvider(BaseStorageProvider):
         if target.exists():
             target.unlink()
 
-    async def resolve_for_download(self, storage_key: str) -> StorageDownload:
+    async def resolve_for_download(self, storage_key: str, filename: str | None = None) -> StorageDownload:
         target = self.root / storage_key
         if not target.exists():
             raise ResourceNotFound("File not found in storage")
-        return StorageDownload(local_path=target)
+        return StorageDownload(local_path=target, filename=filename)
 
     async def exists(self, storage_key: str) -> bool:
         return (self.root / storage_key).exists()
@@ -313,8 +314,8 @@ class StorageService:
         for key in keys:
             await self.delete(key)
 
-    async def resolve_for_download(self, storage_key: str) -> StorageDownload:
-        return await self.provider.resolve_for_download(storage_key)
+    async def resolve_for_download(self, storage_key: str, filename: str | None = None) -> StorageDownload:
+        return await self.provider.resolve_for_download(storage_key, filename)
 
     async def exists(self, storage_key: str) -> bool:
         return await self.provider.exists(storage_key)

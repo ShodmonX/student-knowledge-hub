@@ -91,7 +91,7 @@ def storage_download_response(download: StorageDownload):
     if download.redirect_url:
         return RedirectResponse(download.redirect_url, status_code=307)
     if download.local_path:
-        return FileResponse(download.local_path)
+        return FileResponse(download.local_path, filename=download.filename)
     raise RuntimeError("Storage download target is not available")
 
 

@@ -388,7 +388,7 @@ class MaterialService:
         await self.session.commit()
         await self.cache.invalidate("materials:stats_summary")
         await self.cache.invalidate("materials:trending_ids")
-        return await self.storage.resolve_for_download(file_entry.storage_key)
+        return await self.storage.resolve_for_download(file_entry.storage_key, filename=file_entry.original_filename)
 
     async def prepare_preview(
         self,
@@ -405,7 +405,7 @@ class MaterialService:
             raise PermissionDenied("File is not previewable")
         if material.status == MaterialStatus.APPROVED and user is None:
             if file_entry.file_kind == FileKind.IMAGE:
-                return await self.storage.resolve_for_download(file_entry.storage_key), "full"
+                return await self.storage.resolve_for_download(file_entry.storage_key, filename=file_entry.original_filename), "full"
             if file_entry.file_ext == "pdf":
                 if not file_entry.preview_storage_key:
                     preview_storage_key, preview_page_count = await self._build_pdf_preview(
@@ -415,9 +415,9 @@ class MaterialService:
                     file_entry.preview_storage_key = preview_storage_key
                     file_entry.preview_page_count = preview_page_count
                     await self.session.commit()
-                return await self.storage.resolve_for_download(file_entry.preview_storage_key), "limited"
+                return await self.storage.resolve_for_download(file_entry.preview_storage_key, filename=f"preview_{file_entry.original_filename}"), "limited"
             raise AuthenticationError("Authentication is required to preview this file")
-        return await self.storage.resolve_for_download(file_entry.storage_key), "full"
+        return await self.storage.resolve_for_download(file_entry.storage_key, filename=file_entry.original_filename), "full"
 
     async def list_related(self, material_id: str) -> list[Material]:
         material = await self.materials.get(material_id)

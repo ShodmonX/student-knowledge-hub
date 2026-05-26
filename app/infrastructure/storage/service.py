@@ -238,23 +238,30 @@ class SpacesStorageProvider(BaseStorageProvider):
     async def delete(self, storage_key: str) -> None:
         await asyncio.to_thread(partial(self.client.delete_object, Bucket=self.bucket, Key=storage_key))
 
-    async def resolve_for_download(self, storage_key: str) -> StorageDownload:
+    async def resolve_for_download(self, storage_key: str, filename: str | None = None) -> StorageDownload:
         try:
+            params = {
+                "Bucket": self.bucket,
+                "Key": storage_key,
+            }
+            if filename:
+                import urllib.parse
+                safe_filename = urllib.parse.quote(filename)
+                params["ResponseContentDisposition"] = f"attachment; filename*=UTF-8''{safe_filename}"
+            else:
+                params["ResponseContentDisposition"] = "attachment"
+
             url = await asyncio.to_thread(
                 partial(
                     self.client.generate_presigned_url,
                     "get_object",
-                    Params={
-                        "Bucket": self.bucket,
-                        "Key": storage_key,
-                        "ResponseContentDisposition": "attachment",
-                    },
+                    Params=params,
                     ExpiresIn=self.presigned_expiry_seconds,
                 )
             )
         except (ClientError, BotoCoreError) as exc:
             raise ResourceNotFound("File not found in storage") from exc
-        return StorageDownload(redirect_url=url)
+        return StorageDownload(redirect_url=url, filename=filename)
 
     async def exists(self, storage_key: str) -> bool:
         try:

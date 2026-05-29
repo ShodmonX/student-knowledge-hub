@@ -197,3 +197,12 @@ def test_validate_signature_audio_video():
     kind, mime = validate_file_signature("mp4", b"\x00\x00\x00\x18ftypmp42", Path("dummy"))
     assert kind == FileKind.OTHER
     assert mime == "video/mp4"
+
+
+def test_validate_signature_doc():
+    with pytest.raises(ValidationAppError, match="not match DOC signature"):
+        validate_file_signature("doc", b"123", Path("dummy"))
+
+    kind, mime = validate_file_signature("doc", b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1", Path("dummy"))
+    assert kind == FileKind.DOCUMENT
+    assert mime == "application/msword"

@@ -8,7 +8,7 @@ from app.core.exceptions import ValidationAppError
 from app.modules.materials.enums import FileKind
 
 IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
-DOCUMENT_EXTENSIONS = {"pdf", "docx", "djvu", "pptx", "ppt", "xlsx", "xls", "ipynb", "txt", "epub"}
+DOCUMENT_EXTENSIONS = {"pdf", "docx", "djvu", "pptx", "ppt", "xlsx", "xls", "ipynb", "txt", "epub", "doc"}
 AUDIO_VIDEO_EXTENSIONS = {"mp3", "mp4"}
 ALLOWED_EXTENSIONS = IMAGE_EXTENSIONS | DOCUMENT_EXTENSIONS | AUDIO_VIDEO_EXTENSIONS
 PREVIEWABLE_EXTENSIONS = ALLOWED_EXTENSIONS
@@ -30,6 +30,7 @@ MIME_BY_EXTENSION = {
     "epub": "application/epub+zip",
     "mp3": "audio/mpeg",
     "mp4": "video/mp4",
+    "doc": "application/msword",
 }
 
 
@@ -100,6 +101,9 @@ def validate_file_signature(extension: str, header: bytes, stored_path: Path) ->
     elif extension == "mp4":
         if b"ftyp" not in header[4:12]:
             raise ValidationAppError("Uploaded file content does not match MP4 signature")
+    elif extension == "doc":
+        if not header.startswith(b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1"):
+            raise ValidationAppError("Uploaded file content does not match DOC signature")
 
     return detect_file_kind(extension), detect_mime_type(extension)
 

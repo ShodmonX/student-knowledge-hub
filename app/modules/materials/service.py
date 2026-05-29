@@ -403,7 +403,10 @@ class MaterialService:
             raise ResourceNotFound("Material file not found")
         if not file_entry.is_previewable:
             raise PermissionDenied("File is not previewable")
-        if material.status == MaterialStatus.APPROVED and user is None:
+        LARGE_FILE_LIMIT_BYTES = 20 * 1024 * 1024
+        is_large_pdf = file_entry.file_ext == "pdf" and file_entry.file_size > LARGE_FILE_LIMIT_BYTES
+
+        if (material.status == MaterialStatus.APPROVED and user is None) or is_large_pdf:
             if file_entry.file_kind == FileKind.IMAGE:
                 return await self.storage.resolve_for_download(file_entry.storage_key, filename=file_entry.original_filename, disposition="inline"), "full"
             if file_entry.file_ext == "pdf":

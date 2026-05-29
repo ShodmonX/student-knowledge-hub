@@ -736,7 +736,7 @@ async def test_user_service_storage_cache_utils_and_small_modules(session, tmp_p
 
     assert get_extension("file.PDF") == "pdf"
     assert detect_file_kind("png").value == "image"
-    assert detect_file_kind("txt").value == "other"
+    assert detect_file_kind("txt").value == "document"
     assert detect_mime_type("unknown") == "application/octet-stream"
 
     bad_png = tmp_path / "bad.png"

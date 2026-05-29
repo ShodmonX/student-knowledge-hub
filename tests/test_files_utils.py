@@ -87,3 +87,113 @@ def test_validate_signature_docx_valid():
         kind, mime = validate_file_signature("docx", b"PK\x03\x04", Path(tmp.name))
         assert kind == FileKind.DOCUMENT
         assert mime == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
+
+def test_validate_signature_pptx():
+    with pytest.raises(ValidationAppError, match="not match PPTX"):
+        validate_file_signature("pptx", b"123", Path("dummy"))
+
+    with tempfile.NamedTemporaryFile() as tmp:
+        with zipfile.ZipFile(tmp.name, 'w') as z:
+            z.writestr("[Content_Types].xml", b"hello")
+            z.writestr("ppt/presentation.xml", b"hello")
+        
+        kind, mime = validate_file_signature("pptx", b"PK\x03\x04", Path(tmp.name))
+        assert kind == FileKind.DOCUMENT
+        assert mime == "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+
+
+def test_validate_signature_ppt():
+    with pytest.raises(ValidationAppError, match="not match PPT signature"):
+        validate_file_signature("ppt", b"123", Path("dummy"))
+
+    kind, mime = validate_file_signature("ppt", b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1", Path("dummy"))
+    assert kind == FileKind.DOCUMENT
+    assert mime == "application/vnd.ms-powerpoint"
+
+
+def test_validate_signature_xlsx():
+    with pytest.raises(ValidationAppError, match="not match XLSX"):
+        validate_file_signature("xlsx", b"123", Path("dummy"))
+
+    with tempfile.NamedTemporaryFile() as tmp:
+        with zipfile.ZipFile(tmp.name, 'w') as z:
+            z.writestr("[Content_Types].xml", b"hello")
+            z.writestr("xl/workbook.xml", b"hello")
+        kind, mime = validate_file_signature("xlsx", b"PK\x03\x04", Path(tmp.name))
+        assert kind == FileKind.DOCUMENT
+        assert mime == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
+
+def test_validate_signature_xls():
+    with pytest.raises(ValidationAppError, match="not match XLS signature"):
+        validate_file_signature("xls", b"123", Path("dummy"))
+
+    kind, mime = validate_file_signature("xls", b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1", Path("dummy"))
+    assert kind == FileKind.DOCUMENT
+    assert mime == "application/vnd.ms-excel"
+
+
+def test_validate_signature_epub():
+    with pytest.raises(ValidationAppError, match="not match EPUB"):
+        validate_file_signature("epub", b"123", Path("dummy"))
+
+    with tempfile.NamedTemporaryFile() as tmp:
+        with zipfile.ZipFile(tmp.name, 'w') as z:
+            z.writestr("mimetype", b"application/epub+zip")
+            z.writestr("META-INF/container.xml", b"hello")
+        kind, mime = validate_file_signature("epub", b"PK\x03\x04", Path(tmp.name))
+        assert kind == FileKind.DOCUMENT
+        assert mime == "application/epub+zip"
+
+
+def test_validate_signature_ipynb():
+    with tempfile.NamedTemporaryFile() as tmp:
+        tmp.write(b"not json")
+        tmp.flush()
+        with pytest.raises(ValidationAppError, match="Invalid Jupyter Notebook"):
+            validate_file_signature("ipynb", b"", Path(tmp.name))
+
+    with tempfile.NamedTemporaryFile() as tmp:
+        tmp.write(b'{"foo": "bar"}')
+        tmp.flush()
+        with pytest.raises(ValidationAppError, match="not a valid Jupyter Notebook"):
+            validate_file_signature("ipynb", b"", Path(tmp.name))
+
+    with tempfile.NamedTemporaryFile() as tmp:
+        tmp.write(b'{"cells": [], "metadata": {}}')
+        tmp.flush()
+        kind, mime = validate_file_signature("ipynb", b"", Path(tmp.name))
+        assert kind == FileKind.DOCUMENT
+        assert mime == "application/x-ipynb+json"
+
+
+def test_validate_signature_txt():
+    with tempfile.NamedTemporaryFile() as tmp:
+        tmp.write(b"\xff\xfe\x00\x00invalid_utf8")
+        tmp.flush()
+        with pytest.raises(ValidationAppError, match="must be valid UTF-8"):
+            validate_file_signature("txt", b"", Path(tmp.name))
+
+    with tempfile.NamedTemporaryFile() as tmp:
+        tmp.write(b"hello world")
+        tmp.flush()
+        kind, mime = validate_file_signature("txt", b"", Path(tmp.name))
+        assert kind == FileKind.DOCUMENT
+        assert mime == "text/plain"
+
+
+def test_validate_signature_audio_video():
+    with pytest.raises(ValidationAppError, match="not match MP3"):
+        validate_file_signature("mp3", b"123", Path("dummy"))
+
+    kind, mime = validate_file_signature("mp3", b"ID312345", Path("dummy"))
+    assert kind == FileKind.OTHER
+    assert mime == "audio/mpeg"
+
+    with pytest.raises(ValidationAppError, match="not match MP4"):
+        validate_file_signature("mp4", b"1234567890", Path("dummy"))
+
+    kind, mime = validate_file_signature("mp4", b"\x00\x00\x00\x18ftypmp42", Path("dummy"))
+    assert kind == FileKind.OTHER
+    assert mime == "video/mp4"

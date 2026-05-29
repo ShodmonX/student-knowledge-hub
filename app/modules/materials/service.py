@@ -114,8 +114,7 @@ class MaterialService:
                         file_kind=stored.file_kind,
                         file_order=normalized_orders[index],
                         checksum_hash=stored.checksum_hash,
-                        is_previewable=stored.file_kind in {FileKind.IMAGE, FileKind.DOCUMENT}
-                        and stored.file_ext in PREVIEWABLE_EXTENSIONS,
+                        is_previewable=stored.file_ext in PREVIEWABLE_EXTENSIONS,
                         preview_storage_key=preview_storage_key,
                         preview_page_count=preview_page_count,
                     )

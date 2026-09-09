@@ -8,7 +8,7 @@ services:
       REDIS_URL: ${REDIS_URL:?REDIS_URL is required}
       APP_ENV: production
       DEBUG: "false"
-      RUN_SEED_ON_START: "true"
+      RUN_SEED_ON_START: "false"
       STORAGE_ROOT: /home/appuser/storage
       BACKUP_LOCAL_ROOT: /home/appuser/backups
     expose:

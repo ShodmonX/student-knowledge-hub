@@ -18,8 +18,6 @@ services:
       - storage_data:/home/appuser/storage
       - backups_data:/home/appuser/backups
     depends_on:
-      postgres:
-        condition: service_healthy
       redis:
         condition: service_started
     healthcheck:
@@ -34,6 +32,8 @@ services:
       timeout: 10s
       retries: 5
       start_period: 20s
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - default
       - web
@@ -55,10 +55,10 @@ services:
     volumes:
       - backups_data:/home/appuser/backups
     depends_on:
-      postgres:
-        condition: service_healthy
       redis:
         condition: service_started
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   email-worker:
     build: .
@@ -75,10 +75,10 @@ services:
     depends_on:
       api:
         condition: service_healthy
-      postgres:
-        condition: service_healthy
       redis:
         condition: service_started
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   telegram-worker:
     build: .
@@ -95,28 +95,13 @@ services:
     depends_on:
       api:
         condition: service_healthy
-      postgres:
-        condition: service_healthy
       redis:
         condition: service_started
     networks:
       - default
       - web
-  postgres:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
-      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
-    restart: unless-stopped
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-      start_period: 5s
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   redis:
     image: redis:7-alpine
@@ -126,9 +111,10 @@ services:
     restart: unless-stopped
     volumes:
       - redis_data:/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 volumes:
-  postgres_data:
   redis_data:
   storage_data:
   backups_data:
